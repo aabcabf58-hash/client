@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <title>OTP Login</title>
+  <link rel="stylesheet" href="./auth.css">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #edf0f3;
+      --background: #edf0f3;
+      --card: #f8fafc;
+      --text: #293241;
+      --muted: #6b7280;
+      --border: #cdd3db;
+      --shadow: 0 12px 32px rgba(31, 41, 55, 0.08);
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      height: auto !important;
+      overflow-x: hidden;
+      overflow-y: auto !important;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg) !important;
+      color: var(--text) !important;
+    }
+
+    main.page {
+      width: 100% !important;
+      min-height: 100vh !important;
+      height: auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      padding: 24px !important;
+      box-sizing: border-box;
+      display: grid;
+      place-items: center;
+    }
+
+    .card {
+      width: min(100%, 460px) !important;
+      max-width: 460px !important;
+      background: var(--card) !important;
+      color: var(--text) !important;
+      border: 1px solid var(--border) !important;
+      box-shadow: var(--shadow) !important;
+    }
+
+    input,
+    select,
+    textarea,
+    .input {
+      background: #f3f5f7 !important;
+      color: var(--text) !important;
+      border-color: var(--border) !important;
+    }
+
+    .button:not(.secondary) {
+      background: #4b5563 !important;
+      color: #fff !important;
+      border-color: #4b5563 !important;
+    }
+
+    .button.secondary,
+    .message,
+    .otp-number {
+      background: #e4e8ed !important;
+      color: #374151 !important;
+      border-color: var(--border) !important;
+    }
+
+    a {
+      color: #4b5563 !important;
+    }
+
+    @media (max-width: 640px) {
+      main.page {
+        padding: 16px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="card">
+      <h1>OTP Login</h1>
+      <p class="subtitle">Request a login code, then enter it below.</p>
+
+      <form id="requestForm">
+        <div class="form-group">
+          <label for="numberphone">Phone Number</label>
+          <input
+            class="input"
+            id="numberphone"
+            type="tel"
+            inputmode="numeric"
+            autocomplete="tel"
+            placeholder="70123456"
+            required
+          >
+        </div>
+
+        <button class="button" id="requestButton" type="submit">
+          Send OTP
+        </button>
+      </form>
+
+      <form class="hidden" id="verifyForm">
+        <div class="otp-number" id="selectedNumber"></div>
+
+        <div class="form-group">
+          <label for="otp">OTP Code</label>
+          <input
+            class="input"
+            id="otp"
+            type="text"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            placeholder="Enter OTP"
+            required
+          >
+        </div>
+
+        <button class="button" id="verifyButton" type="submit">
+          Verify and Login
+        </button>
+
+        <button class="button secondary" id="changeNumberButton" type="button">
+          Change Number
+        </button>
+      </form>
+
+      <div class="message" id="message"></div>
+
+      <div class="links">
+        <a href="./login.html">Password Login</a>
+        <a href="./register.html">Create Account</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE_URL =
+      "https://abdd-production.up.railway.app";
+
+    const requestForm =
+      document.getElementById("requestForm");
+
+    const verifyForm =
+      document.getElementById("verifyForm");
+
+    const numberphoneInput =
+      document.getElementById("numberphone");
+
+    const otpInput =
+      document.getElementById("otp");
+
+    const requestButton =
+      document.getElementById("requestButton");
+
+    const verifyButton =
+      document.getElementById("verifyButton");
+
+    const changeNumberButton =
+      document.getElementById("changeNumberButton");
+
+    const selectedNumber =
+      document.getElementById("selectedNumber");
+
+    const messageElement =
+      document.getElementById("message");
+
+    let pendingNumberphone = "";
+
+    function normalizeNumberphone(value) {
+      return String(value ?? "")
+        .trim()
+        .replace(/\s+/g, "")
+        .replace(/-/g, "");
+    }
+
+    function showMessage(message, type) {
+      messageElement.textContent = message;
+      messageElement.className = `message ${type}`;
+    }
+
+    function clearMessage() {
+      messageElement.textContent = "";
+      messageElement.className = "message";
+    }
+
+    function showVerifyStep(numberphone) {
+      pendingNumberphone = numberphone;
+      selectedNumber.textContent =
+        `OTP sent to ${numberphone}`;
+
+      requestForm.classList.add("hidden");
+      verifyForm.classList.remove("hidden");
+      otpInput.focus();
+    }
+
+    function showRequestStep() {
+      pendingNumberphone = "";
+      otpInput.value = "";
+      verifyForm.classList.add("hidden");
+      requestForm.classList.remove("hidden");
+      numberphoneInput.focus();
+      clearMessage();
+    }
+
+    requestForm.addEventListener(
+      "submit",
+      async function (event) {
+        event.preventDefault();
+        clearMessage();
+
+        const numberphone =
+          normalizeNumberphone(numberphoneInput.value);
+
+        if (!numberphone) {
+          showMessage(
+            "Phone number is required",
+            "error"
+          );
+          return;
+        }
+
+        requestButton.disabled = true;
+        requestButton.textContent = "Sending...";
+
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/auth/login/request-otp`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                numberphone,
+              }),
+            }
+          );
+
+          const data = await response.json();
+
+          if (!response.ok || data.success === false) {
+            throw new Error(
+              data.message ||
+                "Failed to create login OTP"
+            );
+          }
+
+          showMessage(
+            data.message ||
+              "OTP created successfully",
+            "success"
+          );
+
+          showVerifyStep(numberphone);
+        } catch (error) {
+          console.error(
+            "Request login OTP error:",
+            error
+          );
+
+          showMessage(
+            error.message ||
+              "Unable to connect to server",
+            "error"
+          );
+        } finally {
+          requestButton.disabled = false;
+          requestButton.textContent = "Send OTP";
+        }
+      }
+    );
+
+    verifyForm.addEventListener(
+      "submit",
+      async function (event) {
+        event.preventDefault();
+        clearMessage();
+
+        const otp = String(otpInput.value ?? "")
+          .trim();
+
+        if (!pendingNumberphone) {
+          showRequestStep();
+          return;
+        }
+
+        if (!otp) {
+          showMessage(
+            "OTP is required",
+            "error"
+          );
+          return;
+        }
+
+        verifyButton.disabled = true;
+        verifyButton.textContent = "Verifying...";
+
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/auth/login/verify-otp`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                numberphone: pendingNumberphone,
+                otp,
+                fcm_token: null,
+              }),
+            }
+          );
+
+          const data = await response.json();
+
+          if (!response.ok || data.success === false) {
+            throw new Error(
+              data.message ||
+                "OTP verification failed"
+            );
+          }
+
+          if (!data.token) {
+            throw new Error(
+              "Token was not returned by server"
+            );
+          }
+
+          localStorage.setItem(
+            "token",
+            data.token
+          );
+
+          if (data.user) {
+            localStorage.setItem(
+              "user",
+              JSON.stringify(data.user)
+            );
+          }
+
+          window.location.href = "./home.html";
+        } catch (error) {
+          console.error(
+            "Verify login OTP error:",
+            error
+          );
+
+          showMessage(
+            error.message ||
+              "Unable to verify OTP",
+            "error"
+          );
+        } finally {
+          verifyButton.disabled = false;
+          verifyButton.textContent =
+            "Verify and Login";
+        }
+      }
+    );
+
+    changeNumberButton.addEventListener(
+      "click",
+      showRequestStep
+    );
+  </script>
+</body>
+</html>

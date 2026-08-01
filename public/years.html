@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <title>My Years</title>
+  <link rel="stylesheet" href="./site.css">
+  <style>
+    .years-toolbar {
+      display: grid;
+      grid-template-columns: minmax(220px, 1.5fr) repeat(2, minmax(150px, 0.6fr));
+      gap: 12px;
+      padding: 18px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .filter-field { display: grid; gap: 7px; }
+    .filter-label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .filter-input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 13px;
+      color: var(--text);
+      background: var(--card-soft);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      outline: none;
+      font: inherit;
+    }
+
+    .filter-input:focus {
+      border-color: #4d9cff;
+      box-shadow: 0 0 0 3px rgba(77, 156, 255, 0.13);
+    }
+
+    .custom-dates {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(140px, 1fr));
+      gap: 12px;
+      grid-column: 1 / -1;
+    }
+
+    .years-summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .summary-card,
+    .year-card,
+    .year-info-box,
+    .year-number {
+      color: var(--text);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+    }
+
+    .summary-card { padding: 15px; }
+    .summary-label,
+    .info-label {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .summary-value { margin-top: 5px; font-size: 23px; font-weight: 900; }
+
+    .years-list { display: grid; gap: 17px; }
+    .year-card { padding: 19px; box-shadow: var(--shadow); }
+    .year-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+    .year-title { margin: 0; font-size: 22px; font-weight: 900; }
+    .year-subtitle { margin-top: 5px; color: var(--muted); font-size: 12px; }
+
+    .status {
+      padding: 7px 11px;
+      border: 1px solid;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .status-created { color: #dbeafe; background: #2563eb22; border-color: #60a5fa66; }
+    .status-pending { color: #fef3c7; background: #d9770622; border-color: #f59e0b66; }
+    .status-checking { color: #e9d5ff; background: #7c3aed22; border-color: #a78bfa66; }
+    .status-complete { color: #dcfce7; background: #16a34a22; border-color: #4ade8066; }
+
+    .year-info-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .year-info-box { padding: 12px; background: var(--card-soft); border-radius: 13px; }
+    .info-value { margin-top: 5px; overflow-wrap: anywhere; font-size: 15px; font-weight: 900; }
+
+    .numbers-title { margin: 17px 0 10px; font-size: 14px; font-weight: 900; }
+    .numbers-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .year-number { padding: 13px; background: var(--card-soft); border-radius: 14px; }
+    .numberphone {
+      margin: 5px 0 9px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 17px;
+      font-weight: 900;
+    }
+    .number-details {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .number-details strong { display: block; margin-top: 2px; color: var(--text); font-size: 13px; }
+
+    .year-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+    .year-button {
+      min-height: 43px;
+      padding: 10px 16px;
+      color: #fff;
+      background: #059669;
+      border: 0;
+      border-radius: 12px;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 900;
+    }
+    .year-button.confirm { background: #d97706; }
+    .year-button:disabled { cursor: not-allowed; opacity: 0.5; }
+
+    .confirm-area {
+      flex: 1 1 100%;
+      padding: 13px;
+      background: rgba(217, 119, 6, 0.10);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      border-radius: 14px;
+    }
+    .confirm-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.5;
+    }
+    .confirm-label input { width: 18px; height: 18px; flex: 0 0 auto; accent-color: #d97706; }
+    .confirm-area .year-button { margin-top: 10px; width: 100%; }
+
+    .year-message { margin-top: 12px; padding: 11px; border-radius: 12px; font-size: 12px; }
+    .year-message.info { color: #dbeafe; background: #2563eb22; border: 1px solid #60a5fa55; }
+    .year-message.error { color: #fee2e2; background: #dc262622; border: 1px solid #f8717155; }
+    .year-message.success { color: #dcfce7; background: #16a34a22; border: 1px solid #4ade8055; }
+    .empty-years { padding: 55px 18px; text-align: center; color: var(--muted); background: var(--card); border: 1px solid var(--border); border-radius: 18px; }
+
+    @media (max-width: 850px) {
+      .years-toolbar { grid-template-columns: 1fr 1fr; }
+      .filter-field:first-child { grid-column: 1 / -1; }
+      .years-summary, .year-info-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 580px) {
+      .years-toolbar, .custom-dates, .numbers-grid { grid-template-columns: 1fr; }
+      .filter-field:first-child, .custom-dates { grid-column: auto; }
+      .years-summary, .year-info-grid { grid-template-columns: 1fr 1fr; }
+      .year-head { align-items: stretch; }
+    }
+  </style>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #edf0f3;
+      --background: #edf0f3;
+      --card: #f8fafc;
+      --card-soft: #eef1f4;
+      --text: #293241;
+      --muted: #6b7280;
+      --border: #cdd3db;
+      --shadow: 0 12px 32px rgba(31, 41, 55, 0.08);
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      height: auto !important;
+      overflow-x: hidden;
+      overflow-y: auto !important;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg) !important;
+      color: var(--text) !important;
+    }
+
+    .page {
+      width: min(calc(100% - 32px), 1280px) !important;
+      max-width: 1280px !important;
+      min-height: 0 !important;
+      height: auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      margin: 0 auto !important;
+      padding: 24px 0 48px !important;
+      box-sizing: border-box;
+    }
+
+    .topbar {
+      min-height: 84px;
+      padding: 18px 20px !important;
+    }
+
+    .topbar h1 {
+      font-size: clamp(24px, 3vw, 32px);
+    }
+
+    .navbar {
+      min-height: 52px;
+      padding: 6px !important;
+      gap: 6px;
+    }
+
+    .nav-link {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+
+    .topbar,
+    .navbar,
+    .panel,
+    .year-card,
+    .summary-card,
+    .year-info-box,
+    .year-number,
+    .years-toolbar,
+    .years-list {
+      background: var(--card) !important;
+      color: var(--text) !important;
+      border-color: var(--border) !important;
+    }
+
+    .nav-link.active {
+      background: #dfe3e8 !important;
+      color: #1f2937 !important;
+    }
+
+    .button:not(.secondary),
+    .year-button,
+    .logout-button {
+      background: #4b5563 !important;
+      color: #fff !important;
+      border-color: #4b5563 !important;
+    }
+
+    .button.secondary,
+    .status,
+    .badge,
+    .message,
+    .year-message,
+    .count {
+      background: #e4e8ed !important;
+      color: #374151 !important;
+      border-color: var(--border) !important;
+    }
+
+    a,
+    .nav-link {
+      color: #4b5563 !important;
+    }
+
+    input,
+    select,
+    textarea,
+    .search-input,
+    .filter-input,
+    .input {
+      background: #f3f5f7 !important;
+      color: var(--text) !important;
+      border-color: var(--border) !important;
+    }
+
+    main,
+    section,
+    .panel,
+    .years-list,
+    .years-toolbar {
+      max-height: none !important;
+      overflow-y: visible !important;
+    }
+
+    .years-list {
+      width: 100% !important;
+      max-width: none !important;
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        width: calc(100% - 20px) !important;
+        padding: 12px 0 32px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="loading" class="loading">Loading your years...</div>
+
+  <main id="page" class="page hidden">
+    <header class="topbar">
+      <div>
+        <h1>My Years</h1>
+        <p>Track every requested year, balance check, final price, and refund.</p>
+      </div>
+      <div class="topbar-actions">
+        <button id="refreshButton" class="button secondary" type="button">Refresh</button>
+        <button id="logoutButton" class="button logout-button" type="button">Logout</button>
+      </div>
+    </header>
+
+    <nav class="navbar">
+      <a class="nav-link" href="./home.html">Home</a>
+      <a class="nav-link" href="./categories.html">Categories</a>
+      <a class="nav-link active" href="./years.html">Years</a>
+      <a class="nav-link" href="./activity.html">Activity</a>
+    </nav>
+
+    <div id="pageError" class="error-box hidden"></div>
+
+    <section class="years-toolbar">
+      <label class="filter-field">
+        <span class="filter-label">Search numbers</span>
+        <input id="searchInput" class="filter-input" type="search"
+          placeholder="Buyer number or any returned-to number">
+      </label>
+
+      <label class="filter-field">
+        <span class="filter-label">Status</span>
+        <select id="statusFilter" class="filter-input">
+          <option value="ALL">All statuses</option>
+          <option value="CREATED">Created</option>
+          <option value="PENDING">Pending</option>
+          <option value="CHECKING">Checking</option>
+          <option value="COMPLETE">Complete</option>
+        </select>
+      </label>
+
+      <label class="filter-field">
+        <span class="filter-label">Pending date</span>
+        <select id="dateFilter" class="filter-input">
+          <option value="ALL">All dates</option>
+          <option value="TODAY">Today</option>
+          <option value="YESTERDAY">Yesterday</option>
+          <option value="7_DAYS">Last 7 days</option>
+          <option value="30_DAYS">Last 30 days</option>
+          <option value="CUSTOM">Custom range</option>
+        </select>
+      </label>
+
+      <div id="customDates" class="custom-dates hidden">
+        <label class="filter-field">
+          <span class="filter-label">From</span>
+          <input id="dateFrom" class="filter-input" type="date">
+        </label>
+        <label class="filter-field">
+          <span class="filter-label">To</span>
+          <input id="dateTo" class="filter-input" type="date">
+        </label>
+      </div>
+    </section>
+
+    <section class="years-summary">
+      <article class="summary-card"><div class="summary-label">Visible</div><div id="visibleCount" class="summary-value">0</div></article>
+      <article class="summary-card"><div class="summary-label">Pending</div><div id="pendingCount" class="summary-value">0</div></article>
+      <article class="summary-card"><div class="summary-label">Checking</div><div id="checkingCount" class="summary-value">0</div></article>
+      <article class="summary-card"><div class="summary-label">Complete</div><div id="completeCount" class="summary-value">0</div></article>
+    </section>
+
+    <section id="yearsList" class="years-list"></section>
+  </main>
+
+  <script>
+    const API_BASE_URL = "https://abdd-production.up.railway.app";
+    const API_PATHS = {
+      GET_MY_YEARS: "/api/ushare/getMyYears",
+      CHECK_YEAR: "/api/ushare/chekyear",
+      CONFIRM_YEAR: "/api/ushare/confirmYear",
+    };
+
+    const state = { years: [] };
+    const loading = document.getElementById("loading");
+    const page = document.getElementById("page");
+    const pageError = document.getElementById("pageError");
+    const yearsList = document.getElementById("yearsList");
+    const searchInput = document.getElementById("searchInput");
+    const statusFilter = document.getElementById("statusFilter");
+    const dateFilter = document.getElementById("dateFilter");
+    const customDates = document.getElementById("customDates");
+    const dateFrom = document.getElementById("dateFrom");
+    const dateTo = document.getElementById("dateTo");
+
+    function getToken() { return localStorage.getItem("token"); }
+    function logout() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "./login.html";
+    }
+    function escapeHtml(value) {
+      return String(value ?? "").replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+    }
+    function escapeJsString(value) {
+      return String(value ?? "").replaceAll("\\", "\\\\")
+        .replaceAll("'", "\\'").replaceAll("\n", "\\n")
+        .replaceAll("\r", "\\r");
+    }
+    function toNumber(value) {
+      const number = Number(String(value ?? 0).replaceAll(",", "").trim());
+      return Number.isFinite(number) ? number : 0;
+    }
+    function money(value) {
+      return new Intl.NumberFormat("en-GB", { maximumFractionDigits: 2 })
+        .format(toNumber(value));
+    }
+    function formatDate(value) {
+      if (!value) return "—";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "—";
+      return new Intl.DateTimeFormat("en-GB", {
+        timeZone: "Asia/Beirut", year: "numeric", month: "short",
+        day: "2-digit", hour: "2-digit", minute: "2-digit",
+      }).format(date);
+    }
+    function startOfDay(date) {
+      const result = new Date(date);
+      result.setHours(0, 0, 0, 0);
+      return result;
+    }
+    function endOfDay(date) {
+      const result = new Date(date);
+      result.setHours(23, 59, 59, 999);
+      return result;
+    }
+
+    async function apiRequest(path, options = {}) {
+      const token = getToken();
+      if (!token) { logout(); throw new Error("Token not found"); }
+      const response = await fetch(`${API_BASE_URL}${path}`, {
+        method: options.method || "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          ...(options.body !== undefined ? { "Content-Type": "application/json" } : {}),
+        },
+        body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+      });
+      const text = await response.text();
+      let result = {};
+      try { result = text ? JSON.parse(text) : {}; } catch { result = { raw: text }; }
+      if (response.status === 401) { logout(); throw new Error(result.message || "Session expired"); }
+      if (!response.ok || result.success === false) {
+        throw new Error(result.message || result.error || `Server returned ${response.status}`);
+      }
+      return result;
+    }
+
+    function normalizeYear(year) {
+      return {
+        ...year,
+        id: year.id ?? year.year_id,
+        year_name: String(year.year_name ?? "-"),
+        status: String(year.status ?? "").toUpperCase(),
+        number_client: String(year.number_client ?? ""),
+        buyer_numberphone: String(year.buyer_numberphone ?? ""),
+        source_group_id: year.source_group_id ?? null,
+        pending_at: year.pending_at ?? null,
+        total_received: toNumber(year.total_received),
+        total_balance_difference: toNumber(year.total_balance_difference),
+        final_year_price: toNumber(year.final_year_price),
+        refund_amount: toNumber(year.refund_amount),
+        numbers: Array.isArray(year.numbers) ? year.numbers : [],
+      };
+    }
+
+    async function loadYears(showLoader = true) {
+      if (showLoader) {
+        loading.classList.remove("hidden");
+        page.classList.add("hidden");
+      }
+      pageError.classList.add("hidden");
+      try {
+        const result = await apiRequest(API_PATHS.GET_MY_YEARS);
+        state.years = (Array.isArray(result.data) ? result.data : [])
+          .map(normalizeYear)
+          .sort((a, b) => new Date(b.pending_at || 0) - new Date(a.pending_at || 0));
+        renderYears();
+        loading.classList.add("hidden");
+        page.classList.remove("hidden");
+      } catch (error) {
+        loading.classList.add("hidden");
+        page.classList.remove("hidden");
+        pageError.textContent = error.message || "Unable to load years";
+        pageError.classList.remove("hidden");
+      }
+    }
+
+    function isInsideDateFilter(year) {
+      const mode = dateFilter.value;
+      if (mode === "ALL") return true;
+      if (!year.pending_at) return false;
+      const pending = new Date(year.pending_at);
+      if (Number.isNaN(pending.getTime())) return false;
+      const now = new Date();
+      if (mode === "TODAY") return pending >= startOfDay(now) && pending <= endOfDay(now);
+      if (mode === "YESTERDAY") {
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        return pending >= startOfDay(yesterday) && pending <= endOfDay(yesterday);
+      }
+      if (mode === "7_DAYS" || mode === "30_DAYS") {
+        const days = mode === "7_DAYS" ? 7 : 30;
+        const from = startOfDay(now);
+        from.setDate(from.getDate() - (days - 1));
+        return pending >= from && pending <= endOfDay(now);
+      }
+      if (mode === "CUSTOM") {
+        const from = dateFrom.value ? startOfDay(new Date(`${dateFrom.value}T00:00:00`)) : null;
+        const to = dateTo.value ? endOfDay(new Date(`${dateTo.value}T00:00:00`)) : null;
+        return (!from || pending >= from) && (!to || pending <= to);
+      }
+      return true;
+    }
+
+    function getVisibleYears() {
+      const search = searchInput.value.trim().toLowerCase();
+      return state.years.filter((year) => {
+        if (statusFilter.value !== "ALL" && year.status !== statusFilter.value) return false;
+        if (!isInsideDateFilter(year)) return false;
+        if (!search) return true;
+        const searchableNumbers = [
+          year.buyer_numberphone,
+          ...year.numbers.map((entry) => entry.numberphone),
+        ].join(" ").toLowerCase();
+        return searchableNumbers.includes(search);
+      });
+    }
+
+    function renderYears() {
+      const visible = getVisibleYears();
+      document.getElementById("visibleCount").textContent = visible.length;
+      document.getElementById("pendingCount").textContent =
+        visible.filter((year) => year.status === "PENDING").length;
+      document.getElementById("checkingCount").textContent =
+        visible.filter((year) => year.status === "CHECKING").length;
+      document.getElementById("completeCount").textContent =
+        visible.filter((year) => year.status === "COMPLETE").length;
+
+      if (!visible.length) {
+        yearsList.innerHTML = '<div class="empty-years">No years match the selected filters.</div>';
+        return;
+      }
+      yearsList.innerHTML = visible.map(renderYearCard).join("");
+    }
+
+    function renderYearCard(year) {
+      const statusClass = `status-${year.status.toLowerCase()}`;
+      const numbers = year.numbers.length
+        ? year.numbers.map(renderNumber).join("")
+        : '<div class="empty-years">No numbers were returned.</div>';
+      const canCheck = year.status === "PENDING" || year.status === "CHECKING";
+      const canConfirm = year.status === "CHECKING";
+      return `
+        <article class="year-card" id="year-${escapeHtml(year.id)}">
+          <div class="year-head">
+            <div>
+              <h2 class="year-title">${escapeHtml(year.year_name)} · #${escapeHtml(year.id)}</h2>
+              <div class="year-subtitle">Pending at ${escapeHtml(formatDate(year.pending_at))}</div>
+            </div>
+            <span class="status ${statusClass}">${escapeHtml(year.status || "UNKNOWN")}</span>
+          </div>
+
+          <div class="year-info-grid">
+            ${infoBox("Buyer number", year.buyer_numberphone || "—")}
+            ${infoBox("Client number", year.number_client || "—")}
+            ${infoBox("Total received", `${money(year.total_received)}$`)}
+            ${infoBox("Total balance difference", `${money(year.total_balance_difference)}$`)}
+            ${infoBox("Final year price", `${money(year.final_year_price)} LBP`)}
+            ${infoBox("Refund amount", `${money(year.refund_amount)} LBP`)}
+            ${infoBox("Numbers count", year.numbers.length)}
+            ${infoBox("Completed at", formatDate(year.completed_at))}
+          </div>
+
+          <h3 class="numbers-title">Numbers and returned amounts</h3>
+          <div class="numbers-grid">${numbers}</div>
+
+          ${(canCheck || canConfirm) ? `
+            <div class="year-actions">
+              ${canCheck ? `
+                <button id="check-${escapeHtml(year.id)}" class="year-button"
+                  type="button" onclick="checkYear('${escapeJsString(year.id)}')">
+                  Check
+                </button>` : ""}
+
+              ${canConfirm ? `
+                <div class="confirm-area">
+                  <label class="confirm-label">
+                    <input id="confirm-checkbox-${escapeHtml(year.id)}" type="checkbox"
+                      onchange="toggleConfirm('${escapeJsString(year.id)}')">
+                    <span>I am sure that I want to confirm this year and return the calculated amount to my wallet.</span>
+                  </label>
+                  <button id="confirm-${escapeHtml(year.id)}" class="year-button confirm"
+                    type="button" onclick="confirmYear('${escapeJsString(year.id)}')" disabled>
+                    Confirm Year
+                  </button>
+                </div>` : ""}
+            </div>` : ""}
+
+          <div id="message-${escapeHtml(year.id)}" class="hidden"></div>
+        </article>
+      `;
+    }
+
+    function infoBox(label, value) {
+      return `<div class="year-info-box"><div class="info-label">${escapeHtml(label)}</div><div class="info-value">${escapeHtml(value)}</div></div>`;
+    }
+    function renderNumber(entry) {
+      return `
+        <div class="year-number">
+          <div class="info-label">Number ${escapeHtml(entry.number_index ?? "")}</div>
+          <div class="numberphone">${escapeHtml(entry.numberphone || "—")}</div>
+          <div class="number-details">
+            <div>Returned<strong>${money(entry.returned_amount)}$</strong></div>
+            <div>Before<strong>${money(entry.balance_before)}$</strong></div>
+            <div>After<strong>${money(entry.balance_after)}$</strong></div>
+            <div>Difference<strong>${money(entry.balance_difference)}$</strong></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function showMessage(yearId, message, type = "info") {
+      const box = document.getElementById(`message-${yearId}`);
+      if (!box) return;
+      box.className = `year-message ${type}`;
+      box.textContent = message;
+    }
+    function toggleConfirm(yearId) {
+      const checkbox = document.getElementById(`confirm-checkbox-${yearId}`);
+      const button = document.getElementById(`confirm-${yearId}`);
+      if (button) button.disabled = !checkbox?.checked;
+    }
+
+    async function checkYear(yearId) {
+      const year = state.years.find((entry) => String(entry.id) === String(yearId));
+      const button = document.getElementById(`check-${yearId}`);
+      if (!year || !button) return;
+      const body = { year_id: year.id, year_name: year.year_name };
+      if (year.source_group_id !== null) body.source_group_id = year.source_group_id;
+      button.disabled = true;
+      button.textContent = "Checking...";
+      showMessage(yearId, "Checking year balances...", "info");
+      try {
+        const result = await apiRequest(API_PATHS.CHECK_YEAR, { method: "POST", body });
+        showMessage(yearId, result.message || "Year checked successfully.", "success");
+        await loadYears(false);
+      } catch (error) {
+        showMessage(yearId, error.message, "error");
+        button.disabled = false;
+        button.textContent = "Check";
+      }
+    }
+
+    async function confirmYear(yearId) {
+      const year = state.years.find((entry) => String(entry.id) === String(yearId));
+      const checkbox = document.getElementById(`confirm-checkbox-${yearId}`);
+      const button = document.getElementById(`confirm-${yearId}`);
+      if (!year || year.status !== "CHECKING") return;
+      if (!checkbox?.checked) {
+        showMessage(yearId, "Tick the confirmation checkbox first.", "error");
+        return;
+      }
+      if (!window.confirm("Are you sure you want to confirm this year? This action cannot be undone.")) return;
+      button.disabled = true;
+      button.textContent = "Confirming...";
+      showMessage(yearId, "Confirming year and updating your wallet...", "info");
+      try {
+        const result = await apiRequest(API_PATHS.CONFIRM_YEAR, {
+          method: "POST",
+          body: { year_id: year.id, number_client: year.number_client },
+        });
+        showMessage(yearId, result.message || "Year confirmed successfully.", "success");
+        await loadYears(false);
+      } catch (error) {
+        showMessage(yearId, error.message, "error");
+        button.disabled = false;
+        button.textContent = "Confirm Year";
+      }
+    }
+
+    [searchInput, statusFilter, dateFrom, dateTo].forEach((element) => {
+      element.addEventListener("input", renderYears);
+      element.addEventListener("change", renderYears);
+    });
+    dateFilter.addEventListener("change", () => {
+      customDates.classList.toggle("hidden", dateFilter.value !== "CUSTOM");
+      renderYears();
+    });
+    document.getElementById("refreshButton").addEventListener("click", () => loadYears(false));
+    document.getElementById("logoutButton").addEventListener("click", logout);
+    loadYears();
+  </script>
+</body>
+</html>

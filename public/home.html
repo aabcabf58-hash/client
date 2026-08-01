@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <title>Customer Home</title>
+  <link rel="stylesheet" href="./site.css">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #edf0f3;
+      --background: #edf0f3;
+      --card: #f8fafc;
+      --card-soft: #eef1f4;
+      --text: #293241;
+      --muted: #6b7280;
+      --border: #cdd3db;
+      --shadow: 0 12px 32px rgba(31, 41, 55, 0.08);
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      height: auto !important;
+      overflow-x: hidden;
+      overflow-y: auto !important;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg) !important;
+      color: var(--text) !important;
+    }
+
+    .page {
+      width: min(calc(100% - 32px), 1280px) !important;
+      max-width: 1280px !important;
+      min-height: 0 !important;
+      height: auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      margin: 0 auto !important;
+      padding: 24px 0 48px !important;
+      box-sizing: border-box;
+    }
+
+    .topbar {
+      min-height: 84px;
+      padding: 18px 20px !important;
+    }
+
+    .topbar h1 {
+      font-size: clamp(24px, 3vw, 32px);
+    }
+
+    .navbar {
+      min-height: 52px;
+      padding: 6px !important;
+      gap: 6px;
+    }
+
+    .nav-link {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+
+    .topbar,
+    .navbar,
+    .panel,
+    .account-card,
+    .action-card,
+    .summary-card {
+      background: var(--card) !important;
+      color: var(--text) !important;
+      border-color: var(--border) !important;
+    }
+
+    .nav-link.active {
+      background: #dfe3e8 !important;
+      color: #1f2937 !important;
+    }
+
+    .button:not(.secondary),
+    .logout-button {
+      background: #4b5563 !important;
+      color: #fff !important;
+      border-color: #4b5563 !important;
+    }
+
+    .button.secondary,
+    .status,
+    .badge,
+    .message,
+    .count,
+    .action-icon {
+      background: #e4e8ed !important;
+      color: #374151 !important;
+      border-color: var(--border) !important;
+    }
+
+    a,
+    .nav-link,
+    .action-arrow {
+      color: #4b5563 !important;
+    }
+
+    input,
+    select,
+    textarea,
+    .search-input,
+    .filter-input,
+    .input {
+      background: #f3f5f7 !important;
+      color: var(--text) !important;
+      border-color: var(--border) !important;
+    }
+
+    main,
+    section,
+    .panel,
+    .actions-grid,
+    .account-grid {
+      max-height: none !important;
+      overflow-y: visible !important;
+    }
+
+    .actions-grid,
+    .account-grid {
+      width: 100% !important;
+      max-width: none !important;
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        width: calc(100% - 20px) !important;
+        padding: 12px 0 32px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="loading" class="loading">Loading account information...</div>
+
+  <main id="page" class="page hidden">
+    <header class="topbar">
+      <div>
+        <h1 id="welcomeName">Welcome</h1>
+        <p id="numberphoneText"></p>
+      </div>
+
+      <div class="topbar-actions">
+        <button id="logoutButton" class="button logout-button" type="button">
+          Logout
+        </button>
+      </div>
+    </header>
+
+    <nav class="navbar">
+      <a class="nav-link active" href="./home.html">Home</a>
+      <a class="nav-link" href="./categories.html">Categories</a>
+      <a class="nav-link" href="./years.html">Years</a>
+      <a class="nav-link" href="./activity.html">Activity</a>
+    </nav>
+
+    <section class="account-grid">
+      <article class="account-card profile-card">
+        <div class="label">Account</div>
+        <div id="accountName" class="value small-value">—</div>
+        <div id="accountRole" class="extra">—</div>
+      </article>
+
+      <article class="account-card">
+        <div class="label">Lebanese Balance</div>
+        <div id="balanceLbp" class="value">0</div>
+        <div class="extra">LBP</div>
+      </article>
+
+      <article class="account-card">
+        <div class="label">Dollar Balance</div>
+        <div id="balanceUsd" class="value">0</div>
+        <div class="extra">USD</div>
+      </article>
+    </section>
+
+    <div id="pageError" class="error-box hidden"></div>
+
+    <section id="homeContent" class="actions-grid hidden">
+      <a class="action-card" href="./categories.html">
+        <div>
+          <div class="action-icon">C</div>
+          <h2>Categories & Items</h2>
+          <p>Browse companies, services, and the available packages.</p>
+        </div>
+        <div class="action-arrow">Open Categories →</div>
+      </a>
+
+      <a class="action-card" href="./activity.html">
+        <div>
+          <div class="action-icon">A</div>
+          <h2>Account Activity</h2>
+          <p>View balance changes, credits, debits, status, and dates.</p>
+        </div>
+        <div class="action-arrow">Open Activity →</div>
+      </a>
+
+      <a class="action-card" href="./years.html">
+        <div>
+          <div class="action-icon">Y</div>
+          <h2>My Years</h2>
+          <p>
+            View requested years, returned amounts, balances,
+            final prices, and refunds.
+          </p>
+        </div>
+        <div class="action-arrow">Open Years →</div>
+      </a>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE_URL =
+      "https://abdd-production.up.railway.app";
+
+    const loading = document.getElementById("loading");
+    const page = document.getElementById("page");
+    const pageError = document.getElementById("pageError");
+    const homeContent = document.getElementById("homeContent");
+    const welcomeName = document.getElementById("welcomeName");
+    const numberphoneText = document.getElementById("numberphoneText");
+    const accountName = document.getElementById("accountName");
+    const accountRole = document.getElementById("accountRole");
+    const balanceLbp = document.getElementById("balanceLbp");
+    const balanceUsd = document.getElementById("balanceUsd");
+    const logoutButton = document.getElementById("logoutButton");
+
+    function logout() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "./login.html";
+    }
+
+    function formatNumber(value) {
+      const number = Number(value);
+
+      if (!Number.isFinite(number)) {
+        return "0";
+      }
+
+      return new Intl.NumberFormat("en-GB", {
+        maximumFractionDigits: 2,
+      }).format(number);
+    }
+
+    async function getInfoUser() {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        logout();
+        return null;
+      }
+
+      const response = await fetch(
+        `${API_BASE_URL}/auth/getInfoUser`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.status === 401 || response.status === 403) {
+        logout();
+        return null;
+      }
+
+      if (!response.ok || !result.user) {
+        throw new Error(
+          result.message || "Failed to get user information"
+        );
+      }
+
+      return result.user;
+    }
+
+    function renderUser(user) {
+      const name = user.name_user || "Customer";
+
+      welcomeName.textContent = `Welcome, ${name}`;
+      numberphoneText.textContent = user.numberphone || "";
+      accountName.textContent = name;
+      accountRole.textContent = `Role: ${user.role || "client"}`;
+      balanceLbp.textContent = formatNumber(user.balance_lbp);
+      balanceUsd.textContent = formatNumber(user.balance_usd);
+
+      localStorage.setItem("user", JSON.stringify(user));
+    }
+
+    async function loadPage() {
+      try {
+        const user = await getInfoUser();
+
+        if (!user) {
+          return;
+        }
+
+        renderUser(user);
+        loading.classList.add("hidden");
+        page.classList.remove("hidden");
+        homeContent.classList.remove("hidden");
+      } catch (error) {
+        console.error("Home error:", error);
+        loading.classList.add("hidden");
+        page.classList.remove("hidden");
+        pageError.textContent =
+          error.message || "Unable to load the home page";
+        pageError.classList.remove("hidden");
+      }
+    }
+
+    logoutButton.addEventListener("click", logout);
+    loadPage();
+  </script>
+</body>
+</html>

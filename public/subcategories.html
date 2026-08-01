@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <title>Subcategories</title>
+  <link rel="stylesheet" href="./site.css">
+
+  <style>
+    .breadcrumb {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .breadcrumb a {
+      color: #7db5ff;
+    }
+
+    .subcategory-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      max-width: 1000px;
+      margin: 30px auto 0;
+    }
+
+    .subcategory-card {
+      min-height: 210px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 26px;
+      color: var(--text);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease;
+    }
+
+    .subcategory-card:hover {
+      transform: translateY(-5px);
+      border-color: #4d9cff;
+    }
+
+    .subcategory-image {
+      width: 90px;
+      height: 90px;
+      display: grid;
+      place-items: center;
+      object-fit: cover;
+      color: #d9ebff;
+      background: var(--card-soft);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      font-size: 34px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .subcategory-name {
+      font-size: 23px;
+      font-weight: 800;
+      text-align: center;
+      text-transform: capitalize;
+    }
+
+    .subcategory-arrow {
+      color: #7db5ff;
+      font-weight: 700;
+    }
+  </style>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #edf0f3;
+      --background: #edf0f3;
+      --card: #f8fafc;
+      --card-soft: #eef1f4;
+      --text: #293241;
+      --muted: #6b7280;
+      --border: #cdd3db;
+      --shadow: 0 12px 32px rgba(31, 41, 55, 0.08);
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      height: auto !important;
+      overflow-x: hidden;
+      overflow-y: auto !important;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg) !important;
+      color: var(--text) !important;
+    }
+
+    .page {
+      width: min(calc(100% - 32px), 1280px) !important;
+      max-width: 1280px !important;
+      min-height: 0 !important;
+      height: auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      margin: 0 auto !important;
+      padding: 24px 0 48px !important;
+      box-sizing: border-box;
+    }
+
+    .topbar {
+      min-height: 84px;
+      padding: 18px 20px !important;
+    }
+
+    .topbar h1 {
+      font-size: clamp(24px, 3vw, 32px);
+    }
+
+    .navbar {
+      min-height: 52px;
+      padding: 6px !important;
+      gap: 6px;
+    }
+
+    .nav-link {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+
+    .topbar,
+    .navbar,
+    .panel,
+    .subcategory-card,
+    .summary-card,
+    .subcategory-grid {
+      background: var(--card) !important;
+      color: var(--text) !important;
+      border-color: var(--border) !important;
+    }
+
+    .nav-link.active {
+      background: #dfe3e8 !important;
+      color: #1f2937 !important;
+    }
+
+    .button:not(.secondary),
+    .logout-button {
+      background: #4b5563 !important;
+      color: #fff !important;
+      border-color: #4b5563 !important;
+    }
+
+    .button.secondary,
+    .status,
+    .badge,
+    .message,
+    .count,
+    .subcategory-image {
+      background: #e4e8ed !important;
+      color: #374151 !important;
+      border-color: var(--border) !important;
+    }
+
+    a,
+    .nav-link,
+    .subcategory-arrow {
+      color: #4b5563 !important;
+    }
+
+    input,
+    select,
+    textarea,
+    .search-input,
+    .filter-input,
+    .input {
+      background: #f3f5f7 !important;
+      color: var(--text) !important;
+      border-color: var(--border) !important;
+    }
+
+    main,
+    section,
+    .panel,
+    .subcategory-grid {
+      max-height: none !important;
+      overflow-y: visible !important;
+    }
+
+    .subcategory-grid {
+      width: 100% !important;
+      max-width: none !important;
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        width: calc(100% - 20px) !important;
+        padding: 12px 0 32px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="loading" class="loading">Loading companies...</div>
+
+  <main id="page" class="page hidden">
+    <header class="topbar">
+      <div>
+        <h1 id="pageTitle">Subcategories</h1>
+        <p>Choose one to view its services.</p>
+      </div>
+
+      <div class="topbar-actions">
+        <a class="button secondary" href="./categories.html">Back</a>
+        <button id="logoutButton" class="button logout-button" type="button">
+          Logout
+        </button>
+      </div>
+    </header>
+
+    <nav class="navbar">
+      <a class="nav-link" href="./home.html">Home</a>
+      <a class="nav-link active" href="./categories.html">Categories</a>
+      <a class="nav-link" href="./years.html">Years</a>
+      <a class="nav-link" href="./activity.html">Activity</a>
+    </nav>
+
+    <div class="breadcrumb">
+      <a href="./categories.html">Categories</a>
+      <span>›</span>
+      <span id="breadcrumbCategory">Category</span>
+    </div>
+
+    <div id="pageError" class="error-box hidden"></div>
+    <section id="subcategoriesContainer" class="subcategory-grid"></section>
+  </main>
+
+  <script>
+    const API_BASE_URL =
+      "https://abdd-production.up.railway.app";
+
+    const params = new URLSearchParams(window.location.search);
+    const categoryId = params.get("category_id");
+    const categoryNameFromUrl = params.get("category_name") || "Category";
+
+    const loading = document.getElementById("loading");
+    const page = document.getElementById("page");
+    const pageTitle = document.getElementById("pageTitle");
+    const breadcrumbCategory =
+      document.getElementById("breadcrumbCategory");
+    const pageError = document.getElementById("pageError");
+    const subcategoriesContainer =
+      document.getElementById("subcategoriesContainer");
+    const logoutButton =
+      document.getElementById("logoutButton");
+
+    function getToken() {
+      return localStorage.getItem("token");
+    }
+
+    function logout() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "./login.html";
+    }
+
+    function formatName(value) {
+      return String(value ?? "")
+        .replace(/_/g, " ")
+        .trim();
+    }
+
+    function firstLetter(value) {
+      const text = formatName(value);
+      return text ? text.charAt(0).toUpperCase() : "?";
+    }
+
+    async function getCategoriesTree() {
+      const token = getToken();
+
+      if (!token) {
+        logout();
+        throw new Error("Token not found");
+      }
+
+      const response = await fetch(
+        `${API_BASE_URL}/category/getAllCategoriesTree`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      let result = {};
+
+      try {
+        result = await response.json();
+      } catch (error) {
+        console.error("Invalid JSON response:", error);
+      }
+
+      if (response.status === 401 || response.status === 403) {
+        logout();
+        throw new Error(result.message || "Session expired");
+      }
+
+      if (!response.ok || result.success === false) {
+        throw new Error(result.message || "Failed to get categories");
+      }
+
+      return Array.isArray(result.data) ? result.data : [];
+    }
+
+    function openSubcategory(category, subcategory) {
+      const nextParams = new URLSearchParams({
+        category_id: category.id,
+        category_name: category.name,
+        subcategory_id: subcategory.id,
+        subcategory_name: subcategory.name,
+      });
+
+      window.location.href =
+        `./childcategories.html?${nextParams.toString()}`;
+    }
+
+    function renderSubcategories(category) {
+      subcategoriesContainer.innerHTML = "";
+
+      const subcategories = Array.isArray(category.subcategories)
+        ? category.subcategories.filter(
+            (subcategory) => subcategory.is_active !== false
+          )
+        : [];
+
+      if (subcategories.length === 0) {
+        subcategoriesContainer.innerHTML =
+          '<div class="empty">No subcategories are available</div>';
+        return;
+      }
+
+      for (const subcategory of subcategories) {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "subcategory-card";
+
+        let image;
+
+        if (subcategory.image_url) {
+          image = document.createElement("img");
+          image.src = subcategory.image_url;
+          image.alt = formatName(subcategory.name);
+          image.className = "subcategory-image";
+        } else {
+          image = document.createElement("div");
+          image.className = "subcategory-image";
+          image.textContent = firstLetter(subcategory.name);
+        }
+
+        const name = document.createElement("div");
+        name.className = "subcategory-name";
+        name.textContent = formatName(subcategory.name);
+
+        const arrow = document.createElement("div");
+        arrow.className = "subcategory-arrow";
+        arrow.textContent = "View services →";
+
+        card.appendChild(image);
+        card.appendChild(name);
+        card.appendChild(arrow);
+        card.addEventListener(
+          "click",
+          () => openSubcategory(category, subcategory)
+        );
+
+        subcategoriesContainer.appendChild(card);
+      }
+    }
+
+    async function loadPage() {
+      if (!categoryId) {
+        window.location.href = "./categories.html";
+        return;
+      }
+
+      try {
+        const categories = await getCategoriesTree();
+        const category = categories.find(
+          (item) => String(item.id) === String(categoryId)
+        );
+
+        if (!category || category.is_active === false) {
+          throw new Error("The selected category was not found");
+        }
+
+        const categoryName = formatName(
+          category.name || categoryNameFromUrl
+        );
+
+        pageTitle.textContent = categoryName;
+        breadcrumbCategory.textContent = categoryName;
+        renderSubcategories(category);
+
+        loading.classList.add("hidden");
+        page.classList.remove("hidden");
+      } catch (error) {
+        console.error("Subcategories error:", error);
+        loading.classList.add("hidden");
+        page.classList.remove("hidden");
+        pageError.textContent =
+          error.message || "Unable to load subcategories";
+        pageError.classList.remove("hidden");
+      }
+    }
+
+    logoutButton.addEventListener("click", logout);
+    loadPage();
+  </script>
+</body>
+</html>

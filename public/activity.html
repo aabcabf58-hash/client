@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <title>Account Activity</title>
+  <link rel="stylesheet" href="./site.css">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #edf0f3;
+      --background: #edf0f3;
+      --card: #f8fafc;
+      --card-soft: #eef1f4;
+      --text: #293241;
+      --muted: #6b7280;
+      --border: #cdd3db;
+      --shadow: 0 12px 32px rgba(31, 41, 55, 0.08);
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      height: auto !important;
+      overflow-x: hidden;
+      overflow-y: auto !important;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg) !important;
+      color: var(--text) !important;
+    }
+
+    .page {
+      width: min(calc(100% - 32px), 1280px) !important;
+      max-width: 1280px !important;
+      min-height: 0 !important;
+      height: auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      margin: 0 auto !important;
+      padding: 24px 0 48px !important;
+      box-sizing: border-box;
+    }
+
+    .topbar {
+      min-height: 84px;
+      padding: 18px 20px !important;
+    }
+
+    .topbar h1 {
+      font-size: clamp(24px, 3vw, 32px);
+    }
+
+    .navbar {
+      min-height: 52px;
+      padding: 6px !important;
+      gap: 6px;
+    }
+
+    .nav-link {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+
+    .topbar,
+    .navbar,
+    .panel,
+    .activity-card,
+    .activity-item,
+    .summary-card,
+    .filters {
+      background: var(--card) !important;
+      color: var(--text) !important;
+      border-color: var(--border) !important;
+    }
+
+    .nav-link.active,
+    .filter-button.active {
+      background: #dfe3e8 !important;
+      color: #1f2937 !important;
+    }
+
+    .button:not(.secondary),
+    .logout-button {
+      background: #4b5563 !important;
+      color: #fff !important;
+      border-color: #4b5563 !important;
+    }
+
+    .button.secondary,
+    .filter-button,
+    .status,
+    .badge,
+    .message,
+    .count {
+      background: #e4e8ed !important;
+      color: #374151 !important;
+      border-color: var(--border) !important;
+    }
+
+    a,
+    .nav-link {
+      color: #4b5563 !important;
+    }
+
+    input,
+    select,
+    textarea,
+    .search-input,
+    .filter-input,
+    .input {
+      background: #f3f5f7 !important;
+      color: var(--text) !important;
+      border-color: var(--border) !important;
+    }
+
+    main,
+    section,
+    .panel,
+    .activity-list,
+    .filters {
+      max-height: none !important;
+      overflow-y: visible !important;
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        width: calc(100% - 20px) !important;
+        padding: 12px 0 32px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="loading" class="loading">Loading activity...</div>
+
+  <main id="page" class="page hidden">
+    <header class="topbar">
+      <div>
+        <h1>Account Activity</h1>
+        <p>Credits, debits, balances, and transaction status.</p>
+      </div>
+
+      <div class="topbar-actions">
+        <button id="refreshButton" class="button secondary" type="button">
+          Refresh
+        </button>
+        <button id="logoutButton" class="button logout-button" type="button">
+          Logout
+        </button>
+      </div>
+    </header>
+
+    <nav class="navbar">
+      <a class="nav-link" href="./home.html">Home</a>
+      <a class="nav-link" href="./categories.html">Categories</a>
+      <a class="nav-link" href="./years.html">Years</a>
+      <a class="nav-link active" href="./activity.html">Activity</a>
+    </nav>
+
+    <section class="panel" style="padding: 20px;">
+      <div class="toolbar">
+        <div class="toolbar-group">
+          <button class="filter-button active" data-direction="ALL" type="button">
+            All
+          </button>
+          <button class="filter-button" data-direction="CREDIT" type="button">
+            Credit
+          </button>
+          <button class="filter-button" data-direction="DEBIT" type="button">
+            Debit
+          </button>
+        </div>
+
+        <input
+          id="searchInput"
+          class="search-input"
+          type="search"
+          placeholder="Search type, number, status..."
+        >
+      </div>
+
+      <div class="section-header">
+        <h2>Transactions</h2>
+        <span id="activityCount" class="count">0</span>
+      </div>
+
+      <div id="pageError" class="error-box hidden"></div>
+      <div id="activityList" class="activity-list"></div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE_URL =
+      "https://abdd-production.up.railway.app";
+
+    const state = {
+      activities: [],
+      direction: "ALL",
+      search: "",
+    };
+
+    const loading = document.getElementById("loading");
+    const page = document.getElementById("page");
+    const pageError = document.getElementById("pageError");
+    const activityList = document.getElementById("activityList");
+    const activityCount = document.getElementById("activityCount");
+    const searchInput = document.getElementById("searchInput");
+    const refreshButton = document.getElementById("refreshButton");
+    const logoutButton = document.getElementById("logoutButton");
+    const directionButtons = document.querySelectorAll("[data-direction]");
+
+    function logout() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "./login.html";
+    }
+
+    function formatNumber(value) {
+      const number = Number(value);
+
+      if (!Number.isFinite(number)) {
+        return "0";
+      }
+
+      return new Intl.NumberFormat("en-GB", {
+        maximumFractionDigits: 2,
+      }).format(number);
+    }
+
+    function formatName(value) {
+      return String(value ?? "")
+        .replace(/_/g, " ")
+        .trim();
+    }
+
+    function formatDate(value) {
+      if (!value) {
+        return "—";
+      }
+
+      const date = new Date(value);
+
+      if (Number.isNaN(date.getTime())) {
+        return String(value);
+      }
+
+      return new Intl.DateTimeFormat("en-GB", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(date);
+    }
+
+    async function getActivity() {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        logout();
+        return [];
+      }
+
+      const response = await fetch(
+        `${API_BASE_URL}/auth/getActivity`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      let result = {};
+
+      try {
+        result = await response.json();
+      } catch (error) {
+        console.error("Invalid JSON response:", error);
+      }
+
+      if (response.status === 401 || response.status === 403) {
+        logout();
+        return [];
+      }
+
+      if (!response.ok || result.success === false) {
+        throw new Error(result.message || "Failed to get activity");
+      }
+
+      return Array.isArray(result.data) ? result.data : [];
+    }
+
+    function getFilteredActivities() {
+      const search = state.search.toLowerCase();
+
+      return state.activities.filter((activity) => {
+        const direction = String(activity.direction || "").toUpperCase();
+
+        if (
+          state.direction !== "ALL" &&
+          direction !== state.direction
+        ) {
+          return false;
+        }
+
+        if (!search) {
+          return true;
+        }
+
+        const searchableText = [
+          activity.id,
+          activity.user_numberphone,
+          activity.counterparty_numberphone,
+          activity.activity_type,
+          activity.currency,
+          activity.status,
+          activity.direction,
+        ]
+          .join(" ")
+          .toLowerCase();
+
+        return searchableText.includes(search);
+      });
+    }
+
+    function createMeta(label, value) {
+      const item = document.createElement("div");
+      const strong = document.createElement("strong");
+
+      strong.textContent = `${label}: `;
+      item.appendChild(strong);
+      item.appendChild(
+        document.createTextNode(
+          value === null || value === undefined || value === ""
+            ? "—"
+            : String(value)
+        )
+      );
+
+      return item;
+    }
+
+    function renderActivities() {
+      activityList.innerHTML = "";
+      const activities = getFilteredActivities();
+      activityCount.textContent = `${activities.length} activities`;
+
+      if (activities.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "No activity found";
+        activityList.appendChild(empty);
+        return;
+      }
+
+      for (const activity of activities) {
+        const direction = String(activity.direction || "").toUpperCase();
+        const status = String(activity.status || "").toUpperCase();
+        const currency = String(activity.currency || "").toUpperCase();
+
+        const card = document.createElement("article");
+        card.className = "activity-card";
+
+        const main = document.createElement("div");
+        main.className = "activity-main";
+
+        const titleRow = document.createElement("div");
+        titleRow.className = "activity-title-row";
+
+        const title = document.createElement("h3");
+        title.className = "activity-title";
+        title.textContent =
+          formatName(activity.activity_type) || "Activity";
+
+        const directionBadge = document.createElement("span");
+        directionBadge.className =
+          `badge ${direction === "CREDIT" ? "credit" : "debit"}`;
+        directionBadge.textContent = direction || "—";
+
+        const statusBadge = document.createElement("span");
+        statusBadge.className =
+          `badge ${status === "COMPLETE" ? "success" : "pending"}`;
+        statusBadge.textContent = status || "—";
+
+        titleRow.appendChild(title);
+        titleRow.appendChild(directionBadge);
+        titleRow.appendChild(statusBadge);
+
+        const meta = document.createElement("div");
+        meta.className = "activity-meta";
+        meta.appendChild(createMeta("Activity ID", activity.id));
+        meta.appendChild(
+          createMeta("Date", formatDate(activity.created_at))
+        );
+        meta.appendChild(
+          createMeta(
+            "Other Number",
+            activity.counterparty_numberphone
+          )
+        );
+        meta.appendChild(
+          createMeta(
+            "Balance Before",
+            `${formatNumber(activity.balance_before)} ${currency}`
+          )
+        );
+        meta.appendChild(
+          createMeta(
+            "Balance After",
+            `${formatNumber(activity.balance_after)} ${currency}`
+          )
+        );
+        meta.appendChild(createMeta("Currency", currency));
+
+        main.appendChild(titleRow);
+        main.appendChild(meta);
+
+        const amountBox = document.createElement("div");
+        amountBox.className = "activity-amount-box";
+
+        const amount = document.createElement("div");
+        amount.className =
+          `activity-amount ${direction === "CREDIT" ? "credit" : "debit"}`;
+        amount.textContent =
+          `${direction === "CREDIT" ? "+" : "-"}${formatNumber(
+            Math.abs(Number(activity.amount) || 0)
+          )}`;
+
+        const currencyText = document.createElement("div");
+        currencyText.className = "extra";
+        currencyText.textContent = currency || "—";
+
+        amountBox.appendChild(amount);
+        amountBox.appendChild(currencyText);
+
+        card.appendChild(main);
+        card.appendChild(amountBox);
+        activityList.appendChild(card);
+      }
+    }
+
+    async function loadActivity() {
+      refreshButton.disabled = true;
+      pageError.classList.add("hidden");
+
+      try {
+        state.activities = await getActivity();
+        renderActivities();
+        loading.classList.add("hidden");
+        page.classList.remove("hidden");
+      } catch (error) {
+        console.error("Activity error:", error);
+        loading.classList.add("hidden");
+        page.classList.remove("hidden");
+        pageError.textContent =
+          error.message || "Unable to load activity";
+        pageError.classList.remove("hidden");
+      } finally {
+        refreshButton.disabled = false;
+      }
+    }
+
+    for (const button of directionButtons) {
+      button.addEventListener("click", function () {
+        state.direction = button.dataset.direction;
+
+        for (const currentButton of directionButtons) {
+          currentButton.classList.toggle(
+            "active",
+            currentButton === button
+          );
+        }
+
+        renderActivities();
+      });
+    }
+
+    searchInput.addEventListener("input", function () {
+      state.search = searchInput.value.trim();
+      renderActivities();
+    });
+
+    refreshButton.addEventListener("click", loadActivity);
+    logoutButton.addEventListener("click", logout);
+    loadActivity();
+  </script>
+</body>
+</html>

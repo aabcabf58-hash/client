@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Password Login</title>
+  <link rel="stylesheet" href="./auth.css">
+  <link rel="stylesheet" href="./theme.css">
+  <script src="./theme.js"></script>
+</head>
+<body>
+  <main class="page">
+    <section class="card">
+      <h1>Login</h1>
+      <p class="subtitle">Enter your phone number and password.</p>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="numberphone">Phone Number</label>
+          <input
+            class="input"
+            id="numberphone"
+            type="tel"
+            inputmode="numeric"
+            autocomplete="tel"
+            placeholder="70123456"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+
+          <div class="password-wrapper">
+            <input
+              class="input"
+              id="password"
+              type="password"
+              autocomplete="current-password"
+              placeholder="Enter your password"
+              required
+            >
+
+            <button
+              class="text-button password-toggle"
+              id="passwordToggle"
+              type="button"
+            >
+              Show
+            </button>
+          </div>
+        </div>
+
+        <button class="button" id="loginButton" type="submit">
+          Login
+        </button>
+
+        <div class="message" id="message"></div>
+      </form>
+
+      <div class="links">
+        <a href="./otp-login.html">Login with OTP</a>
+        <a href="./register.html">Create Account</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE_URL =
+      "https://abdd-production.up.railway.app";
+
+    const loginForm =
+      document.getElementById("loginForm");
+
+    const numberphoneInput =
+      document.getElementById("numberphone");
+
+    const passwordInput =
+      document.getElementById("password");
+
+    const loginButton =
+      document.getElementById("loginButton");
+
+    const passwordToggle =
+      document.getElementById("passwordToggle");
+
+    const messageElement =
+      document.getElementById("message");
+
+    function normalizeNumberphone(value) {
+      return String(value ?? "")
+        .trim()
+        .replace(/\s+/g, "")
+        .replace(/-/g, "");
+    }
+
+    function showMessage(message, type) {
+      messageElement.textContent = message;
+      messageElement.className = `message ${type}`;
+    }
+
+    function clearMessage() {
+      messageElement.textContent = "";
+      messageElement.className = "message";
+    }
+
+    function saveLoginData(token, user) {
+      localStorage.setItem("token", token);
+
+      if (user) {
+        localStorage.setItem(
+          "user",
+          JSON.stringify(user)
+        );
+      }
+    }
+
+    passwordToggle.addEventListener(
+      "click",
+      function () {
+        const isHidden =
+          passwordInput.type === "password";
+
+        passwordInput.type =
+          isHidden ? "text" : "password";
+
+        passwordToggle.textContent =
+          isHidden ? "Hide" : "Show";
+      }
+    );
+
+    loginForm.addEventListener(
+      "submit",
+      async function (event) {
+        event.preventDefault();
+        clearMessage();
+
+        const numberphone =
+          normalizeNumberphone(numberphoneInput.value);
+
+        const password = passwordInput.value;
+
+        if (!numberphone) {
+          showMessage(
+            "Phone number is required",
+            "error"
+          );
+          return;
+        }
+
+        if (!password) {
+          showMessage(
+            "Password is required",
+            "error"
+          );
+          return;
+        }
+
+        loginButton.disabled = true;
+        loginButton.textContent = "Logging in...";
+
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/auth/login/password`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                numberphone,
+                password,
+                fcm_token: null,
+              }),
+            }
+          );
+
+          const data = await response.json();
+
+          if (!response.ok || data.success === false) {
+            throw new Error(
+              data.message || "Login failed"
+            );
+          }
+
+          if (!data.token) {
+            throw new Error(
+              "Token was not returned by server"
+            );
+          }
+
+          saveLoginData(data.token, data.data);
+
+          showMessage(
+            data.message || "Login successful",
+            "success"
+          );
+
+          window.location.href = "./home.html";
+        } catch (error) {
+          console.error("Login error:", error);
+
+          showMessage(
+            error.message ||
+              "Unable to connect to server",
+            "error"
+          );
+        } finally {
+          loginButton.disabled = false;
+          loginButton.textContent = "Login";
+        }
+      }
+    );
+  </script>
+</body>
+</html>

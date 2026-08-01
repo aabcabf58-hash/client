@@ -1,0 +1,246 @@
+/* Shared light/dark theme overrides */
+html {
+  color-scheme: dark;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f3f7fc;
+  --bg-soft: #e8f0fa;
+  --card: #ffffff;
+  --card-soft: #edf3fa;
+  --border: #c8d5e5;
+  --text: #17243a;
+  --muted: #64758b;
+  --primary: #1769c2;
+  --primary-hover: #0f58a7;
+  --success: #178247;
+  --danger: #c33b3b;
+  --warning: #9a6500;
+  --shadow: 0 16px 38px rgba(35, 56, 85, 0.14);
+}
+
+body,
+.card,
+.account-card,
+.action-card,
+.panel,
+.navbar,
+.input,
+.otp-number,
+.search-input,
+.item-card,
+.activity-card,
+.category-card,
+.subcategory-card,
+.child-card,
+.service-card,
+.empty,
+.error-box,
+.category-icon,
+.subcategory-image,
+.child-image,
+.service-image,
+.item-image,
+.button,
+.filter-button,
+.nav-link,
+.theme-toggle {
+  transition:
+    background-color 0.22s ease,
+    color 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+html[data-theme="light"] body {
+  color: var(--text);
+  background:
+    radial-gradient(circle at top, #dcecff 0, var(--bg) 43%),
+    var(--bg);
+}
+
+html[data-theme="light"] .card,
+html[data-theme="light"] .account-card,
+html[data-theme="light"] .action-card,
+html[data-theme="light"] .panel,
+html[data-theme="light"] .item-card,
+html[data-theme="light"] .activity-card,
+html[data-theme="light"] .category-card,
+html[data-theme="light"] .subcategory-card,
+html[data-theme="light"] .child-card,
+html[data-theme="light"] .service-card,
+html[data-theme="light"] .empty,
+html[data-theme="light"] .error-box {
+  color: var(--text);
+  background: var(--card);
+  border-color: var(--border);
+  box-shadow: var(--shadow);
+}
+
+html[data-theme="light"] .navbar {
+  background: rgba(255, 255, 255, 0.88);
+  border-color: var(--border);
+  box-shadow: 0 8px 24px rgba(35, 56, 85, 0.08);
+}
+
+html[data-theme="light"] .nav-link,
+html[data-theme="light"] .filter-button {
+  color: #334861;
+}
+
+html[data-theme="light"] .nav-link:hover,
+html[data-theme="light"] .nav-link.active,
+html[data-theme="light"] .filter-button.active {
+  color: #ffffff;
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+html[data-theme="light"] .form-group label,
+html[data-theme="light"] .activity-meta strong {
+  color: #263a52;
+}
+
+html[data-theme="light"] .input,
+html[data-theme="light"] .otp-number,
+html[data-theme="light"] .search-input {
+  color: var(--text);
+  background: #ffffff;
+  border-color: var(--border);
+}
+
+html[data-theme="light"] .input::placeholder,
+html[data-theme="light"] .search-input::placeholder {
+  color: #8493a6;
+}
+
+html[data-theme="light"] .input:focus,
+html[data-theme="light"] .search-input:focus {
+  border-color: #438fdc;
+  box-shadow: 0 0 0 3px rgba(67, 143, 220, 0.15);
+}
+
+html[data-theme="light"] .button.secondary {
+  color: #29405a;
+  background: #e4edf7;
+  border: 1px solid #c8d5e5;
+}
+
+html[data-theme="light"] .button.secondary:hover {
+  background: #d7e4f1;
+}
+
+html[data-theme="light"] .text-button,
+html[data-theme="light"] a:not(.button):not(.nav-link):not(.action-card),
+html[data-theme="light"] .extra,
+html[data-theme="light"] .action-arrow,
+html[data-theme="light"] .category-arrow,
+html[data-theme="light"] .subcategory-arrow,
+html[data-theme="light"] .breadcrumb a,
+html[data-theme="light"] .price {
+  color: #1769c2;
+}
+
+html[data-theme="light"] .category-icon,
+html[data-theme="light"] .subcategory-image,
+html[data-theme="light"] .child-image,
+html[data-theme="light"] .service-image,
+html[data-theme="light"] .action-icon {
+  color: #23415f;
+  background: var(--card-soft);
+  border-color: var(--border);
+}
+
+html[data-theme="light"] .item-image {
+  color: #31587e;
+  background: linear-gradient(135deg, #eef5fc, #dce9f7);
+}
+
+html[data-theme="light"] .child-card.active,
+html[data-theme="light"] .service-card.active {
+  color: #173552;
+  background: #dcecff;
+  border-color: #438fdc;
+}
+
+html[data-theme="light"] .activity-amount.credit {
+  color: #08783c;
+}
+
+html[data-theme="light"] .activity-amount.debit {
+  color: #bd2f39;
+}
+
+html[data-theme="light"] .badge.success,
+html[data-theme="light"] .badge.credit {
+  color: #08733a;
+  background: #e7f7ee;
+  border-color: #a9dfbe;
+}
+
+html[data-theme="light"] .badge.debit {
+  color: #b12e38;
+  background: #fff0f1;
+  border-color: #efb7bc;
+}
+
+html[data-theme="light"] .badge.pending {
+  color: #815800;
+  background: #fff7df;
+  border-color: #ead08a;
+}
+
+html[data-theme="light"] .message.error,
+html[data-theme="light"] .error-box {
+  color: #a92d36;
+  background: #fff4f4;
+  border-color: #eeb6ba;
+}
+
+html[data-theme="light"] .message.success {
+  color: #08713a;
+  background: #eefaf3;
+  border-color: #a8dfbd;
+}
+
+.theme-toggle {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 9999;
+
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  box-shadow: var(--shadow);
+
+  font-size: 23px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  transform: translateY(-2px);
+  border-color: #4d9cff;
+}
+
+.theme-toggle:focus-visible {
+  outline: 3px solid rgba(77, 156, 255, 0.35);
+  outline-offset: 3px;
+}
+
+@media (max-width: 650px) {
+  .theme-toggle {
+    right: 14px;
+    bottom: 14px;
+    width: 48px;
+    height: 48px;
+  }
+}
