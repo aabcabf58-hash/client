@@ -213,6 +213,74 @@
       }
     }
   </style>
+  <style>
+    /* Compact folder layout: roomy on desktop, two-column browser on phones. */
+    .category-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      gap: 18px !important;
+      background: transparent !important;
+      margin-top: 24px !important;
+    }
+
+    .category-card {
+      position: relative;
+      min-height: 154px !important;
+      gap: 11px !important;
+      padding: 24px 16px 18px !important;
+      background: #f8fafc !important;
+      border-radius: 8px 18px 18px 18px !important;
+      isolation: isolate;
+    }
+
+    .category-card::before {
+      content: "";
+      position: absolute;
+      top: -11px;
+      left: -1px;
+      width: 42%;
+      height: 18px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-bottom: 0;
+      border-radius: 11px 13px 0 0;
+      z-index: -1;
+    }
+
+    .category-icon {
+      width: 54px !important;
+      height: 54px !important;
+      border-radius: 15px !important;
+      font-size: 22px !important;
+    }
+
+    .category-name { font-size: 18px !important; }
+    .category-arrow { font-size: 12px; }
+
+    @media (min-width: 1200px) {
+      .category-grid { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }
+    }
+
+    @media (max-width: 720px) {
+      .topbar { align-items: flex-start !important; }
+      .category-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 14px 10px !important;
+        margin-top: 18px !important;
+      }
+      .category-card {
+        min-height: 118px !important;
+        gap: 7px !important;
+        padding: 17px 8px 11px !important;
+      }
+      .category-icon {
+        width: 42px !important;
+        height: 42px !important;
+        font-size: 18px !important;
+      }
+      .category-name { font-size: 14px !important; }
+      .category-arrow { font-size: 10px; }
+    }
+  </style>
 </head>
 <body>
   <div id="loading" class="loading">Loading categories...</div>

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light">
-  <title>Services & Items</title>
+  <title>Year Item Details</title>
   <link rel="stylesheet" href="./site.css">
 
   <style>
@@ -504,90 +504,36 @@
     }
   </style>
   <style>
-    .child-grid {
-      grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-      gap: 16px 12px !important;
+    .details-hidden { display: none !important; }
+    .items-section { margin-top: 8px !important; }
+    .days-items-grid {
+      grid-template-columns: minmax(0, 820px) !important;
+      justify-content: center;
       background: transparent !important;
     }
+    .days-item-card { padding: 24px !important; }
+    .days-item-title { font-size: 24px !important; }
+    .days-price-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
 
-    .child-card {
-      position: relative;
-      min-height: 132px !important;
-      gap: 9px !important;
-      padding: 21px 12px 14px !important;
-      background: #f8fafc !important;
-      border-radius: 7px 16px 16px 16px !important;
-      isolation: isolate;
+    @media (max-width: 700px) {
+      .topbar {
+        min-height: auto !important;
+        align-items: flex-start !important;
+        padding: 14px !important;
+      }
+      .topbar-actions { width: 100%; }
+      .topbar-actions .button { flex: 1; }
+      .days-item-card { padding: 14px !important; border-radius: 16px !important; }
+      .days-item-title { font-size: 19px !important; }
+      .days-price-grid,
+      .year-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+      .year-numbers-grid { grid-template-columns: 1fr !important; }
+      .year-action-button { flex-basis: 100% !important; }
     }
 
-    .child-card::before {
-      content: "";
-      position: absolute;
-      top: -9px;
-      left: -1px;
-      width: 43%;
-      height: 15px;
-      background: #f8fafc;
-      border: 1px solid var(--border);
-      border-bottom: 0;
-      border-radius: 9px 11px 0 0;
-      z-index: -1;
-    }
-
-    .child-card.active {
-      background: #e2e8f0 !important;
-      border-color: #64748b !important;
-    }
-    .child-card.active::before { background: #e2e8f0; border-color: #64748b; }
-
-    .child-image {
-      width: 48px !important;
-      height: 48px !important;
-      border-radius: 13px !important;
-      font-size: 20px !important;
-    }
-    .child-name { font-size: 15px !important; }
-
-    .days-items-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-      gap: 14px !important;
-    }
-    .days-item-link {
-      min-height: 110px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 14px;
-      padding: 17px;
-      color: var(--text);
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 17px;
-      box-shadow: var(--shadow);
-      cursor: pointer;
-      text-align: left;
-      font: inherit;
-      transition: transform .18s ease, border-color .18s ease;
-    }
-    .days-item-link:hover { transform: translateY(-3px); border-color: #64748b; }
-    .days-item-link-title { font-size: 17px; font-weight: 900; text-transform: capitalize; }
-    .days-item-link-bottom { display: flex; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 12px; font-weight: 800; }
-
-    @media (max-width: 900px) {
-      .child-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
-      .days-items-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-    }
-
-    @media (max-width: 640px) {
-      .child-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 13px 9px !important; }
-      .child-card { min-height: 106px !important; padding: 15px 8px 10px !important; }
-      .child-image { width: 39px !important; height: 39px !important; font-size: 16px !important; }
-      .child-name { font-size: 13px !important; }
-      .items-section { margin-top: 24px !important; }
-      .days-items-grid { grid-template-columns: 1fr 1fr !important; gap: 9px !important; }
-      .days-item-link { min-height: 92px; padding: 12px; border-radius: 14px; }
-      .days-item-link-title { font-size: 14px; }
-      .days-item-link-bottom { font-size: 10px; }
+    @media (max-width: 390px) {
+      .days-price-grid,
+      .year-summary-grid { grid-template-columns: 1fr !important; }
     }
   </style>
 </head>
@@ -597,8 +543,8 @@
   <main id="page" class="page hidden">
     <header class="topbar">
       <div>
-        <h1 id="pageTitle">Services</h1>
-        <p>Choose a service to view its items.</p>
+        <h1 id="pageTitle">Year Item</h1>
+        <p>Review this year package, then request and confirm it.</p>
       </div>
 
       <div class="topbar-actions">
@@ -628,7 +574,7 @@
 
     <div id="pageError" class="error-box hidden"></div>
 
-    <section>
+    <section class="details-hidden">
       <div class="section-header">
         <h2>Services</h2>
         <span id="childrenCount" class="count"></span>
@@ -639,7 +585,7 @@
 
     <section class="items-section">
       <div class="section-header">
-        <h2 id="itemsTitle">Items</h2>
+        <h2 id="itemsTitle">Year Details</h2>
         <span id="itemsCount" class="count"></span>
       </div>
 
@@ -666,6 +612,10 @@
     const subcategoryId = params.get("subcategory_id");
     const subcategoryNameFromUrl =
       params.get("subcategory_name") || "Subcategory";
+    const childcategoryId = params.get("childcategory_id");
+    const childcategoryNameFromUrl =
+      params.get("childcategory_name") || "Days";
+    const itemId = params.get("item_id");
 
     const state = {
       selectedChildcategoryId: null,
@@ -986,7 +936,8 @@
     function getVisibleDaysItems(child) {
       return state.daysItems.filter(
         (item) =>
-          String(item.childcategory_id) === String(child?.id)
+          String(item.childcategory_id) === String(child?.id) &&
+          String(item.id) === String(itemId)
       );
     }
 
@@ -1137,36 +1088,69 @@
     };
 
     function renderDaysItemCard(item) {
+      const saved = yearResultsByItemId.get(String(item.id));
+
       return `
-        <button
-          class="days-item-link"
-          type="button"
-          onclick="openDaysItem('${escapeJsString(item.id)}')"
-        >
-          <span class="days-item-link-title">
-            ${escapeHtml(item.name || `Item ${item.id}`)}
-          </span>
-          <span class="days-item-link-bottom">
-            <span>Year item</span>
-            <span>Open →</span>
-          </span>
-        </button>
+        <article class="days-item-card" id="days-item-${escapeHtml(item.id)}">
+          <div class="days-item-head">
+            <div>
+              <h3 class="days-item-title">
+                ${escapeHtml(item.name || `Item ${item.id}`)}
+              </h3>
+              <div class="days-item-note">
+                Item ID ${escapeHtml(item.id)} · Sort ${escapeHtml(item.sort_order)}
+              </div>
+            </div>
+            <span class="active-badge">Active</span>
+          </div>
+
+          <div class="days-price-grid">
+            ${renderDaysInfoBox("Full card price", `${formatNumber(item.full_card_price)}$`)}
+            ${renderDaysInfoBox("Base dollar amount", `${formatNumber(item.base_dollar_amount)}$`)}
+            ${renderDaysInfoBox("Base sene", formatNumber(item.base_sene))}
+            ${renderDaysInfoBox("Balance + / $", formatNumber(item.balance_plus_price_per_dollar))}
+            ${renderDaysInfoBox("Balance - / $", formatNumber(item.balance_minus_price_per_dollar))}
+          </div>
+
+          <form
+            class="year-order-form"
+            onsubmit="submitGetYear(event, '${escapeJsString(item.id)}')"
+          >
+            <label
+              class="year-field-label"
+              for="year-input-${escapeHtml(item.id)}"
+            >
+              Client number
+            </label>
+
+            <input
+              id="year-input-${escapeHtml(item.id)}"
+              class="year-input"
+              type="text"
+              autocomplete="off"
+              placeholder="Enter client number"
+              required
+              value="${escapeHtml(saved?.inputText || "")}"
+            >
+
+            <div id="message-${escapeHtml(item.id)}" class="hidden"></div>
+
+            <div class="year-form-actions">
+              <button
+                id="get-year-button-${escapeHtml(item.id)}"
+                class="year-action-button"
+                type="submit"
+              >
+                Get Year
+              </button>
+            </div>
+          </form>
+
+          <div id="year-result-${escapeHtml(item.id)}">
+            ${saved?.year ? renderYearResult(item, saved.year) : ""}
+          </div>
+        </article>
       `;
-    }
-
-    function openDaysItem(itemId) {
-      const selectedChild = getSelectedChild();
-      const nextParams = new URLSearchParams({
-        category_id: categoryId,
-        category_name: formatName(state.currentCategory?.name || categoryNameFromUrl),
-        subcategory_id: subcategoryId,
-        subcategory_name: formatName(state.currentSubcategory?.name || subcategoryNameFromUrl),
-        childcategory_id: selectedChild?.id ?? "",
-        childcategory_name: formatName(selectedChild?.name || "Days"),
-        item_id: itemId,
-      });
-
-      window.location.href = `./days-details.html?${nextParams.toString()}`;
     }
 
     function renderDaysInfoBox(label, value) {
@@ -1945,22 +1929,24 @@
       renderItems();
     }
 
-    function buildSubcategoriesUrl() {
+    function buildChildcategoriesUrl() {
       const backParams = new URLSearchParams({
         category_id: categoryId,
         category_name: categoryNameFromUrl,
+        subcategory_id: subcategoryId,
+        subcategory_name: subcategoryNameFromUrl,
       });
 
-      return `./subcategories.html?${backParams.toString()}`;
+      return `./childcategories.html?${backParams.toString()}`;
     }
 
     async function loadPage() {
-      if (!categoryId || !subcategoryId) {
+      if (!categoryId || !subcategoryId || !childcategoryId || !itemId) {
         window.location.href = "./categories.html";
         return;
       }
 
-      const backUrl = buildSubcategoriesUrl();
+      const backUrl = buildChildcategoriesUrl();
       backButton.addEventListener("click", function () {
         window.location.href = backUrl;
       });
@@ -1996,8 +1982,7 @@
             )
           : [];
         state.packageItems = packageItems;
-        state.selectedChildcategoryId =
-          state.children[0]?.id ?? null;
+        state.selectedChildcategoryId = childcategoryId;
 
         const categoryName = formatName(
           category.name || categoryNameFromUrl
@@ -2006,7 +1991,7 @@
           subcategory.name || subcategoryNameFromUrl
         );
 
-        pageTitle.textContent = subcategoryName;
+        pageTitle.textContent = childcategoryNameFromUrl;
         categoryBackLink.textContent = categoryName;
         breadcrumbSubcategory.textContent = subcategoryName;
 
@@ -2016,7 +2001,9 @@
         loading.classList.add("hidden");
         page.classList.remove("hidden");
 
-        const daysChild = state.children.find(isDaysChild);
+        const daysChild = state.children.find(
+          (child) => String(child.id) === String(childcategoryId)
+        );
 
         if (daysChild) {
           try {
