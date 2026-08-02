@@ -188,14 +188,14 @@
   <style>
     :root {
       color-scheme: light;
-      --bg: #edf0f3;
-      --background: #edf0f3;
-      --card: #f8fafc;
-      --card-soft: #eef1f4;
-      --text: #293241;
-      --muted: #6b7280;
-      --border: #cdd3db;
-      --shadow: 0 12px 32px rgba(31, 41, 55, 0.08);
+      --bg: #fff7f0;
+      --background: #fff7f0;
+      --card: #ffffff;
+      --card-soft: #fff0e3;
+      --text: #2d1b12;
+      --muted: #806354;
+      --border: #edc7ae;
+      --shadow: 0 12px 32px rgba(127, 44, 0, 0.10);
     }
 
     html,
@@ -262,16 +262,16 @@
     }
 
     .nav-link.active {
-      background: #dfe3e8 !important;
-      color: #1f2937 !important;
+      background: #ffe1cc !important;
+      color: #7f2c00 !important;
     }
 
     .button:not(.secondary),
     .year-button,
     .logout-button {
-      background: #4b5563 !important;
+      background: #a63a00 !important;
       color: #fff !important;
-      border-color: #4b5563 !important;
+      border-color: #a63a00 !important;
     }
 
     .button.secondary,
@@ -280,14 +280,14 @@
     .message,
     .year-message,
     .count {
-      background: #e4e8ed !important;
-      color: #374151 !important;
+      background: #fff0e3 !important;
+      color: #7f2c00 !important;
       border-color: var(--border) !important;
     }
 
     a,
     .nav-link {
-      color: #4b5563 !important;
+      color: #a63a00 !important;
     }
 
     input,
@@ -296,7 +296,7 @@
     .search-input,
     .filter-input,
     .input {
-      background: #f3f5f7 !important;
+      background: #fffaf6 !important;
       color: var(--text) !important;
       border-color: var(--border) !important;
     }
@@ -333,17 +333,11 @@
         <p>Track every requested year, balance check, final price, and refund.</p>
       </div>
       <div class="topbar-actions">
+        <a class="button secondary" href="./home.html" title="Home" aria-label="Home">🏠</a>
         <button id="refreshButton" class="button secondary" type="button">Refresh</button>
         <button id="logoutButton" class="button logout-button" type="button">Logout</button>
       </div>
     </header>
-
-    <nav class="navbar">
-      <a class="nav-link" href="./home.html">Home</a>
-      <a class="nav-link" href="./categories.html">Categories</a>
-      <a class="nav-link active" href="./years.html">Years</a>
-      <a class="nav-link" href="./activity.html">Activity</a>
-    </nav>
 
     <div id="pageError" class="error-box hidden"></div>
 

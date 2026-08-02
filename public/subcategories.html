@@ -19,7 +19,7 @@
     }
 
     .breadcrumb a {
-      color: #7db5ff;
+      color: #a63a00;
     }
 
     .subcategory-grid {
@@ -49,7 +49,7 @@
 
     .subcategory-card:hover {
       transform: translateY(-5px);
-      border-color: #4d9cff;
+      border-color: #a63a00;
     }
 
     .subcategory-image {
@@ -58,7 +58,7 @@
       display: grid;
       place-items: center;
       object-fit: cover;
-      color: #d9ebff;
+      color: #7f2c00;
       background: var(--card-soft);
       border: 1px solid var(--border);
       border-radius: 24px;
@@ -75,21 +75,21 @@
     }
 
     .subcategory-arrow {
-      color: #7db5ff;
+      color: #a63a00;
       font-weight: 700;
     }
   </style>
   <style>
     :root {
       color-scheme: light;
-      --bg: #edf0f3;
-      --background: #edf0f3;
-      --card: #f8fafc;
-      --card-soft: #eef1f4;
-      --text: #293241;
-      --muted: #6b7280;
-      --border: #cdd3db;
-      --shadow: 0 12px 32px rgba(31, 41, 55, 0.08);
+      --bg: #fff7f0;
+      --background: #fff7f0;
+      --card: #ffffff;
+      --card-soft: #fff0e3;
+      --text: #2d1b12;
+      --muted: #806354;
+      --border: #edc7ae;
+      --shadow: 0 12px 32px rgba(127, 44, 0, 0.10);
     }
 
     html,
@@ -153,15 +153,15 @@
     }
 
     .nav-link.active {
-      background: #dfe3e8 !important;
-      color: #1f2937 !important;
+      background: #ffe1cc !important;
+      color: #7f2c00 !important;
     }
 
     .button:not(.secondary),
     .logout-button {
-      background: #4b5563 !important;
+      background: #a63a00 !important;
       color: #fff !important;
-      border-color: #4b5563 !important;
+      border-color: #a63a00 !important;
     }
 
     .button.secondary,
@@ -170,15 +170,15 @@
     .message,
     .count,
     .subcategory-image {
-      background: #e4e8ed !important;
-      color: #374151 !important;
+      background: #fff0e3 !important;
+      color: #7f2c00 !important;
       border-color: var(--border) !important;
     }
 
     a,
     .nav-link,
     .subcategory-arrow {
-      color: #4b5563 !important;
+      color: #a63a00 !important;
     }
 
     input,
@@ -187,7 +187,7 @@
     .search-input,
     .filter-input,
     .input {
-      background: #f3f5f7 !important;
+      background: #fffaf6 !important;
       color: var(--text) !important;
       border-color: var(--border) !important;
     }
@@ -225,7 +225,7 @@
       min-height: 154px !important;
       gap: 11px !important;
       padding: 24px 16px 18px !important;
-      background: #f8fafc !important;
+      background: #ffffff !important;
       border-radius: 8px 18px 18px 18px !important;
       isolation: isolate;
     }
@@ -237,7 +237,7 @@
       left: -1px;
       width: 42%;
       height: 18px;
-      background: #f8fafc;
+      background: #ffffff;
       border: 1px solid var(--border);
       border-bottom: 0;
       border-radius: 11px 13px 0 0;
@@ -290,22 +290,15 @@
       </div>
 
       <div class="topbar-actions">
-        <a class="button secondary" href="./categories.html">Back</a>
+        <a class="button secondary" href="./home.html">Back</a>
         <button id="logoutButton" class="button logout-button" type="button">
           Logout
         </button>
       </div>
     </header>
 
-    <nav class="navbar">
-      <a class="nav-link" href="./home.html">Home</a>
-      <a class="nav-link active" href="./categories.html">Categories</a>
-      <a class="nav-link" href="./years.html">Years</a>
-      <a class="nav-link" href="./activity.html">Activity</a>
-    </nav>
-
     <div class="breadcrumb">
-      <a href="./categories.html">Categories</a>
+      <a href="./home.html">Categories</a>
       <span>›</span>
       <span id="breadcrumbCategory">Category</span>
     </div>
@@ -459,7 +452,7 @@
 
     async function loadPage() {
       if (!categoryId) {
-        window.location.href = "./categories.html";
+        window.location.href = "./home.html";
         return;
       }
 

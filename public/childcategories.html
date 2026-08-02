@@ -19,7 +19,7 @@
     }
 
     .breadcrumb a {
-      color: #7db5ff;
+      color: #a63a00;
     }
 
     .child-grid {
@@ -46,12 +46,12 @@
 
     .child-card:hover {
       transform: translateY(-3px);
-      border-color: #4d9cff;
+      border-color: #a63a00;
     }
 
     .child-card.active {
-      background: #173d68;
-      border-color: #5ca8ff;
+      background: #ffe1cc;
+      border-color: #a63a00;
     }
 
     .child-image {
@@ -60,7 +60,7 @@
       display: grid;
       place-items: center;
       object-fit: cover;
-      color: #d9ebff;
+      color: #7f2c00;
       background: var(--card-soft);
       border: 1px solid var(--border);
       border-radius: 20px;
@@ -206,7 +206,7 @@
     }
 
     .year-input:focus {
-      border-color: #4d9cff;
+      border-color: #a63a00;
       box-shadow: 0 0 0 3px rgba(77, 156, 255, 0.13);
     }
 
@@ -223,7 +223,7 @@
       min-height: 44px;
       padding: 11px 15px;
       color: #fff;
-      background: #2563eb;
+      background: #a63a00;
       border: 0;
       border-radius: 13px;
       cursor: pointer;
@@ -358,14 +358,14 @@
   <style>
     :root {
       color-scheme: light;
-      --bg: #edf0f3;
-      --background: #edf0f3;
-      --card: #f8fafc;
-      --card-soft: #eef1f4;
-      --text: #293241;
-      --muted: #6b7280;
-      --border: #cdd3db;
-      --shadow: 0 12px 32px rgba(31, 41, 55, 0.08);
+      --bg: #fff7f0;
+      --background: #fff7f0;
+      --card: #ffffff;
+      --card-soft: #fff0e3;
+      --text: #2d1b12;
+      --muted: #806354;
+      --border: #edc7ae;
+      --shadow: 0 12px 32px rgba(127, 44, 0, 0.10);
     }
 
     html,
@@ -436,16 +436,16 @@
     .nav-link.active,
     .item-type-button.active,
     .filter-button.active {
-      background: #dfe3e8 !important;
-      color: #1f2937 !important;
+      background: #ffe1cc !important;
+      color: #7f2c00 !important;
     }
 
     .button:not(.secondary),
     .logout-button,
     .save-button {
-      background: #4b5563 !important;
+      background: #a63a00 !important;
       color: #fff !important;
-      border-color: #4b5563 !important;
+      border-color: #a63a00 !important;
     }
 
     .button.secondary,
@@ -456,8 +456,8 @@
     .message,
     .item-message,
     .count {
-      background: #e4e8ed !important;
-      color: #374151 !important;
+      background: #fff0e3 !important;
+      color: #7f2c00 !important;
       border-color: var(--border) !important;
     }
 
@@ -465,7 +465,7 @@
     .nav-link,
     .child-arrow,
     .item-arrow {
-      color: #4b5563 !important;
+      color: #a63a00 !important;
     }
 
     input,
@@ -474,7 +474,7 @@
     .search-input,
     .filter-input,
     .input {
-      background: #f3f5f7 !important;
+      background: #fffaf6 !important;
       color: var(--text) !important;
       border-color: var(--border) !important;
     }
@@ -523,7 +523,7 @@
       min-height: 84px !important;
       gap: 6px !important;
       padding: 13px 8px 9px !important;
-      background: #f8fafc !important;
+      background: #ffffff !important;
       border-radius: 7px 14px 14px 14px !important;
       isolation: isolate;
       scroll-snap-align: start;
@@ -536,7 +536,7 @@
       left: -1px;
       width: 43%;
       height: 15px;
-      background: #f8fafc;
+      background: #ffffff;
       border: 1px solid var(--border);
       border-bottom: 0;
       border-radius: 9px 11px 0 0;
@@ -544,10 +544,10 @@
     }
 
     .child-card.active {
-      background: #e2e8f0 !important;
-      border-color: #64748b !important;
+      background: #ffe1cc !important;
+      border-color: #a63a00 !important;
     }
-    .child-card.active::before { background: #e2e8f0; border-color: #64748b; }
+    .child-card.active::before { background: #ffe1cc; border-color: #a63a00; }
 
     .child-image {
       width: 34px !important;
@@ -578,7 +578,7 @@
       font: inherit;
       transition: transform .18s ease, border-color .18s ease;
     }
-    .days-item-link:hover { transform: translateY(-3px); border-color: #64748b; }
+    .days-item-link:hover { transform: translateY(-3px); border-color: #a63a00; }
     .days-item-link-title { font-size: 17px; font-weight: 900; text-transform: capitalize; }
     .days-item-link-bottom { display: flex; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 12px; font-weight: 800; }
 
@@ -666,8 +666,8 @@
     }
 
     .child-card.active {
-      color: #087b4b !important;
-      background: #eaf7f1 !important;
+      color: #7f2c00 !important;
+      background: #ffe1cc !important;
       border: 0 !important;
     }
 
@@ -678,7 +678,7 @@
       bottom: 4px;
       width: 20px;
       height: 2px;
-      background: #00a467;
+      background: #a63a00;
       border-radius: 999px;
       transform: translateX(-50%);
     }
@@ -817,6 +817,7 @@
       </div>
 
       <div class="topbar-actions">
+        <a class="button secondary" href="./home.html" title="Home" aria-label="Home">🏠</a>
         <button id="backButton" class="button secondary" type="button">
           Back
         </button>
@@ -826,17 +827,10 @@
       </div>
     </header>
 
-    <nav class="navbar">
-      <a class="nav-link" href="./home.html">Home</a>
-      <a class="nav-link active" href="./categories.html">Categories</a>
-      <a class="nav-link" href="./years.html">Years</a>
-      <a class="nav-link" href="./activity.html">Activity</a>
-    </nav>
-
     <div class="breadcrumb">
-      <a href="./categories.html">Categories</a>
+      <a href="./home.html">Categories</a>
       <span>›</span>
-      <a id="categoryBackLink" href="./categories.html">Category</a>
+      <a id="categoryBackLink" href="./home.html">Category</a>
       <span>›</span>
       <span id="breadcrumbSubcategory">Subcategory</span>
     </div>
@@ -2176,7 +2170,7 @@
 
     async function loadPage() {
       if (!categoryId || !subcategoryId) {
-        window.location.href = "./categories.html";
+        window.location.href = "./home.html";
         return;
       }
 

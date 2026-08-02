@@ -1,12 +1,13 @@
 :root {
-  --bg: #07111f;
-  --card: #10213a;
-  --card-soft: #142945;
-  --border: #29476c;
-  --text: #ffffff;
-  --muted: #9fb2ca;
-  --primary: #1976d2;
-  --primary-hover: #1565c0;
+  color-scheme: light;
+  --bg: #fff7f0;
+  --card: #ffffff;
+  --card-soft: #fff0e3;
+  --border: #edc7ae;
+  --text: #2d1b12;
+  --muted: #806354;
+  --primary: #a63a00;
+  --primary-hover: #7f2c00;
   --success: #2abe5e;
   --danger: #ff4747;
   --warning: #f2b84b;
@@ -22,13 +23,13 @@ body {
   min-height: 100vh;
   font-family: Arial, sans-serif;
   background:
-    radial-gradient(circle at top, #102b4c 0, var(--bg) 42%),
+    radial-gradient(circle at top, #ffe1cc 0, var(--bg) 42%),
     var(--bg);
   color: var(--text);
 }
 
 a {
-  color: #7db5ff;
+  color: var(--primary);
   text-decoration: none;
 }
 
@@ -47,10 +48,10 @@ a:hover {
   width: 100%;
   max-width: 440px;
   padding: 32px;
-  background: rgba(16, 33, 58, 0.96);
+  background: rgba(255, 255, 255, 0.96);
   border: 1px solid var(--border);
   border-radius: 20px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.38);
+  box-shadow: 0 24px 60px rgba(127, 44, 0, 0.14);
 }
 
 .card h1 {
@@ -73,7 +74,7 @@ a:hover {
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #d9e5f3;
+  color: #5f4436;
   font-size: 14px;
 }
 
@@ -82,7 +83,7 @@ a:hover {
   height: 50px;
   padding: 0 14px;
   color: var(--text);
-  background: #0a192d;
+  background: #fffaf6;
   border: 1px solid var(--border);
   border-radius: 11px;
   font-size: 16px;
@@ -90,8 +91,8 @@ a:hover {
 }
 
 .input:focus {
-  border-color: #4d9cff;
-  box-shadow: 0 0 0 3px rgba(77, 156, 255, 0.14);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(166, 58, 0, 0.14);
 }
 
 .password-wrapper {
@@ -105,7 +106,7 @@ a:hover {
 .text-button {
   border: none;
   background: transparent;
-  color: #7db5ff;
+  color: var(--primary);
   cursor: pointer;
   font-size: 14px;
 }
@@ -141,12 +142,12 @@ a:hover {
 
 .button.secondary {
   margin-top: 10px;
-  color: #d7e6f8;
-  background: #233d5f;
+  color: var(--primary-hover);
+  background: #ffe1cc;
 }
 
 .button.secondary:hover {
-  background: #2a496f;
+  background: #f7c8a8;
 }
 
 .links {
@@ -191,8 +192,8 @@ a:hover {
   padding: 12px;
   border: 1px solid var(--border);
   border-radius: 10px;
-  background: #0a192d;
-  color: #d7e6f8;
+  background: #fff0e3;
+  color: var(--primary-hover);
   text-align: center;
 }
 
@@ -237,7 +238,7 @@ a:hover {
 .profile-card {
   margin-bottom: 22px;
   padding: 24px;
-  background: rgba(16, 33, 58, 0.96);
+  background: rgba(255, 255, 255, 0.96);
   border: 1px solid var(--border);
   border-radius: 18px;
 }
@@ -261,7 +262,7 @@ a:hover {
 
 .balance-card {
   padding: 25px;
-  background: rgba(16, 33, 58, 0.96);
+  background: rgba(255, 255, 255, 0.96);
   border: 1px solid var(--border);
   border-radius: 18px;
 }
@@ -281,7 +282,7 @@ a:hover {
 
 .balance-currency {
   margin-top: 8px;
-  color: #7db5ff;
+  color: var(--primary);
 }
 
 .loading {
