@@ -3,698 +3,558 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="color-scheme" content="light">
-  <title>Items</title>
-  <link rel="stylesheet" href="./site.css">
-
-  <style>
-    .breadcrumb {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-bottom: 22px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .breadcrumb a {
-      color: #a63a00;
-    }
-
-    .child-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 16px;
-    }
-
-    .child-card {
-      min-height: 175px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 13px;
-      padding: 20px;
-      color: var(--text);
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 19px;
-      cursor: pointer;
-      transition: transform 0.18s ease, border-color 0.18s ease;
-    }
-
-    .child-card:hover {
-      transform: translateY(-3px);
-      border-color: #a63a00;
-    }
-
-    .child-card.active {
-      background: #ffe1cc;
-      border-color: #a63a00;
-    }
-
-    .child-image {
-      width: 76px;
-      height: 76px;
-      display: grid;
-      place-items: center;
-      object-fit: cover;
-      color: #7f2c00;
-      background: var(--card-soft);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      font-size: 30px;
-      font-weight: 800;
-      text-transform: uppercase;
-    }
-
-    .child-name {
-      font-size: 18px;
-      font-weight: 800;
-      text-align: center;
-      text-transform: capitalize;
-    }
-
-    .items-section {
-      margin-top: 34px;
-    }
-
-
-    /* Days special service */
-    .days-items-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
-      gap: 18px;
-    }
-
-    .days-item-card {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      padding: 20px;
-      color: var(--text);
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      box-shadow: var(--shadow);
-    }
-
-    .days-item-head,
-    .days-toolbar,
-    .recharge-card-head {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .days-toolbar {
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .days-item-title {
-      margin: 0;
-      font-size: 22px;
-      font-weight: 900;
-      text-transform: capitalize;
-    }
-
-    .days-item-note {
-      margin-top: 5px;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .active-badge {
-      padding: 6px 10px;
-      color: #d8ffe8;
-      background: rgba(34, 197, 94, 0.16);
-      border: 1px solid rgba(34, 197, 94, 0.4);
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 800;
-      text-transform: uppercase;
-    }
-
-    .days-price-grid,
-    .year-summary-grid,
-    .year-numbers-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .days-price-box,
-    .year-summary-box,
-    .year-number-box {
-      padding: 12px;
-      background: var(--card-soft);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-    }
-
-    .days-label {
-      color: var(--muted);
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .days-value {
-      margin-top: 5px;
-      overflow-wrap: anywhere;
-      font-size: 16px;
-      font-weight: 900;
-    }
-
-    .year-number-value {
-      margin-top: 5px;
-      overflow-wrap: anywhere;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 15px;
-      font-weight: 900;
-    }
-
-    .year-order-form {
-      padding-top: 15px;
-      border-top: 1px solid var(--border);
-    }
-
-    .year-field-label {
-      display: block;
-      margin-bottom: 8px;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 800;
-      text-transform: uppercase;
-    }
-
-    .year-input {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 13px 14px;
-      color: var(--text);
-      background: var(--card-soft);
-      border: 1px solid var(--border);
-      border-radius: 13px;
-      outline: none;
-      font: inherit;
-    }
-
-    .year-input:focus {
-      border-color: #a63a00;
-      box-shadow: 0 0 0 3px rgba(77, 156, 255, 0.13);
-    }
-
-    .year-form-actions,
-    .year-result-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 12px;
-      flex-wrap: wrap;
-    }
-
-    .year-action-button {
-      flex: 1 1 145px;
-      min-height: 44px;
-      padding: 11px 15px;
-      color: #fff;
-      background: #a63a00;
-      border: 0;
-      border-radius: 13px;
-      cursor: pointer;
-      font: inherit;
-      font-weight: 900;
-    }
-
-    .year-action-button.check { background: #059669; }
-    .year-action-button.confirm { background: #d97706; }
-    .year-action-button.copy { background: #7c3aed; }
-    .year-action-button.secondary {
-      color: var(--text);
-      background: var(--card-soft);
-      border: 1px solid var(--border);
-    }
-    .year-action-button:disabled { cursor: not-allowed; opacity: 0.55; }
-
-    .year-result {
-      padding: 15px;
-      background: rgba(37, 99, 235, 0.08);
-      border: 1px solid rgba(77, 156, 255, 0.35);
-      border-radius: 17px;
-    }
-
-    .year-confirm-box {
-      margin-top: 14px;
-      padding: 14px;
-      background: rgba(217, 119, 6, 0.10);
-      border: 1px solid rgba(245, 158, 11, 0.42);
-      border-radius: 15px;
-    }
-
-    .year-confirm-label {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 800;
-      line-height: 1.55;
-    }
-
-    .year-confirm-label input {
-      width: 18px;
-      height: 18px;
-      flex: 0 0 auto;
-      margin-top: 1px;
-      accent-color: #d97706;
-    }
-
-    .year-confirm-warning {
-      margin-top: 8px;
-      color: #fbbf24;
-      font-size: 11px;
-      line-height: 1.5;
-    }
-
-    .year-complete-box {
-      margin-top: 14px;
-      padding: 14px;
-      color: #dcfce7;
-      background: rgba(22, 163, 74, 0.12);
-      border: 1px solid rgba(74, 222, 128, 0.35);
-      border-radius: 15px;
-    }
-
-    .year-result-title {
-      margin: 0 0 12px;
-      font-size: 17px;
-      font-weight: 900;
-    }
-
-    .recharge-card-box {
-      margin-top: 10px;
-      padding: 14px;
-      background: rgba(124, 58, 237, 0.10);
-      border: 1px solid rgba(167, 139, 250, 0.42);
-      border-radius: 15px;
-    }
-
-    .recharge-code {
-      margin-top: 10px;
-      padding: 12px;
-      overflow-wrap: anywhere;
-      color: #f3e8ff;
-      background: rgba(17, 24, 39, 0.75);
-      border: 1px dashed rgba(196, 181, 253, 0.55);
-      border-radius: 12px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 17px;
-      font-weight: 900;
-      letter-spacing: 0.04em;
-    }
-
-    .item-message {
-      margin-top: 10px;
-      padding: 12px;
-      border-radius: 13px;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .item-message.info {
-      color: #dbeafe;
-      background: rgba(37, 99, 235, 0.15);
-      border: 1px solid rgba(96, 165, 250, 0.35);
-    }
-
-    .item-message.error {
-      color: #fee2e2;
-      background: rgba(220, 38, 38, 0.12);
-      border: 1px solid rgba(248, 113, 113, 0.35);
-    }
-
-    .item-message.success {
-      color: #dcfce7;
-      background: rgba(22, 163, 74, 0.12);
-      border: 1px solid rgba(74, 222, 128, 0.35);
-    }
-
-    .empty-wide { grid-column: 1 / -1; }
-
-    @media (max-width: 640px) {
-      .days-price-grid,
-      .year-summary-grid,
-      .year-numbers-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-  </style>
+  <title>Item details</title>
   <style>
     :root {
-      color-scheme: light;
-      --bg: #fff7f0;
-      --background: #fff7f0;
-      --card: #ffffff;
-      --card-soft: #fff0e3;
-      --text: #2d1b12;
-      --muted: #806354;
-      --border: #edc7ae;
-      --shadow: 0 12px 32px rgba(127, 44, 0, 0.10);
+      --primary: #a63a00;
+      --primary-dark: #7d2b00;
+      --primary-soft: #fff0e7;
+      --background: #f7f8fa;
+      --surface: #ffffff;
+      --text: #202124;
+      --muted: #6f7378;
+      --border: #e6e8eb;
+      --success: #087b4b;
+      --success-soft: #e9f8f0;
+      --danger: #b42318;
+      --danger-soft: #fff0ef;
+      --shadow: 0 12px 32px rgba(31, 35, 40, .08);
     }
 
-    html,
-    body {
-      min-height: 100%;
-      height: auto !important;
-      overflow-x: hidden;
-      overflow-y: auto !important;
+    * {
+      box-sizing: border-box;
     }
 
     body {
       margin: 0;
-      background: var(--bg) !important;
-      color: var(--text) !important;
+      min-height: 100vh;
+      color: var(--text);
+      background: var(--background);
+      font-family: Inter, Arial, sans-serif;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .loading {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      color: var(--primary);
+      font-weight: 800;
     }
 
     .page {
-      width: min(calc(100% - 32px), 1280px) !important;
-      max-width: 1280px !important;
-      min-height: 0 !important;
-      height: auto !important;
-      max-height: none !important;
-      overflow: visible !important;
-      margin: 0 auto !important;
-      padding: 24px 0 48px !important;
-      box-sizing: border-box;
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 22px 0 48px;
     }
 
     .topbar {
-      min-height: 84px;
-      padding: 18px 20px !important;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 14px;
     }
 
     .topbar h1 {
-      font-size: clamp(24px, 3vw, 32px);
+      margin: 0 0 5px;
+      font-size: clamp(24px, 4vw, 36px);
     }
 
-    .navbar {
-      min-height: 52px;
-      padding: 6px !important;
-      gap: 6px;
+    .topbar p {
+      margin: 0;
+      color: var(--muted);
     }
 
-    .nav-link {
-      min-height: 40px;
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      min-height: 42px;
+      padding: 0 16px;
+      border: 0;
+      border-radius: 12px;
+      color: #fff;
+      background: var(--primary);
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      box-sizing: border-box;
     }
 
-    .topbar,
-    .navbar,
-    .panel,
-    .child-card,
-    .item-card,
-    .summary-card,
-    .child-grid,
-    .items-grid,
-    .item-section,
-    .item-form,
-    .statistics {
-      background: var(--card) !important;
-      color: var(--text) !important;
-      border-color: var(--border) !important;
+    .button:hover {
+      background: var(--primary-dark);
     }
 
-    .nav-link.active,
-    .item-type-button.active,
-    .filter-button.active {
-      background: #ffe1cc !important;
-      color: #7f2c00 !important;
+    .button.secondary {
+      color: var(--primary);
+      background: var(--primary-soft);
     }
 
-    .button:not(.secondary),
-    .logout-button,
-    .save-button {
-      background: #a63a00 !important;
-      color: #fff !important;
-      border-color: #a63a00 !important;
+    .button:disabled {
+      cursor: not-allowed;
+      opacity: .55;
     }
 
-    .button.secondary,
-    .filter-button,
-    .item-type-button,
-    .status,
-    .badge,
-    .message,
-    .item-message,
-    .count {
-      background: #fff0e3 !important;
-      color: #7f2c00 !important;
-      border-color: var(--border) !important;
-    }
-
-    a,
-    .nav-link,
-    .child-arrow,
-    .item-arrow {
-      color: #a63a00 !important;
-    }
-
-    input,
-    select,
-    textarea,
-    .search-input,
-    .filter-input,
-    .input {
-      background: #fffaf6 !important;
-      color: var(--text) !important;
-      border-color: var(--border) !important;
-    }
-
-    main,
-    section,
-    .panel,
-    .child-grid,
-    .items-grid,
-    .item-section,
-    .item-form {
-      max-height: none !important;
-      overflow-y: visible !important;
-    }
-
-    .child-grid,
-    .items-grid {
-      width: 100% !important;
-      max-width: none !important;
-    }
-
-    @media (max-width: 640px) {
-      .page {
-        width: calc(100% - 20px) !important;
-        padding: 12px 0 32px !important;
-      }
-    }
-  </style>
-  <style>
-    .child-grid {
-      grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-      gap: 16px 12px !important;
-      background: transparent !important;
-    }
-
-    .child-card {
-      position: relative;
-      min-height: 132px !important;
-      gap: 9px !important;
-      padding: 21px 12px 14px !important;
-      background: #ffffff !important;
-      border-radius: 7px 16px 16px 16px !important;
-      isolation: isolate;
-    }
-
-    .child-card::before {
-      content: "";
-      position: absolute;
-      top: -9px;
-      left: -1px;
-      width: 43%;
-      height: 15px;
-      background: #ffffff;
-      border: 1px solid var(--border);
-      border-bottom: 0;
-      border-radius: 9px 11px 0 0;
-      z-index: -1;
-    }
-
-    .child-card.active {
-      background: #ffe1cc !important;
-      border-color: #a63a00 !important;
-    }
-    .child-card.active::before { background: #ffe1cc; border-color: #a63a00; }
-
-    .child-image {
-      width: 48px !important;
-      height: 48px !important;
-      border-radius: 13px !important;
-      font-size: 20px !important;
-    }
-    .child-name { font-size: 15px !important; }
-
-    .days-items-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-      gap: 14px !important;
-    }
-    .days-item-link {
-      min-height: 110px;
+    .currency-toolbar {
       display: flex;
-      flex-direction: column;
+      align-items: center;
       justify-content: space-between;
       gap: 14px;
-      padding: 17px;
-      color: var(--text);
-      background: var(--card);
+      padding: 12px 14px;
+      margin-bottom: 14px;
       border: 1px solid var(--border);
-      border-radius: 17px;
-      box-shadow: var(--shadow);
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: 0 6px 20px rgba(31, 35, 40, .04);
+    }
+
+    .currency-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .currency-switch {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 12px;
+      background: #f0f1f3;
+    }
+
+    .currency-button {
+      min-width: 62px;
+      height: 36px;
+      border: 0;
+      border-radius: 9px;
+      color: var(--muted);
+      background: transparent;
+      font-weight: 900;
       cursor: pointer;
-      text-align: left;
-      font: inherit;
-      transition: transform .18s ease, border-color .18s ease;
-    }
-    .days-item-link:hover { transform: translateY(-3px); border-color: #a63a00; }
-    .days-item-link-title { font-size: 17px; font-weight: 900; text-transform: capitalize; }
-    .days-item-link-bottom { display: flex; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 12px; font-weight: 800; }
-
-    @media (max-width: 900px) {
-      .child-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
-      .days-items-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
     }
 
-    @media (max-width: 640px) {
-      .child-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 13px 9px !important; }
-      .child-card { min-height: 106px !important; padding: 15px 8px 10px !important; }
-      .child-image { width: 39px !important; height: 39px !important; font-size: 16px !important; }
-      .child-name { font-size: 13px !important; }
-      .items-section { margin-top: 24px !important; }
-      .days-items-grid { grid-template-columns: 1fr 1fr !important; gap: 9px !important; }
-      .days-item-link { min-height: 92px; padding: 12px; border-radius: 14px; }
-      .days-item-link-title { font-size: 14px; }
-      .days-item-link-bottom { font-size: 10px; }
+    .currency-button.active {
+      color: #fff;
+      background: var(--primary);
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      color: var(--muted);
+      font-size: 14px;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .breadcrumb a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 800;
+    }
+
+    .error-box,
+    .message {
+      padding: 12px 14px;
+      border-radius: 12px;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    .error-box,
+    .message.error {
+      color: var(--danger);
+      background: var(--danger-soft);
+      border: 1px solid #ffc9c4;
+    }
+
+    .message.success {
+      color: var(--success);
+      background: var(--success-soft);
+      border: 1px solid #bdebd2;
+    }
+
+    .item-card {
+      display: grid;
+      grid-template-columns: minmax(220px, 34%) 1fr;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .item-visual {
+      min-height: 330px;
+      background:
+        radial-gradient(circle at 20% 20%, #ffd7bf, transparent 42%),
+        linear-gradient(145deg, #fff3eb, #f4ded1);
+      display: grid;
+      place-items: center;
+      padding: 28px;
+    }
+
+    .item-image {
+      width: min(210px, 100%);
+      aspect-ratio: 1;
+      object-fit: contain;
+      border-radius: 22px;
+      background: #fff;
+      box-shadow: 0 10px 24px rgba(80, 35, 10, .12);
+    }
+
+    .item-placeholder {
+      display: grid;
+      place-items: center;
+      color: var(--primary);
+      font-size: 70px;
+      font-weight: 900;
+    }
+
+    .item-content {
+      padding: clamp(22px, 4vw, 40px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .item-type {
+      width: max-content;
+      margin-bottom: 10px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: var(--primary);
+      background: var(--primary-soft);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .item-name {
+      margin: 0 0 8px;
+      font-size: clamp(25px, 4vw, 38px);
+    }
+
+    .item-description {
+      margin: 0 0 18px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .facts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .fact {
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      background: #fafafa;
+    }
+
+    .fact-label {
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .fact-value {
+      font-weight: 900;
+      word-break: break-word;
+    }
+
+    .order-box {
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .order-box h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+    }
+
+    .field-label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .order-input {
+      width: 100%;
+      min-height: 48px;
+      padding: 0 14px;
+      border: 1px solid #d7dade;
+      border-radius: 12px;
+      outline: none;
+      background: #fff;
+    }
+
+    .order-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(166, 58, 0, .12);
+    }
+
+    .field-help {
+      min-height: 18px;
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .price-preview {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 12px;
+      padding: 13px 14px;
+      border-radius: 13px;
+      background: #faf5f1;
+    }
+
+    .price-preview strong {
+      color: var(--primary);
+      font-size: 18px;
+    }
+
+    .order-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .order-actions .button {
+      flex: 1;
+    }
+
+    .message {
+      margin-top: 12px;
+    }
+
+    @media (max-width: 700px) {
+      .page {
+        width: min(100% - 20px, 960px);
+        padding-top: 12px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .topbar p,
+      .topbar h1 {
+        display: none;
+      }
+
+      .topbar-actions {
+        width: 100%;
+      }
+
+      .topbar-actions .button {
+        flex: 1;
+        min-width: 70px;
+        padding: 0 10px;
+      }
+
+      .item-card {
+        grid-template-columns: 1fr;
+      }
+
+      .item-visual {
+        min-height: 190px;
+        padding: 20px;
+      }
+
+      .item-image {
+        width: 150px;
+      }
+
+      .item-content {
+        padding: 20px;
+      }
+
+      .facts {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .order-actions {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="loading" class="loading">Loading services...</div>
+  <div id="loading" class="loading">Loading item...</div>
 
   <main id="page" class="page hidden">
     <header class="topbar">
       <div>
-        <h1 id="pageTitle">Items</h1>
-        <p>Choose an item to continue.</p>
+        <h1>Item details</h1>
+        <p>Review the item and complete your order.</p>
       </div>
 
       <div class="topbar-actions">
-        <a class="button secondary" href="./home.html" title="Home" aria-label="Home">🏠</a>
-        <button id="backButton" class="button secondary" type="button">
-          Back
-        </button>
-        <button id="logoutButton" class="button logout-button" type="button">
-          Logout
-        </button>
+        <a class="button secondary" href="./home.html" aria-label="Home">🏠</a>
+        <button id="backButton" class="button secondary" type="button">Back</button>
+        <button id="logoutButton" class="button" type="button">Logout</button>
       </div>
     </header>
 
-    <div class="breadcrumb">
+    <section class="currency-toolbar" aria-label="Order currency">
+      <span class="currency-label">Selected currency</span>
+      <div class="currency-switch">
+        <button class="currency-button" data-currency="LBP" type="button">LBP</button>
+        <button class="currency-button" data-currency="USD" type="button">USD</button>
+      </div>
+    </section>
+
+    <nav class="breadcrumb">
       <a href="./home.html">Categories</a>
       <span>›</span>
-      <a id="categoryBackLink" href="./home.html">Category</a>
+      <span id="categoryCrumb">Category</span>
       <span>›</span>
-      <span id="breadcrumbSubcategory">Subcategory</span>
-    </div>
+      <span id="subcategoryCrumb">Subcategory</span>
+      <span>›</span>
+      <span id="childCrumb">Service</span>
+    </nav>
 
     <div id="pageError" class="error-box hidden"></div>
 
-    <section class="hidden">
-      <div class="section-header">
-        <h2>Services</h2>
-        <span id="childrenCount" class="count"></span>
+    <article id="itemCard" class="item-card hidden">
+      <div id="itemVisual" class="item-visual"></div>
+
+      <div class="item-content">
+        <div id="itemTypeBadge" class="item-type">ITEM</div>
+        <h2 id="itemName" class="item-name">Item</h2>
+        <p id="itemDescription" class="item-description"></p>
+
+        <div id="itemFacts" class="facts"></div>
+
+        <section id="packageOrderBox" class="order-box hidden">
+          <h2>Complete package order</h2>
+          <label class="field-label" for="targetIdentifier">Target identifier</label>
+          <input
+            id="targetIdentifier"
+            class="order-input"
+            type="text"
+            autocomplete="off"
+            placeholder="Enter phone number or target ID"
+          >
+          <p class="field-help">The price is taken securely from the server.</p>
+          <div class="order-actions">
+            <button id="packageOrderButton" class="button" type="button">
+              Create order
+            </button>
+          </div>
+          <div id="packageMessage" class="message hidden"></div>
+        </section>
+
+        <section id="counterOrderBox" class="order-box hidden">
+          <h2>Choose counter</h2>
+          <label class="field-label" for="counterInput">Counter</label>
+          <input
+            id="counterInput"
+            class="order-input"
+            type="number"
+            inputmode="decimal"
+            autocomplete="off"
+            placeholder="Enter counter"
+          >
+          <p id="counterHelp" class="field-help"></p>
+
+          <div class="price-preview">
+            <span>Total price</span>
+            <strong id="counterTotalPrice">—</strong>
+          </div>
+
+          <div class="order-actions">
+            <button id="checkPriceButton" class="button secondary" type="button">
+              Check price
+            </button>
+            <button id="counterOrderButton" class="button" type="button">
+              Create order
+            </button>
+          </div>
+          <div id="counterMessage" class="message hidden"></div>
+        </section>
       </div>
-
-      <div id="childrenContainer" class="child-grid"></div>
-    </section>
-
-    <section class="items-section">
-      <div class="section-header">
-        <h2 id="itemsTitle">Items</h2>
-        <span id="itemsCount" class="count"></span>
-      </div>
-
-      <div id="itemsContainer" class="items-grid"></div>
-    </section>
+    </article>
   </main>
 
   <script>
-    const API_BASE_URL =
-      "https://abdd-production.up.railway.app";
+    const API_BASE_URL = "https://abdd-production.up.railway.app";
 
     const API_PATHS = {
-      CATEGORIES_TREE: "/category/getAllCategoriesTree",
       ITEMS_PACKAGE: "/category/getAllItemsPackage",
-      ITEMS_DAYS: "/category/getAllItemsDays",
-      GET_YEAR: "/api/ushare/getyear",
-      CHECK_YEAR: "/api/ushare/chekyear",
-      CONFIRM_YEAR: "/api/ushare/confirmYear",
+      ITEMS_COUNTER: "/category/getAllItemsCounter",
+      CREATE_ORDER_PACKAGE: "/orders/createOrderPackage",
+      GET_COUNTER_PRICE: "/orders/getcounterprice",
+      CREATE_ORDER_COUNTER: "/orders/createordercounter",
     };
 
     const params = new URLSearchParams(window.location.search);
     const categoryId = params.get("category_id");
-    const categoryNameFromUrl = params.get("category_name") || "Category";
+    const categoryName = params.get("category_name") || "Category";
     const subcategoryId = params.get("subcategory_id");
-    const subcategoryNameFromUrl =
-      params.get("subcategory_name") || "Subcategory";
+    const subcategoryName = params.get("subcategory_name") || "Subcategory";
     const childcategoryId = params.get("childcategory_id");
-    const childcategoryNameFromUrl =
-      params.get("childcategory_name") || "Items";
+    const childcategoryName = params.get("childcategory_name") || "Service";
+    const itemId = params.get("item_id");
+    const itemType = String(params.get("item_type") || "").toUpperCase();
 
     const state = {
-      selectedChildcategoryId: null,
-      children: [],
-      packageItems: [],
-      daysItems: [],
-      daysItemsLoaded: false,
-      daysItemsError: "",
-      currentCategory: null,
-      currentSubcategory: null,
+      item: null,
+      currency:
+        localStorage.getItem("selectedCurrency") === "USD"
+          ? "USD"
+          : "LBP",
+      checkedCounter: null,
+      checkedTotal: null,
     };
-
-    const yearResultsByItemId = new Map();
 
     const loading = document.getElementById("loading");
     const page = document.getElementById("page");
-    const pageTitle = document.getElementById("pageTitle");
     const pageError = document.getElementById("pageError");
-    const backButton = document.getElementById("backButton");
-    const categoryBackLink =
-      document.getElementById("categoryBackLink");
-    const breadcrumbSubcategory =
-      document.getElementById("breadcrumbSubcategory");
-    const childrenContainer =
-      document.getElementById("childrenContainer");
-    const childrenCount =
-      document.getElementById("childrenCount");
-    const itemsContainer =
-      document.getElementById("itemsContainer");
-    const itemsTitle = document.getElementById("itemsTitle");
-    const itemsCount = document.getElementById("itemsCount");
-    const logoutButton = document.getElementById("logoutButton");
+    const itemCard = document.getElementById("itemCard");
+    const itemVisual = document.getElementById("itemVisual");
+    const itemTypeBadge = document.getElementById("itemTypeBadge");
+    const itemName = document.getElementById("itemName");
+    const itemDescription = document.getElementById("itemDescription");
+    const itemFacts = document.getElementById("itemFacts");
+    const packageOrderBox = document.getElementById("packageOrderBox");
+    const counterOrderBox = document.getElementById("counterOrderBox");
+    const targetIdentifier = document.getElementById("targetIdentifier");
+    const packageOrderButton = document.getElementById("packageOrderButton");
+    const packageMessage = document.getElementById("packageMessage");
+    const counterInput = document.getElementById("counterInput");
+    const counterHelp = document.getElementById("counterHelp");
+    const counterTotalPrice = document.getElementById("counterTotalPrice");
+    const checkPriceButton = document.getElementById("checkPriceButton");
+    const counterOrderButton = document.getElementById("counterOrderButton");
+    const counterMessage = document.getElementById("counterMessage");
+    const currencyButtons = document.querySelectorAll(".currency-button");
 
     function getToken() {
       return localStorage.getItem("token");
@@ -707,86 +567,36 @@
     }
 
     function formatName(value) {
-      return String(value ?? "")
-        .replace(/_/g, " ")
-        .trim();
+      return String(value ?? "").replace(/_/g, " ").trim();
     }
 
-    function normalizeName(value) {
-      return formatName(value).toLowerCase();
+    function toNumber(value, fallback = Number.NaN) {
+      const number = Number(String(value ?? "").replaceAll(",", "").trim());
+      return Number.isFinite(number) ? number : fallback;
     }
 
     function formatNumber(value) {
-      const numericValue = Number(
-        String(value ?? 0).replaceAll(",", "").trim()
-      );
-
-      if (!Number.isFinite(numericValue)) {
-        return "0";
-      }
-
+      const number = toNumber(value, 0);
       return new Intl.NumberFormat("en-GB", {
         maximumFractionDigits: 2,
-      }).format(numericValue);
-    }
-
-    function toNumber(value, fallback = 0) {
-      const numericValue = Number(
-        String(value ?? "").replaceAll(",", "").trim()
-      );
-
-      return Number.isFinite(numericValue)
-        ? numericValue
-        : fallback;
-    }
-
-    function toBoolean(value, fallback = false) {
-      if (typeof value === "boolean") return value;
-      if (value === 1 || value === "1" || String(value).toLowerCase() === "true") return true;
-      if (value === 0 || value === "0" || String(value).toLowerCase() === "false") return false;
-      return fallback;
-    }
-
-    function firstLetter(value) {
-      const text = formatName(value);
-      return text ? text.charAt(0).toUpperCase() : "?";
-    }
-
-    function escapeHtml(value) {
-      return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    function escapeJsString(value) {
-      return String(value ?? "")
-        .replaceAll("\\", "\\\\")
-        .replaceAll("'", "\\'")
-        .replaceAll("\n", "\\n")
-        .replaceAll("\r", "\\r");
+      }).format(number);
     }
 
     function extractArray(result, keys = []) {
       if (Array.isArray(result)) return result;
-
       for (const key of keys) {
-        if (Array.isArray(result?.[key])) {
-          return result[key];
-        }
+        if (Array.isArray(result?.[key])) return result[key];
       }
-
       if (Array.isArray(result?.data)) return result.data;
       if (Array.isArray(result?.result)) return result.result;
       return [];
     }
 
     async function apiRequest(path, options = {}) {
+      const requiresAuth = options.auth !== false;
       const token = getToken();
 
-      if (!token) {
+      if (requiresAuth && !token) {
         logout();
         throw new Error("Token not found");
       }
@@ -794,15 +604,17 @@
       const response = await fetch(`${API_BASE_URL}${path}`, {
         method: options.method || "GET",
         headers: {
-          Authorization: `Bearer ${token}`,
+          ...(requiresAuth
+            ? { Authorization: `Bearer ${token}` }
+            : {}),
           ...(options.body !== undefined
             ? { "Content-Type": "application/json" }
             : {}),
-          ...(options.headers || {}),
         },
-        body: options.body !== undefined
-          ? JSON.stringify(options.body)
-          : undefined,
+        body:
+          options.body !== undefined
+            ? JSON.stringify(options.body)
+            : undefined,
       });
 
       const text = await response.text();
@@ -814,15 +626,9 @@
         result = { raw: text };
       }
 
-      if (response.status === 401) {
+      if (requiresAuth && response.status === 401) {
         logout();
         throw new Error(result.message || "Session expired");
-      }
-
-      if (response.status === 403) {
-        throw new Error(
-          result.message || "You do not have permission for this request"
-        );
       }
 
       if (!response.ok || result.success === false) {
@@ -836,1220 +642,413 @@
       return result;
     }
 
-    async function getCategoriesTree() {
-      const result = await apiRequest(API_PATHS.CATEGORIES_TREE);
-      return extractArray(result, ["categories", "tree", "items"]);
-    }
-
-    async function getAllItemsPackage() {
-      const result = await apiRequest(API_PATHS.ITEMS_PACKAGE);
-      return extractArray(result, ["items", "packages", "items_package"]);
-    }
-
-    function normalizeDaysItem(item) {
-      return {
-        id: item.id,
-        name: String(item.name ?? "").trim(),
-        childcategory_id: item.childcategory_id ?? null,
-        full_card_price: toNumber(item.full_card_price),
-        base_dollar_amount: toNumber(item.base_dollar_amount),
-        base_sene: toNumber(item.base_sene),
-        balance_plus_price_per_dollar: toNumber(
-          item.balance_plus_price_per_dollar
-        ),
-        balance_minus_price_per_dollar: toNumber(
-          item.balance_minus_price_per_dollar
-        ),
-        active: toBoolean(item.active ?? item.is_active, true),
-        sort_order: toNumber(item.sort_order, 0),
-        raw: item,
-      };
-    }
-
-    async function loadAllItemsDays() {
-      state.daysItemsError = "";
-
-      try {
-        const result = await apiRequest(API_PATHS.ITEMS_DAYS);
-
-        state.daysItems = extractArray(
-          result,
-          ["items", "items_days", "days"]
-        )
-          .map(normalizeDaysItem)
-          .filter((item) => item.active)
-          .sort(
-            (firstItem, secondItem) =>
-              firstItem.sort_order - secondItem.sort_order ||
-              firstItem.name.localeCompare(secondItem.name)
-          );
-      } catch (error) {
-        state.daysItems = [];
-        state.daysItemsError =
-          error.message || "Unable to load Items Days";
-        throw error;
-      } finally {
-        state.daysItemsLoaded = true;
-      }
-    }
-
-    function isDaysChild(child) {
-      return (
-        normalizeName(state.currentSubcategory?.name) === "alfa" &&
-        normalizeName(child?.name) === "days"
-      );
-    }
-
-    function getSelectedChild() {
-      return state.children.find(
-        (child) =>
-          String(child.id) ===
-          String(state.selectedChildcategoryId)
-      );
-    }
-
-    function renderChildren() {
-      childrenContainer.innerHTML = "";
-      childrenCount.textContent = String(state.children.length);
-
-      if (state.children.length === 0) {
-        childrenContainer.innerHTML =
-          '<div class="empty">No services are available</div>';
-        renderItems();
-        return;
-      }
-
-      for (const child of state.children) {
-        const card = document.createElement("button");
-        card.type = "button";
-        card.className = "child-card";
-
-        if (
-          String(child.id) ===
-          String(state.selectedChildcategoryId)
-        ) {
-          card.classList.add("active");
-        }
-
-        let image;
-
-        if (child.image_url) {
-          image = document.createElement("img");
-          image.src = child.image_url;
-          image.alt = formatName(child.name);
-          image.className = "child-image";
-        } else {
-          image = document.createElement("div");
-          image.className = "child-image";
-          image.textContent = firstLetter(child.name);
-        }
-
-        const name = document.createElement("div");
-        name.className = "child-name";
-        name.textContent = formatName(child.name);
-
-        card.appendChild(image);
-        card.appendChild(name);
-
-        card.addEventListener("click", function () {
-          state.selectedChildcategoryId = child.id;
-          renderChildren();
-          renderItems();
-        });
-
-        childrenContainer.appendChild(card);
-      }
-    }
-
-    function getVisiblePackageItems() {
-      if (state.selectedChildcategoryId === null) {
-        return [];
-      }
-
-      return state.packageItems
-        .filter(
-          (item) =>
-            item.is_active !== false &&
-            String(item.childcategory_id) ===
-              String(state.selectedChildcategoryId)
-        )
-        .sort(
-          (firstItem, secondItem) =>
-            Number(firstItem.sort_order ?? 0) -
-            Number(secondItem.sort_order ?? 0)
-        );
-    }
-
-    function getVisibleDaysItems(child) {
-      return state.daysItems.filter(
-        (item) =>
-          String(item.childcategory_id) === String(child?.id)
-      );
-    }
-
-    function renderItems() {
-      itemsContainer.innerHTML = "";
-
-      const selectedChild = getSelectedChild();
-
-      if (!selectedChild) {
-        itemsTitle.textContent = "Items";
-        itemsCount.textContent = "0";
-        itemsContainer.innerHTML =
-          '<div class="empty">Select a service to view its items</div>';
-        return;
-      }
-
-      if (isDaysChild(selectedChild)) {
-        renderDaysItems(selectedChild);
-        return;
-      }
-
-      renderPackageItems(selectedChild);
-    }
-
-    function renderPackageItems(selectedChild) {
-      const visibleItems = getVisiblePackageItems();
-
-      itemsTitle.textContent =
-        `${formatName(selectedChild.name)} Items`;
-      itemsCount.textContent = String(visibleItems.length);
-
-      if (visibleItems.length === 0) {
-        itemsContainer.innerHTML =
-          '<div class="empty">No items are available for this service</div>';
-        return;
-      }
-
-      for (const item of visibleItems) {
-        const card = document.createElement("article");
-        card.className = "item-card";
-
-        let image;
-
-        if (item.image_url) {
-          image = document.createElement("img");
-          image.src = item.image_url;
-          image.alt = formatName(item.name);
-          image.className = "item-image";
-        } else {
-          image = document.createElement("div");
-          image.className = "item-image";
-          image.textContent = firstLetter(item.name);
-        }
-
-        const content = document.createElement("div");
-        content.className = "item-content";
-
-        const name = document.createElement("h3");
-        name.className = "item-name";
-        name.textContent = formatName(item.name);
-
-        const description = document.createElement("p");
-        description.className = "item-description";
-        description.textContent =
-          item.description ||
-          formatName(item.childcategory_name) ||
-          "Item";
-
-        const meta = document.createElement("div");
-        meta.className = "item-meta";
-
-        const priceBox = document.createElement("div");
-
-        const priceLabel = document.createElement("div");
-        priceLabel.className = "price-label";
-        priceLabel.textContent = "Price";
-
-        const price = document.createElement("div");
-        price.className = "price";
-        price.textContent = formatNumber(item.price);
-
-        const badge = document.createElement("div");
-        badge.className = "badge success";
-        badge.textContent = "Available";
-
-        priceBox.appendChild(priceLabel);
-        priceBox.appendChild(price);
-        meta.appendChild(priceBox);
-        meta.appendChild(badge);
-
-        content.appendChild(name);
-        content.appendChild(description);
-        content.appendChild(meta);
-
-        card.appendChild(image);
-        card.appendChild(content);
-        itemsContainer.appendChild(card);
-      }
-    }
-
-    function renderDaysItems(selectedChild) {
-      itemsTitle.textContent =
-        `${formatName(selectedChild.name)} Items`;
-
-      if (!state.daysItemsLoaded) {
-        itemsCount.textContent = "…";
-        itemsContainer.innerHTML =
-          '<div class="empty">Loading Items Days...</div>';
-        return;
-      }
-
-      if (state.daysItemsError) {
-        itemsCount.textContent = "0";
-        itemsContainer.innerHTML = `
-          <div class="empty">
-            <p>${escapeHtml(state.daysItemsError)}</p>
-            <button class="button" type="button" onclick="reloadDaysItems()">
-              Retry
-            </button>
-          </div>
-        `;
-        return;
-      }
-
-      const visibleItems = getVisibleDaysItems(selectedChild);
-      itemsCount.textContent = String(visibleItems.length);
-
-      if (visibleItems.length === 0) {
-        itemsContainer.innerHTML =
-          '<div class="empty">No active Items Days belong to this service</div>';
-        return;
-      }
-
-      itemsContainer.className = "days-items-grid";
-      itemsContainer.innerHTML = visibleItems
-        .map(renderDaysItemCard)
-        .join("");
-    }
-
-    function resetItemsContainerClass() {
-      itemsContainer.className = "items-grid";
-    }
-
-    const originalRenderPackageItems = renderPackageItems;
-    renderPackageItems = function(selectedChild) {
-      resetItemsContainerClass();
-      originalRenderPackageItems(selectedChild);
-    };
-
-    function renderDaysItemCard(item) {
-      return `
-        <button
-          class="days-item-link"
-          type="button"
-          onclick="openDaysItem('${escapeJsString(item.id)}')"
-        >
-          <span class="days-item-link-title">
-            ${escapeHtml(item.name || `Item ${item.id}`)}
-          </span>
-          <span class="days-item-link-bottom">
-            <span>Year item</span>
-            <span>Open →</span>
-          </span>
-        </button>
-      `;
-    }
-
-    function openDaysItem(itemId) {
-      const selectedChild = getSelectedChild();
-      const nextParams = new URLSearchParams({
-        category_id: categoryId,
-        category_name: formatName(state.currentCategory?.name || categoryNameFromUrl),
-        subcategory_id: subcategoryId,
-        subcategory_name: formatName(state.currentSubcategory?.name || subcategoryNameFromUrl),
-        childcategory_id: selectedChild?.id ?? "",
-        childcategory_name: formatName(selectedChild?.name || "Days"),
-        item_id: itemId,
-      });
-
-      window.location.href = `./days-details.html?${nextParams.toString()}`;
-    }
-
-    function renderDaysInfoBox(label, value) {
-      return `
-        <div class="days-price-box">
-          <div class="days-label">${escapeHtml(label)}</div>
-          <div class="days-value">${escapeHtml(value)}</div>
-        </div>
-      `;
-    }
-
-    function unwrapYearResponse(response) {
-      if (Array.isArray(response)) return response[0] || {};
-      if (Array.isArray(response?.data)) return response.data[0] || {};
-      if (response?.data?.year && typeof response.data.year === "object") return response.data.year;
-      if (response?.data && typeof response.data === "object") return response.data;
-      if (response?.year && typeof response.year === "object") return response.year;
-      if (Array.isArray(response?.result)) return response.result[0] || {};
-      if (response?.result && typeof response.result === "object") return response.result;
-      return response || {};
-    }
-
-    function normalizeYearResponse(response, inputText = "") {
-      const data = unwrapYearResponse(response);
-
-      const splitValues = String(data.split_text ?? "")
-        .split(",")
-        .map((value) => value.trim())
-        .filter((value) => value !== "");
-
-      const responseNumbers = Array.isArray(data.numbers)
-        ? data.numbers
-        : [];
-
-      const numbers = responseNumbers
-        .map((entry, index) => ({
-          index: index + 1,
-          numberphone: String(
-            entry?.numberphone ?? entry?.number ?? ""
-          ).trim(),
-          balance_before: toNumber(entry?.balance_before),
-          balance_after: toNumber(entry?.balance_after),
-          balance_difference: toNumber(
-            entry?.balance_difference,
-            toNumber(entry?.balance_after) -
-              toNumber(entry?.balance_before)
-          ),
-          returned_amount: toNumber(splitValues[index]),
-        }))
-        .filter((entry) => entry.numberphone !== "");
-
-      const rechargeCard =
-        data.recharge_card && typeof data.recharge_card === "object"
-          ? data.recharge_card
-          : {};
-
-      return {
-        raw: data,
-        year_id: data.year_id ?? data.id ?? null,
-        number_client: data.number_client ?? inputText,
-        buyer_numberphone:
-          data.buyer_numberphone ??
-          data.bayer_numberphone ??
-          inputText,
-        year_name: data.year_name ?? "-",
-        status: String(data.status ?? "").trim().toUpperCase(),
-        split_text: String(data.split_text ?? ""),
-        source_group_id:
-          data.source_group_id ?? data.group_id ?? null,
-        full_card_price: toNumber(data.full_card_price),
-        currency: String(data.currency ?? "LBP"),
-        balance_before: toNumber(data.balance_before),
-        balance_after: toNumber(data.balance_after),
-        min_balance_lbp: toNumber(data.min_balance_lbp),
-        total_received: toNumber(
-          data.total_received ?? data.totalReceived
-        ),
-        final_year_price: toNumber(
-          data.final_year_price ?? data.finalYearPrice
-        ),
-        refund_amount: toNumber(
-          data.refund_amount ?? data.refundAmount
-        ),
-        numbers,
-        recharge_card: {
-          id: rechargeCard.id ?? null,
-          company: String(rechargeCard.company ?? "-"),
-          quantity_balance: toNumber(
-            rechargeCard.quantity_balance
-          ),
-          validity_days: toNumber(rechargeCard.validity_days),
-          secret_code: String(
-            rechargeCard.secret_code ?? ""
-          ).trim(),
-          serial_number: String(
-            rechargeCard.serial_number ??
-            rechargeCard.serial ??
-            ""
-          ).trim(),
-        },
-      };
-    }
-
-    async function submitGetYear(event, itemId) {
-      event.preventDefault();
-
-      const item = state.daysItems.find(
-        (entry) => String(entry.id) === String(itemId)
-      );
-      const input = document.getElementById(`year-input-${itemId}`);
-      const button = document.getElementById(
-        `get-year-button-${itemId}`
-      );
-      const inputText = String(input?.value ?? "").trim();
-
-      if (!item || !inputText) {
-        showItemMessage(
-          itemId,
-          "Enter the client number first.",
-          "error"
-        );
-        return;
-      }
-
-      button.disabled = true;
-      button.textContent = "Getting year...";
-      showItemMessage(
-        itemId,
-        "Sending the year request...",
-        "info"
-      );
-
-      try {
-        const response = await apiRequest(API_PATHS.GET_YEAR, {
-          method: "POST",
-          body: { numberphone: inputText },
-        });
-
-        const year = normalizeYearResponse(response, inputText);
-
-        yearResultsByItemId.set(String(item.id), {
-          inputText,
-          year,
-        });
-
-        document.getElementById(
-          `year-result-${itemId}`
-        ).innerHTML = renderYearResult(item, year);
-
-        showItemMessage(
-          itemId,
-          response.message || "Year received successfully.",
-          "success"
-        );
-      } catch (error) {
-        showItemMessage(itemId, error.message, "error");
-      } finally {
-        button.disabled = false;
-        button.textContent = "Get Year";
-      }
-    }
-
-    function renderYearResult(item, year) {
-      const rechargeCode = String(
-        year.recharge_card?.secret_code ?? ""
-      ).trim();
-
-      const numbersHtml = year.numbers.length
-        ? year.numbers.map(renderYearNumber).join("")
-        : '<div class="empty empty-wide">No numbers were returned by the server.</div>';
-
-      return `
-        <section class="year-result">
-          <h3 class="year-result-title">Year Result</h3>
-
-          <div class="year-summary-grid">
-            ${renderYearSummaryBox("Client number", year.number_client || "-")}
-            ${renderYearSummaryBox("Buyer number", year.buyer_numberphone || "-")}
-            ${renderYearSummaryBox("Year name", year.year_name || "-")}
-            ${renderYearSummaryBox("Year ID", year.year_id ?? "-")}
-            ${renderYearSummaryBox("Status", year.status || "-")}
-            ${renderYearSummaryBox("Full card price", `${formatNumber(year.full_card_price)} ${year.currency}`)}
-            ${renderYearSummaryBox("Wallet before", `${formatNumber(year.balance_before)} ${year.currency}`)}
-            ${renderYearSummaryBox("Wallet after", `${formatNumber(year.balance_after)} ${year.currency}`)}
-            ${renderYearSummaryBox("Total received", `${formatNumber(year.total_received)}$`)}
-          </div>
-
-          <div class="recharge-card-box">
-            <div class="recharge-card-head">
-              <div>
-                <div class="days-label">Recharge card code</div>
-                <div class="days-item-note">
-                  ${escapeHtml(year.recharge_card?.company || "-")}
-                  · ${escapeHtml(formatNumber(year.recharge_card?.quantity_balance))}$
-                  · ${escapeHtml(formatNumber(year.recharge_card?.validity_days))} days
-                </div>
-              </div>
-
-              <button
-                class="button secondary"
-                type="button"
-                onclick="copyRechargeCode('${escapeJsString(item.id)}')"
-                ${rechargeCode ? "" : "disabled"}
-              >
-                Copy code
-              </button>
-            </div>
-
-            <div class="recharge-code">
-              ${escapeHtml(rechargeCode || "No recharge code returned")}
-            </div>
-          </div>
-
-          <div class="year-summary-box" style="margin-top:10px">
-            <div class="days-label">Split text</div>
-            <div class="days-value">
-              ${escapeHtml(year.split_text || "-")}
-            </div>
-          </div>
-
-          <div class="year-numbers-grid" style="margin-top:10px">
-            ${numbersHtml}
-          </div>
-
-          <div class="year-result-actions">
-            <button
-              class="year-action-button copy"
-              type="button"
-              onclick="copyYearNumbers('${escapeJsString(item.id)}')"
-            >
-              Copy numbers
-            </button>
-
-            <button
-              id="check-year-button-${escapeHtml(item.id)}"
-              class="year-action-button check"
-              type="button"
-              onclick="checkYear('${escapeJsString(item.id)}')"
-            >
-              Check
-            </button>
-
-            <button
-              class="year-action-button secondary"
-              type="button"
-              onclick="clearYearResult('${escapeJsString(item.id)}')"
-            >
-              Clear Result
-            </button>
-          </div>
-
-          ${renderYearConfirmation(item, year)}
-        </section>
-      `;
-    }
-
-    function renderYearConfirmation(item, year) {
-      if (year.status === "COMPLETE") {
-        return `
-          <div class="year-complete-box">
-            <strong>Year confirmed successfully.</strong>
-
-            <div class="year-summary-grid" style="margin-top:10px">
-              ${renderYearSummaryBox(
-                "Final year price",
-                `${formatNumber(year.final_year_price)} ${year.currency}`
-              )}
-              ${renderYearSummaryBox(
-                "Refund amount",
-                `${formatNumber(year.refund_amount)} ${year.currency}`
-              )}
-            </div>
-          </div>
-        `;
-      }
-
-      if (year.status !== "CHECKING") {
-        return "";
-      }
-
-      return `
-        <div class="year-confirm-box">
-          <label class="year-confirm-label">
-            <input
-              id="confirm-year-checkbox-${escapeHtml(item.id)}"
-              type="checkbox"
-              onchange="toggleConfirmYearButton('${escapeJsString(item.id)}')"
-            >
-
-            <span>
-              I am sure that I want to confirm this year and return
-              the calculated amount to the client wallet.
-            </span>
-          </label>
-
-          <div class="year-confirm-warning">
-            This action is final and cannot be repeated after confirmation.
-          </div>
-
-          <div class="year-result-actions">
-            <button
-              id="confirm-year-button-${escapeHtml(item.id)}"
-              class="year-action-button confirm"
-              type="button"
-              onclick="confirmYear('${escapeJsString(item.id)}')"
-              disabled
-            >
-              Confirm Year
-            </button>
-          </div>
-        </div>
-      `;
-    }
-
-    function toggleConfirmYearButton(itemId) {
-      const checkbox = document.getElementById(
-        `confirm-year-checkbox-${itemId}`
-      );
-      const button = document.getElementById(
-        `confirm-year-button-${itemId}`
-      );
-
-      if (!button) return;
-      button.disabled = !checkbox?.checked;
-    }
-
-    function renderYearSummaryBox(label, value) {
-      return `
-        <div class="year-summary-box">
-          <div class="days-label">${escapeHtml(label)}</div>
-          <div class="days-value">${escapeHtml(value)}</div>
-        </div>
-      `;
-    }
-
-    function renderYearNumber(entry) {
-      return `
-        <div class="year-number-box">
-          <div class="days-label">Number ${entry.index}</div>
-          <div class="year-number-value">
-            ${escapeHtml(entry.numberphone)}
-          </div>
-          <div class="days-item-note">
-            Balance before:
-            <strong>${escapeHtml(formatNumber(entry.balance_before))}$</strong>
-          </div>
-          <div class="days-item-note">
-            Returned:
-            <strong>${escapeHtml(formatNumber(entry.returned_amount))}$</strong>
-          </div>
-          <div class="days-item-note">
-            Balance after:
-            <strong>${escapeHtml(formatNumber(entry.balance_after))}$</strong>
-          </div>
-          <div class="days-item-note">
-            Difference:
-            <strong>${escapeHtml(formatNumber(entry.balance_difference))}$</strong>
-          </div>
-        </div>
-      `;
-    }
-
-    function buildYearNumbersCopyText(year) {
-      return (year?.numbers ?? [])
-        .map(
-          (entry) =>
-            `${entry.numberphone}` +
-            ` | ${formatNumber(entry.balance_before)}$` +
-            ` | returned ${formatNumber(entry.returned_amount)}$`
-        )
-        .join("\n");
-    }
-
-    async function copyTextToClipboard(text) {
-      if (!text) {
-        throw new Error("There is no text to copy.");
-      }
-
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(text);
-        return;
-      }
-
-      const textarea = document.createElement("textarea");
-      textarea.value = text;
-      textarea.setAttribute("readonly", "");
-      textarea.style.position = "fixed";
-      textarea.style.opacity = "0";
-      document.body.appendChild(textarea);
-      textarea.select();
-      const copied = document.execCommand("copy");
-      textarea.remove();
-
-      if (!copied) {
-        throw new Error("Copy failed.");
-      }
-    }
-
-    async function copyYearNumbers(itemId) {
-      const saved = yearResultsByItemId.get(String(itemId));
-      const text = buildYearNumbersCopyText(saved?.year);
-
-      if (!text) {
-        showItemMessage(
-          itemId,
-          "No numbers were returned to copy.",
-          "error"
-        );
-        return;
-      }
-
-      try {
-        await copyTextToClipboard(text);
-        showItemMessage(
-          itemId,
-          "Numbers and returned amounts copied.",
-          "success"
-        );
-      } catch (error) {
-        showItemMessage(itemId, error.message, "error");
-      }
-    }
-
-    async function copyRechargeCode(itemId) {
-      const saved = yearResultsByItemId.get(String(itemId));
-      const code = String(
-        saved?.year?.recharge_card?.secret_code ?? ""
-      ).trim();
-
-      if (!code) {
-        showItemMessage(
-          itemId,
-          "No recharge-card code was returned.",
-          "error"
-        );
-        return;
-      }
-
-      try {
-        await copyTextToClipboard(code);
-        showItemMessage(
-          itemId,
-          "Recharge-card code copied.",
-          "success"
-        );
-      } catch (error) {
-        showItemMessage(itemId, error.message, "error");
-      }
-    }
-
-    function mergeCheckedNumbers(originalNumbers, checkedNumbers) {
-      if (!checkedNumbers.length) return originalNumbers;
-
-      return checkedNumbers.map((checked, index) => {
-        const original =
-          originalNumbers.find(
-            (entry) =>
-              String(entry.numberphone) ===
-              String(checked.numberphone)
-          ) || originalNumbers[index] || {};
-
-        return {
-          ...original,
-          ...checked,
-          returned_amount:
-            checked.returned_amount ||
-            original.returned_amount ||
-            0,
-        };
-      });
-    }
-
-    async function checkYear(itemId) {
-      const item = state.daysItems.find(
-        (entry) => String(entry.id) === String(itemId)
-      );
-      const saved = yearResultsByItemId.get(String(itemId));
-      const button = document.getElementById(
-        `check-year-button-${itemId}`
-      );
-
-      if (!item || !saved?.year) {
-        showItemMessage(
-          itemId,
-          "Get a year before running Check.",
-          "error"
-        );
-        return;
-      }
-
-      const requestBody = {
-        year_id: saved.year.year_id,
-        year_name: saved.year.year_name,
-      };
-
-      if (saved.year.source_group_id !== null) {
-        requestBody.source_group_id =
-          saved.year.source_group_id;
-      }
-
-      button.disabled = true;
-      button.textContent = "Checking...";
-      showItemMessage(itemId, "Checking balances...", "info");
-
-      try {
-        const response = await apiRequest(API_PATHS.CHECK_YEAR, {
-          method: "POST",
-          body: requestBody,
-        });
-
-        const checked = normalizeYearResponse(
-          response,
-          saved.inputText
-        );
-
-        const merged = {
-          ...saved.year,
-          ...checked,
-          year_id:
-            checked.year_id ?? saved.year.year_id,
-          number_client:
-            checked.number_client || saved.year.number_client,
-          buyer_numberphone:
-            checked.buyer_numberphone ||
-            saved.year.buyer_numberphone,
-          year_name:
-            checked.year_name === "-"
-              ? saved.year.year_name
-              : checked.year_name,
-          status:
-            checked.status ||
-            "CHECKING",
-          split_text:
-            checked.split_text || saved.year.split_text,
-          source_group_id:
-            checked.source_group_id ??
-            saved.year.source_group_id,
-          full_card_price:
-            checked.full_card_price ||
-            saved.year.full_card_price,
-          currency:
-            checked.currency || saved.year.currency,
-          recharge_card:
-            checked.recharge_card?.secret_code
-              ? checked.recharge_card
-              : saved.year.recharge_card,
-          numbers: mergeCheckedNumbers(
-            saved.year.numbers,
-            checked.numbers
-          ),
-        };
-
-        yearResultsByItemId.set(String(itemId), {
-          inputText: saved.inputText,
-          year: merged,
-        });
-
-        document.getElementById(
-          `year-result-${itemId}`
-        ).innerHTML = renderYearResult(item, merged);
-
-        showItemMessage(
-          itemId,
-          response.message ||
-            "Year balances checked successfully.",
-          "success"
-        );
-      } catch (error) {
-        showItemMessage(itemId, error.message, "error");
-      } finally {
-        const refreshedButton = document.getElementById(
-          `check-year-button-${itemId}`
-        );
-
-        if (refreshedButton) {
-          refreshedButton.disabled = false;
-          refreshedButton.textContent = "Check";
-        }
-      }
-    }
-
-    async function confirmYear(itemId) {
-      const item = state.daysItems.find(
-        (entry) => String(entry.id) === String(itemId)
-      );
-      const saved = yearResultsByItemId.get(String(itemId));
-      const checkbox = document.getElementById(
-        `confirm-year-checkbox-${itemId}`
-      );
-      const button = document.getElementById(
-        `confirm-year-button-${itemId}`
-      );
-
-      if (!item || !saved?.year) {
-        showItemMessage(
-          itemId,
-          "Get and check a year before confirmation.",
-          "error"
-        );
-        return;
-      }
-
-      if (saved.year.status !== "CHECKING") {
-        showItemMessage(
-          itemId,
-          "Year status must be CHECKING before confirmation.",
-          "error"
-        );
-        return;
-      }
-
-      if (!saved.year.year_id || !saved.year.number_client) {
-        showItemMessage(
-          itemId,
-          "Year ID or client number is missing.",
-          "error"
-        );
-        return;
-      }
-
-      if (!checkbox?.checked) {
-        showItemMessage(
-          itemId,
-          "Tick the confirmation checkbox first.",
-          "error"
-        );
-        return;
-      }
-
-      const accepted = window.confirm(
-        "Are you sure you want to confirm this year? " +
-        "This action cannot be undone."
-      );
-
-      if (!accepted) return;
-
-      button.disabled = true;
-      button.textContent = "Confirming...";
-      showItemMessage(
-        itemId,
-        "Confirming the year and updating the client wallet...",
-        "info"
-      );
-
-      try {
-        const response = await apiRequest(
-          API_PATHS.CONFIRM_YEAR,
-          {
-            method: "POST",
-            body: {
-              year_id: saved.year.year_id,
-              number_client: saved.year.number_client,
-            },
-          }
-        );
-
-        const confirmedYear =
-          response?.year && typeof response.year === "object"
-            ? response.year
-            : response?.data && typeof response.data === "object"
-              ? response.data
-              : {};
-
-        const calculation =
-          response?.calculation &&
-          typeof response.calculation === "object"
-            ? response.calculation
-            : {};
-
-        const balance =
-          response?.balance &&
-          typeof response.balance === "object"
-            ? response.balance
-            : {};
-
-        const merged = {
-          ...saved.year,
-          ...confirmedYear,
-          year_id:
-            confirmedYear.id ??
-            confirmedYear.year_id ??
-            saved.year.year_id,
-          number_client:
-            confirmedYear.number_client ??
-            saved.year.number_client,
-          status: String(
-            confirmedYear.status ?? "COMPLETE"
-          ).toUpperCase(),
-          final_year_price: toNumber(
-            confirmedYear.final_year_price ??
-            calculation.final_year_price
-          ),
-          refund_amount: toNumber(
-            confirmedYear.refund_amount ??
-            calculation.refund_amount
-          ),
-          balance_before: toNumber(
-            balance.balance_before ??
-            saved.year.balance_before
-          ),
-          balance_after: toNumber(
-            balance.balance_after ??
-            saved.year.balance_after
-          ),
-        };
-
-        yearResultsByItemId.set(String(itemId), {
-          inputText: saved.inputText,
-          year: merged,
-        });
-
-        document.getElementById(
-          `year-result-${itemId}`
-        ).innerHTML = renderYearResult(item, merged);
-
-        showItemMessage(
-          itemId,
-          response.message ||
-            "Year confirmed and client wallet updated successfully.",
-          "success"
-        );
-      } catch (error) {
-        showItemMessage(itemId, error.message, "error");
-
-        const currentButton = document.getElementById(
-          `confirm-year-button-${itemId}`
-        );
-
-        if (currentButton) {
-          currentButton.disabled = false;
-          currentButton.textContent = "Confirm Year";
-        }
-      }
-    }
-
-    function clearYearResult(itemId) {
-      yearResultsByItemId.delete(String(itemId));
-
-      const result = document.getElementById(
-        `year-result-${itemId}`
-      );
-      const input = document.getElementById(
-        `year-input-${itemId}`
-      );
-
-      if (result) result.innerHTML = "";
-      if (input) input.value = "";
-      hideItemMessage(itemId);
-    }
-
-    function showItemMessage(itemId, message, type = "info") {
-      const box = document.getElementById(`message-${itemId}`);
-      if (!box) return;
-      box.className = `item-message ${type}`;
-      box.textContent = message;
-    }
-
-    function hideItemMessage(itemId) {
-      const box = document.getElementById(`message-${itemId}`);
-      if (!box) return;
-      box.className = "hidden";
-      box.textContent = "";
-    }
-
-    async function reloadDaysItems() {
-      state.daysItemsLoaded = false;
-      state.daysItemsError = "";
-      renderItems();
-
-      try {
-        await loadAllItemsDays();
-      } catch (error) {
-        console.error("Items Days error:", error);
-      }
-
-      renderItems();
-    }
-
-    function buildChildcategoriesUrl() {
+    function buildBackUrl() {
       const backParams = new URLSearchParams({
-        category_id: categoryId,
-        category_name: categoryNameFromUrl,
-        subcategory_id: subcategoryId,
-        subcategory_name: subcategoryNameFromUrl,
+        category_id: categoryId || "",
+        category_name: categoryName,
+        subcategory_id: subcategoryId || "",
+        subcategory_name: subcategoryName,
+        selected_child_id: childcategoryId || "",
       });
 
       return `./childcategories.html?${backParams.toString()}`;
     }
 
+    function showMessage(element, message, type) {
+      element.textContent = message;
+      element.className = `message ${type}`;
+    }
+
+    function clearMessage(element) {
+      element.textContent = "";
+      element.className = "message hidden";
+    }
+
+    function getItemPrice() {
+      if (!state.item) return null;
+
+      const field =
+        itemType === "COUNTER"
+          ? state.currency === "USD"
+            ? "price_per_unit_usd"
+            : "price_per_unit_lbp"
+          : state.currency === "USD"
+            ? "price_usd"
+            : "price_lbp";
+
+      const price = toNumber(state.item[field]);
+      return Number.isFinite(price) && price >= 0 ? price : null;
+    }
+
+    function addFact(label, value) {
+      const box = document.createElement("div");
+      box.className = "fact";
+
+      const labelElement = document.createElement("div");
+      labelElement.className = "fact-label";
+      labelElement.textContent = label;
+
+      const valueElement = document.createElement("div");
+      valueElement.className = "fact-value";
+      valueElement.textContent = value;
+
+      box.append(labelElement, valueElement);
+      itemFacts.appendChild(box);
+    }
+
+    function syncCurrency() {
+      currencyButtons.forEach((button) => {
+        button.classList.toggle(
+          "active",
+          button.dataset.currency === state.currency
+        );
+      });
+    }
+
+    function resetCounterPrice() {
+      state.checkedCounter = null;
+      state.checkedTotal = null;
+      counterTotalPrice.textContent = "—";
+    }
+
+    function renderItem() {
+      const item = state.item;
+      const price = getItemPrice();
+
+      itemTypeBadge.textContent = itemType;
+      itemName.textContent = formatName(item.name) || "Item";
+      itemDescription.textContent =
+        item.description || "Complete the information below to create the order.";
+
+      itemVisual.innerHTML = "";
+      if (item.image_url) {
+        const image = document.createElement("img");
+        image.className = "item-image";
+        image.src = item.image_url;
+        image.alt = formatName(item.name);
+        itemVisual.appendChild(image);
+      } else {
+        const placeholder = document.createElement("div");
+        placeholder.className = "item-image item-placeholder";
+        placeholder.textContent =
+          formatName(item.name).charAt(0).toUpperCase() || "?";
+        itemVisual.appendChild(placeholder);
+      }
+
+      itemFacts.innerHTML = "";
+      addFact("Company", formatName(item.company) || "—");
+      addFact(
+        itemType === "COUNTER" ? "Price per unit" : "Price",
+        price === null
+          ? `Not available in ${state.currency}`
+          : `${formatNumber(price)} ${state.currency}`
+      );
+
+      if (itemType === "COUNTER") {
+        addFact("Unit", formatName(item.unit) || "Unit");
+        addFact(
+          "Allowed counter",
+          `${formatNumber(item.minimum_amount ?? 0)} – ${formatNumber(
+            item.maximum_amount ?? 0
+          )}`
+        );
+
+        const minimum = toNumber(item.minimum_amount, 0);
+        const maximum = toNumber(item.maximum_amount);
+        const step = toNumber(item.step_amount);
+
+        if (Number.isFinite(minimum)) counterInput.min = minimum;
+        if (Number.isFinite(maximum)) counterInput.max = maximum;
+        if (Number.isFinite(step) && step > 0) counterInput.step = step;
+
+        counterHelp.textContent =
+          `Minimum: ${formatNumber(minimum)}` +
+          (Number.isFinite(maximum)
+            ? ` • Maximum: ${formatNumber(maximum)}`
+            : "") +
+          (Number.isFinite(step) && step > 0
+            ? ` • Step: ${formatNumber(step)}`
+            : "");
+
+        packageOrderBox.classList.add("hidden");
+        counterOrderBox.classList.remove("hidden");
+      } else {
+        addFact("Value", formatName(item.package_value) || "—");
+        addFact("Unit", formatName(item.unit) || "Package");
+        counterOrderBox.classList.add("hidden");
+        packageOrderBox.classList.remove("hidden");
+        packageOrderButton.disabled = price === null;
+      }
+
+      itemCard.classList.remove("hidden");
+    }
+
+    async function checkCounterPrice(showSuccess = true) {
+      clearMessage(counterMessage);
+
+      const numericCounter = toNumber(counterInput.value);
+      if (!Number.isFinite(numericCounter) || numericCounter <= 0) {
+        showMessage(counterMessage, "Enter a valid counter", "error");
+        counterInput.focus();
+        return null;
+      }
+
+      checkPriceButton.disabled = true;
+      checkPriceButton.textContent = "Checking...";
+
+      try {
+        const result = await apiRequest(API_PATHS.GET_COUNTER_PRICE, {
+          method: "POST",
+          auth: false,
+          body: {
+            item_id: state.item.id,
+            counter: numericCounter,
+            currency: state.currency,
+          },
+        });
+
+        const totalPrice = toNumber(
+          result.total_price ??
+          result.price ??
+          result.data?.total_price
+        );
+
+        if (!Number.isFinite(totalPrice)) {
+          throw new Error("The server did not return a valid price");
+        }
+
+        state.checkedCounter = numericCounter;
+        state.checkedTotal = totalPrice;
+        counterTotalPrice.textContent =
+          `${formatNumber(totalPrice)} ${state.currency}`;
+
+        if (showSuccess) {
+          showMessage(counterMessage, "Price checked successfully", "success");
+        }
+
+        return {
+          counter: numericCounter,
+          totalPrice,
+        };
+      } catch (error) {
+        resetCounterPrice();
+        showMessage(
+          counterMessage,
+          error.message || "Failed to check price",
+          "error"
+        );
+        return null;
+      } finally {
+        checkPriceButton.disabled = false;
+        checkPriceButton.textContent = "Check price";
+      }
+    }
+
+    async function createPackageOrder() {
+      clearMessage(packageMessage);
+
+      const target = String(targetIdentifier.value || "").trim();
+      const price = getItemPrice();
+
+      if (!target) {
+        showMessage(
+          packageMessage,
+          "Target identifier is required",
+          "error"
+        );
+        targetIdentifier.focus();
+        return;
+      }
+
+      if (price === null) {
+        showMessage(
+          packageMessage,
+          `This item is not available in ${state.currency}`,
+          "error"
+        );
+        return;
+      }
+
+      if (!window.confirm(
+        `Confirm ${formatName(state.item.name)} for ${target} at ` +
+        `${formatNumber(price)} ${state.currency}?`
+      )) {
+        return;
+      }
+
+      packageOrderButton.disabled = true;
+      packageOrderButton.textContent = "Processing...";
+
+      try {
+        const result = await apiRequest(API_PATHS.CREATE_ORDER_PACKAGE, {
+          method: "POST",
+          body: {
+            item_id: state.item.id,
+            target_identifier: target,
+            currency: state.currency,
+          },
+        });
+
+        const orderId =
+          result.order?.id ?? result.data?.id ?? result.order_id;
+
+        showMessage(
+          packageMessage,
+          orderId
+            ? `Order #${orderId} created successfully`
+            : result.message || "Order created successfully",
+          "success"
+        );
+        targetIdentifier.value = "";
+      } catch (error) {
+        showMessage(
+          packageMessage,
+          error.message || "Failed to create order",
+          "error"
+        );
+      } finally {
+        packageOrderButton.disabled = getItemPrice() === null;
+        packageOrderButton.textContent = "Create order";
+      }
+    }
+
+    async function createCounterOrder() {
+      clearMessage(counterMessage);
+
+      const checked = await checkCounterPrice(false);
+      if (!checked) return;
+
+      if (!window.confirm(
+        `Confirm ${formatName(state.item.name)} × ${formatNumber(
+          checked.counter
+        )} for ${formatNumber(checked.totalPrice)} ${state.currency}?`
+      )) {
+        return;
+      }
+
+      counterOrderButton.disabled = true;
+      counterOrderButton.textContent = "Processing...";
+
+      try {
+        const result = await apiRequest(API_PATHS.CREATE_ORDER_COUNTER, {
+          method: "POST",
+          body: {
+            item_id: state.item.id,
+            counter: checked.counter,
+            currency: state.currency,
+          },
+        });
+
+        const orderId =
+          result.order?.id ?? result.data?.id ?? result.order_id;
+
+        showMessage(
+          counterMessage,
+          orderId
+            ? `Order #${orderId} created successfully`
+            : result.message || "Order created successfully",
+          "success"
+        );
+        counterInput.value = "";
+        resetCounterPrice();
+      } catch (error) {
+        showMessage(
+          counterMessage,
+          error.message || "Failed to create counter order",
+          "error"
+        );
+      } finally {
+        counterOrderButton.disabled = false;
+        counterOrderButton.textContent = "Create order";
+      }
+    }
+
     async function loadPage() {
-      if (!categoryId || !subcategoryId || !childcategoryId) {
+      if (
+        !categoryId ||
+        !subcategoryId ||
+        !childcategoryId ||
+        !itemId ||
+        (itemType !== "PACKAGE" && itemType !== "COUNTER")
+      ) {
         window.location.href = "./home.html";
         return;
       }
 
-      const backUrl = buildChildcategoriesUrl();
-      backButton.addEventListener("click", function () {
-        window.location.href = backUrl;
+      document.getElementById("categoryCrumb").textContent = categoryName;
+      document.getElementById("subcategoryCrumb").textContent = subcategoryName;
+      document.getElementById("childCrumb").textContent = childcategoryName;
+      document.getElementById("backButton").addEventListener("click", () => {
+        window.location.href = buildBackUrl();
       });
-      categoryBackLink.href = backUrl;
 
       try {
-        const [categories, packageItems] = await Promise.all([
-          getCategoriesTree(),
-          getAllItemsPackage(),
-        ]);
+        const path =
+          itemType === "COUNTER"
+            ? API_PATHS.ITEMS_COUNTER
+            : API_PATHS.ITEMS_PACKAGE;
 
-        const category = categories.find(
-          (item) => String(item.id) === String(categoryId)
+        const result = await apiRequest(path);
+        const items = extractArray(
+          result,
+          itemType === "COUNTER"
+            ? ["items", "counters", "items_counter"]
+            : ["items", "packages", "items_package"]
         );
 
-        const subcategory = category?.subcategories?.find(
-          (item) => String(item.id) === String(subcategoryId)
+        state.item = items.find(
+          (item) =>
+            String(item.id) === String(itemId) &&
+            String(item.childcategory_id) === String(childcategoryId)
         );
 
-        if (!category || !subcategory || subcategory.is_active === false) {
-          throw new Error(
-            "The selected subcategory was not found"
-          );
+        if (!state.item || state.item.is_active === false) {
+          throw new Error("The selected item was not found");
         }
 
-        state.currentCategory = category;
-        state.currentSubcategory = subcategory;
-        state.children = Array.isArray(
-          subcategory.childcategories
-        )
-          ? subcategory.childcategories.filter(
-              (child) => child.is_active !== false
-            )
-          : [];
-        state.packageItems = packageItems;
-        state.selectedChildcategoryId = childcategoryId;
-
-        const selectedChild = state.children.find(
-          (child) => String(child.id) === String(childcategoryId)
-        );
-
-        if (!selectedChild) {
-          throw new Error("The selected child category was not found");
-        }
-
-        const categoryName = formatName(
-          category.name || categoryNameFromUrl
-        );
-        const subcategoryName = formatName(
-          subcategory.name || subcategoryNameFromUrl
-        );
-
-        pageTitle.textContent = formatName(
-          selectedChild.name || childcategoryNameFromUrl
-        );
-        categoryBackLink.textContent = categoryName;
-        breadcrumbSubcategory.textContent = subcategoryName;
-
-        renderChildren();
-        renderItems();
-
-        loading.classList.add("hidden");
-        page.classList.remove("hidden");
-
-        const daysChild = isDaysChild(selectedChild)
-          ? selectedChild
-          : null;
-
-        if (daysChild) {
-          try {
-            await loadAllItemsDays();
-          } catch (error) {
-            console.error("Items Days error:", error);
-          }
-
-          if (isDaysChild(getSelectedChild())) {
-            renderItems();
-          }
-        }
+        syncCurrency();
+        renderItem();
       } catch (error) {
-        console.error("Child categories error:", error);
+        pageError.textContent = error.message || "Unable to load item";
+        pageError.classList.remove("hidden");
+      } finally {
         loading.classList.add("hidden");
         page.classList.remove("hidden");
-        pageError.textContent =
-          error.message || "Unable to load services";
-        pageError.classList.remove("hidden");
       }
     }
 
-    logoutButton.addEventListener("click", logout);
+    currencyButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const currency = button.dataset.currency;
+        if (currency !== "LBP" && currency !== "USD") return;
+
+        state.currency = currency;
+        localStorage.setItem("selectedCurrency", currency);
+        resetCounterPrice();
+        clearMessage(packageMessage);
+        clearMessage(counterMessage);
+        syncCurrency();
+
+        if (state.item) renderItem();
+      });
+    });
+
+    counterInput.addEventListener("input", () => {
+      resetCounterPrice();
+      clearMessage(counterMessage);
+    });
+    targetIdentifier.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") createPackageOrder();
+    });
+    counterInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") checkCounterPrice();
+    });
+
+    checkPriceButton.addEventListener("click", () => checkCounterPrice());
+    packageOrderButton.addEventListener("click", createPackageOrder);
+    counterOrderButton.addEventListener("click", createCounterOrder);
+    document.getElementById("logoutButton").addEventListener("click", logout);
+
     loadPage();
   </script>
 </body>

@@ -944,6 +944,7 @@
     const API_PATHS = {
       CATEGORIES_TREE: "/category/getAllCategoriesTree",
       ITEMS_PACKAGE: "/category/getAllItemsPackage",
+      ITEMS_COUNTER: "/category/getAllItemsCounter",
       ITEMS_DAYS: "/category/getAllItemsDays",
       GET_YEAR: "/api/ushare/getyear",
       CHECK_YEAR: "/api/ushare/chekyear",
@@ -963,6 +964,7 @@
       selectedChildcategoryId: null,
       children: [],
       packageItems: [],
+      counterItems: [],
       daysItems: [],
       daysItemsLoaded: false,
       daysItemsError: "",
@@ -1145,6 +1147,11 @@
     async function getAllItemsPackage() {
       const result = await apiRequest(API_PATHS.ITEMS_PACKAGE);
       return extractArray(result, ["items", "packages", "items_package"]);
+    }
+
+    async function getAllItemsCounter() {
+      const result = await apiRequest(API_PATHS.ITEMS_COUNTER);
+      return extractArray(result, ["items", "counters", "items_counter"]);
     }
 
     function normalizeDaysItem(item) {
@@ -1430,6 +1437,54 @@
         );
     }
 
+    function getVisibleCounterItems() {
+      if (state.selectedChildcategoryId === null) {
+        return [];
+      }
+
+      return state.counterItems.filter(
+        (item) =>
+          item.is_active !== false &&
+          String(item.childcategory_id) ===
+            String(state.selectedChildcategoryId)
+      );
+    }
+
+    function getCounterPrice(item) {
+      const priceField =
+        state.selectedCurrency === "USD"
+          ? "price_per_unit_usd"
+          : "price_per_unit_lbp";
+
+      if (
+        item?.[priceField] === undefined ||
+        item?.[priceField] === null ||
+        item?.[priceField] === ""
+      ) {
+        return null;
+      }
+
+      const price = toNumber(item[priceField], Number.NaN);
+      return Number.isFinite(price) && price >= 0 ? price : null;
+    }
+
+    function openItemPage(item, itemType, selectedChild) {
+      const itemParams = new URLSearchParams({
+        category_id: categoryId,
+        category_name:
+          state.currentCategory?.name || categoryNameFromUrl,
+        subcategory_id: subcategoryId,
+        subcategory_name:
+          state.currentSubcategory?.name || subcategoryNameFromUrl,
+        childcategory_id: selectedChild.id,
+        childcategory_name: selectedChild.name || "Items",
+        item_id: item.id,
+        item_type: itemType,
+      });
+
+      window.location.href = `./items.html?${itemParams.toString()}`;
+    }
+
     function getVisibleDaysItems(child) {
       return state.daysItems.filter(
         (item) =>
@@ -1459,7 +1514,20 @@
     }
 
     function renderPackageItems(selectedChild) {
-      const visibleItems = getVisiblePackageItems();
+      const visibleItems = [
+        ...getVisiblePackageItems().map((item) => ({
+          ...item,
+          __itemType: "PACKAGE",
+        })),
+        ...getVisibleCounterItems().map((item) => ({
+          ...item,
+          __itemType: "COUNTER",
+        })),
+      ].sort(
+        (firstItem, secondItem) =>
+          Number(firstItem.sort_order ?? 0) -
+          Number(secondItem.sort_order ?? 0)
+      );
 
       itemsTitle.textContent =
         `${formatName(selectedChild.name)} Items`;
@@ -1513,10 +1581,15 @@
 
         const price = document.createElement("div");
         price.className = "price";
-        const selectedPrice = getPackagePrice(item);
+        const selectedPrice = item.__itemType === "COUNTER"
+          ? getCounterPrice(item)
+          : getPackagePrice(item);
         price.textContent = selectedPrice === null
           ? "Not available"
-          : `${formatNumber(selectedPrice)} ${state.selectedCurrency}`;
+          : `${formatNumber(selectedPrice)} ${state.selectedCurrency}` +
+            (item.__itemType === "COUNTER"
+              ? ` / ${formatName(item.unit || "unit")}`
+              : "");
 
         const badge = document.createElement("div");
         badge.className = selectedPrice === null
@@ -1538,35 +1611,15 @@
         card.appendChild(image);
         card.appendChild(content);
 
-        const itemIsExpanded =
-          String(state.expandedPackageItemId) === String(item.id);
-
-        if (itemIsExpanded) {
-          card.appendChild(createPackageOrderPanel(item));
-        }
-
-        const toggleOrderPanel = () => {
-          state.expandedPackageItemId = itemIsExpanded
-            ? null
-            : item.id;
-          renderItems();
-
-          if (!itemIsExpanded) {
-            requestAnimationFrame(() => {
-              document
-                .getElementById(`package-target-${item.id}`)
-                ?.focus();
-            });
-          }
-        };
-
         card.tabIndex = 0;
         card.setAttribute("role", "button");
-        card.addEventListener("click", toggleOrderPanel);
+        card.addEventListener("click", () => {
+          openItemPage(item, item.__itemType, selectedChild);
+        });
         card.addEventListener("keydown", (event) => {
           if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
-            toggleOrderPanel();
+            openItemPage(item, item.__itemType, selectedChild);
           }
         });
         itemsContainer.appendChild(card);
@@ -2453,9 +2506,10 @@
       categoryBackLink.href = backUrl;
 
       try {
-        const [categories, packageItems] = await Promise.all([
+        const [categories, packageItems, counterItems] = await Promise.all([
           getCategoriesTree(),
           getAllItemsPackage(),
+          getAllItemsCounter(),
         ]);
 
         const category = categories.find(
@@ -2482,6 +2536,7 @@
             )
           : [];
         state.packageItems = packageItems;
+        state.counterItems = counterItems;
         state.selectedChildcategoryId = state.children.some(
           (child) => String(child.id) === String(selectedChildIdFromUrl)
         )
