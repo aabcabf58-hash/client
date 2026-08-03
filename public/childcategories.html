@@ -6,6 +6,7 @@
   <meta name="color-scheme" content="light">
   <title>Services & Items</title>
   <link rel="stylesheet" href="./site.css">
+  <script src="./app-navigation.js" defer></script>
 
   <style>
     .breadcrumb {
@@ -805,6 +806,82 @@
       .price { font-size: 10px !important; }
     }
   </style>
+  <style>
+    .currency-switch {
+      display: inline-flex;
+      padding: 3px;
+      background: #fff0e3;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .currency-button {
+      min-width: 48px;
+      height: 34px;
+      padding: 0 9px;
+      color: var(--muted);
+      background: transparent;
+      border: 0;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .currency-button.active { color: #fff; background: #a63a00; }
+    .item-card { cursor: pointer; flex-wrap: wrap; }
+    .package-order-panel {
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 7px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+    .package-target-input {
+      width: 100%;
+      min-width: 0;
+      height: 38px;
+      padding: 0 10px;
+      color: var(--text);
+      background: #fffaf6;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      outline: none;
+      font: inherit;
+      font-size: 12px;
+    }
+    .package-target-input:focus {
+      border-color: #a63a00;
+      box-shadow: 0 0 0 3px rgba(166, 58, 0, .12);
+    }
+    .package-buy-button {
+      min-height: 38px;
+      padding: 0 13px;
+      color: #fff;
+      background: #a63a00;
+      border: 0;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .package-buy-button:disabled { cursor: not-allowed; opacity: .55; }
+    .package-order-message {
+      grid-column: 1 / -1;
+      min-height: 16px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.35;
+    }
+    .package-order-message.error { color: #b42318; }
+    .package-order-message.success { color: #087b4b; }
+    @media (max-width: 640px) {
+      .currency-button { min-width: 43px; padding: 0 7px; }
+      .package-order-panel { grid-template-columns: 1fr; }
+      .package-order-message { grid-column: 1; }
+      .package-buy-button { width: 100%; }
+    }
+  </style>
 </head>
 <body>
   <div id="loading" class="loading">Loading services...</div>
@@ -817,6 +894,10 @@
       </div>
 
       <div class="topbar-actions">
+        <div class="currency-switch" aria-label="Select currency">
+          <button class="currency-button" data-currency="LBP" type="button">LBP</button>
+          <button class="currency-button" data-currency="USD" type="button">USD</button>
+        </div>
         <a class="button secondary" href="./home.html" title="Home" aria-label="Home">🏠</a>
         <button id="backButton" class="button secondary" type="button">
           Back
@@ -867,6 +948,7 @@
       GET_YEAR: "/api/ushare/getyear",
       CHECK_YEAR: "/api/ushare/chekyear",
       CONFIRM_YEAR: "/api/ushare/confirmYear",
+      CREATE_ORDER_PACKAGE: "/orders/createOrderPackage",
     };
 
     const params = new URLSearchParams(window.location.search);
@@ -886,6 +968,11 @@
       daysItemsError: "",
       currentCategory: null,
       currentSubcategory: null,
+      selectedCurrency:
+        localStorage.getItem("selectedCurrency") === "USD"
+          ? "USD"
+          : "LBP",
+      expandedPackageItemId: null,
     };
 
     const yearResultsByItemId = new Map();
@@ -908,6 +995,7 @@
     const itemsTitle = document.getElementById("itemsTitle");
     const itemsCount = document.getElementById("itemsCount");
     const logoutButton = document.getElementById("logoutButton");
+    const currencyButtons = document.querySelectorAll(".currency-button");
 
     function getToken() {
       return localStorage.getItem("token");
@@ -1178,6 +1266,151 @@
       }
     }
 
+    function getPackagePrice(item) {
+      const priceField =
+        state.selectedCurrency === "USD"
+          ? "price_usd"
+          : "price_lbp";
+
+      if (
+        item?.[priceField] === undefined ||
+        item?.[priceField] === null ||
+        item?.[priceField] === ""
+      ) {
+        return null;
+      }
+
+      const price = toNumber(item[priceField], Number.NaN);
+      return Number.isFinite(price) && price >= 0 ? price : null;
+    }
+
+    function syncCurrencyButtons() {
+      currencyButtons.forEach((button) => {
+        button.classList.toggle(
+          "active",
+          button.dataset.currency === state.selectedCurrency
+        );
+      });
+    }
+
+    function selectCurrency(currency) {
+      if (currency !== "LBP" && currency !== "USD") return;
+
+      state.selectedCurrency = currency;
+      state.expandedPackageItemId = null;
+      localStorage.setItem("selectedCurrency", currency);
+      syncCurrencyButtons();
+      renderItems();
+    }
+
+    async function submitPackageOrder(item, input, button, message) {
+      const targetIdentifier = String(input.value ?? "").trim();
+      const price = getPackagePrice(item);
+
+      message.className = "package-order-message";
+      message.textContent = "";
+
+      if (!targetIdentifier) {
+        message.classList.add("error");
+        message.textContent = "Target identifier is required";
+        input.focus();
+        return;
+      }
+
+      if (price === null) {
+        message.classList.add("error");
+        message.textContent =
+          `This item is not available in ${state.selectedCurrency}`;
+        return;
+      }
+
+      const confirmed = window.confirm(
+        `Confirm ${formatName(item.name)} for ${targetIdentifier} ` +
+        `at ${formatNumber(price)} ${state.selectedCurrency}?`
+      );
+
+      if (!confirmed) return;
+
+      button.disabled = true;
+      button.textContent = "Processing...";
+
+      try {
+        const result = await apiRequest(
+          API_PATHS.CREATE_ORDER_PACKAGE,
+          {
+            method: "POST",
+            body: {
+              item_id: item.id,
+              target_identifier: targetIdentifier,
+              currency: state.selectedCurrency,
+            },
+          }
+        );
+
+        const orderId =
+          result?.order?.id ??
+          result?.data?.id ??
+          result?.order_id ??
+          null;
+
+        message.classList.add("success");
+        message.textContent = orderId
+          ? `Order #${orderId} created successfully`
+          : (result.message || "Order created successfully");
+        input.value = "";
+      } catch (error) {
+        message.classList.add("error");
+        message.textContent = error.message || "Failed to create order";
+      } finally {
+        button.disabled = false;
+        button.textContent = "Purchase";
+      }
+    }
+
+    function createPackageOrderPanel(item) {
+      const panel = document.createElement("div");
+      panel.className = "package-order-panel";
+
+      const input = document.createElement("input");
+      input.className = "package-target-input";
+      input.id = `package-target-${item.id}`;
+      input.type = "text";
+      input.autocomplete = "off";
+      input.placeholder = "Enter target identifier";
+      input.setAttribute("aria-label", "Target identifier");
+
+      const button = document.createElement("button");
+      button.className = "package-buy-button";
+      button.type = "button";
+      button.textContent = "Purchase";
+      button.disabled = getPackagePrice(item) === null;
+
+      const message = document.createElement("div");
+      message.className = "package-order-message";
+      if (button.disabled) {
+        message.classList.add("error");
+        message.textContent =
+          `Not available in ${state.selectedCurrency}`;
+      }
+
+      panel.addEventListener("click", (event) => event.stopPropagation());
+      panel.addEventListener("keydown", (event) => event.stopPropagation());
+      button.addEventListener("click", () => {
+        submitPackageOrder(item, input, button, message);
+      });
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !button.disabled) {
+          event.preventDefault();
+          submitPackageOrder(item, input, button, message);
+        }
+      });
+
+      panel.appendChild(input);
+      panel.appendChild(button);
+      panel.appendChild(message);
+      return panel;
+    }
+
     function getVisiblePackageItems() {
       if (state.selectedChildcategoryId === null) {
         return [];
@@ -1276,15 +1509,22 @@
 
         const priceLabel = document.createElement("div");
         priceLabel.className = "price-label";
-        priceLabel.textContent = "Price";
+        priceLabel.textContent = `Price • ${state.selectedCurrency}`;
 
         const price = document.createElement("div");
         price.className = "price";
-        price.textContent = formatNumber(item.price);
+        const selectedPrice = getPackagePrice(item);
+        price.textContent = selectedPrice === null
+          ? "Not available"
+          : `${formatNumber(selectedPrice)} ${state.selectedCurrency}`;
 
         const badge = document.createElement("div");
-        badge.className = "badge success";
-        badge.textContent = "Available";
+        badge.className = selectedPrice === null
+          ? "badge"
+          : "badge success";
+        badge.textContent = selectedPrice === null
+          ? "Unavailable"
+          : "Open";
 
         priceBox.appendChild(priceLabel);
         priceBox.appendChild(price);
@@ -1297,6 +1537,38 @@
 
         card.appendChild(image);
         card.appendChild(content);
+
+        const itemIsExpanded =
+          String(state.expandedPackageItemId) === String(item.id);
+
+        if (itemIsExpanded) {
+          card.appendChild(createPackageOrderPanel(item));
+        }
+
+        const toggleOrderPanel = () => {
+          state.expandedPackageItemId = itemIsExpanded
+            ? null
+            : item.id;
+          renderItems();
+
+          if (!itemIsExpanded) {
+            requestAnimationFrame(() => {
+              document
+                .getElementById(`package-target-${item.id}`)
+                ?.focus();
+            });
+          }
+        };
+
+        card.tabIndex = 0;
+        card.setAttribute("role", "button");
+        card.addEventListener("click", toggleOrderPanel);
+        card.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            toggleOrderPanel();
+          }
+        });
         itemsContainer.appendChild(card);
       }
     }
@@ -1690,7 +1962,7 @@
             >
               Confirm Year
             </button>
-          </div>
++          </div>
         </div>
       `;
     }
@@ -2255,6 +2527,12 @@
     }
 
     logoutButton.addEventListener("click", logout);
+    currencyButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        selectCurrency(button.dataset.currency);
+      });
+    });
+    syncCurrencyButtons();
     loadPage();
   </script>
 </body>
