@@ -945,6 +945,7 @@
       CATEGORIES_TREE: "/category/getAllCategoriesTree",
       ITEMS_PACKAGE: "/category/getAllItemsPackage",
       ITEMS_COUNTER: "/category/getAllItemsCounter",
+      ITEMS_BALANCE: "/category/getAllItemsBalance",
       ITEMS_DAYS: "/category/getAllItemsDays",
       GET_YEAR: "/api/ushare/getyear",
       CHECK_YEAR: "/api/ushare/chekyear",
@@ -965,6 +966,7 @@
       children: [],
       packageItems: [],
       counterItems: [],
+      balanceItems: [],
       daysItems: [],
       daysItemsLoaded: false,
       daysItemsError: "",
@@ -1152,6 +1154,11 @@
     async function getAllItemsCounter() {
       const result = await apiRequest(API_PATHS.ITEMS_COUNTER);
       return extractArray(result, ["items", "counters", "items_counter"]);
+    }
+
+    async function getAllItemsBalance() {
+      const result = await apiRequest(API_PATHS.ITEMS_BALANCE);
+      return extractArray(result, ["items", "balances", "items_balance"]);
     }
 
     function normalizeDaysItem(item) {
@@ -1450,6 +1457,24 @@
       );
     }
 
+    function getVisibleBalanceItems() {
+      if (state.selectedChildcategoryId === null) return [];
+      return state.balanceItems.filter(
+        (item) =>
+          item.is_active !== false &&
+          String(item.childcategory_id) === String(state.selectedChildcategoryId)
+      );
+    }
+
+    function getBalanceUnitPrice(item) {
+      const field = state.selectedCurrency === "USD"
+        ? "price_per_dollar_usd"
+        : "price_per_dollar_lbp";
+      if (item?.[field] === undefined || item?.[field] === null || item?.[field] === "") return null;
+      const price = toNumber(item[field], Number.NaN);
+      return Number.isFinite(price) && price >= 0 ? price : null;
+    }
+
     function getCounterPrice(item) {
       const priceField =
         state.selectedCurrency === "USD"
@@ -1523,6 +1548,10 @@
           ...item,
           __itemType: "COUNTER",
         })),
+        ...getVisibleBalanceItems().map((item) => ({
+          ...item,
+          __itemType: "BALANCE",
+        })),
       ].sort(
         (firstItem, secondItem) =>
           Number(firstItem.sort_order ?? 0) -
@@ -1583,12 +1612,16 @@
         price.className = "price";
         const selectedPrice = item.__itemType === "COUNTER"
           ? getCounterPrice(item)
-          : getPackagePrice(item);
+          : item.__itemType === "BALANCE"
+            ? getBalanceUnitPrice(item)
+            : getPackagePrice(item);
         price.textContent = selectedPrice === null
           ? "Not available"
           : `${formatNumber(selectedPrice)} ${state.selectedCurrency}` +
             (item.__itemType === "COUNTER"
               ? ` / ${formatName(item.unit || "unit")}`
+              : item.__itemType === "BALANCE"
+                ? " / balance $"
               : "");
 
         const badge = document.createElement("div");
@@ -2506,10 +2539,11 @@
       categoryBackLink.href = backUrl;
 
       try {
-        const [categories, packageItems, counterItems] = await Promise.all([
+        const [categories, packageItems, counterItems, balanceItems] = await Promise.all([
           getCategoriesTree(),
           getAllItemsPackage(),
           getAllItemsCounter(),
+          getAllItemsBalance(),
         ]);
 
         const category = categories.find(
@@ -2537,6 +2571,7 @@
           : [];
         state.packageItems = packageItems;
         state.counterItems = counterItems;
+        state.balanceItems = balanceItems;
         state.selectedChildcategoryId = state.children.some(
           (child) => String(child.id) === String(selectedChildIdFromUrl)
         )

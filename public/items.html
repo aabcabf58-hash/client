@@ -472,17 +472,21 @@
         </section>
 
         <section id="counterOrderBox" class="order-box hidden">
-          <h2>Choose counter</h2>
-          <label class="field-label" for="counterInput">Counter</label>
+          <h2 id="variableOrderTitle">Choose amount</h2>
+          <label id="variableAmountLabel" class="field-label" for="counterInput">Amount</label>
           <input
             id="counterInput"
             class="order-input"
             type="number"
             inputmode="decimal"
             autocomplete="off"
-            placeholder="Enter counter"
+            placeholder="Enter amount"
           >
           <p id="counterHelp" class="field-help"></p>
+
+          <label class="field-label" for="variableTargetIdentifier">Target identifier</label>
+          <input id="variableTargetIdentifier" class="order-input" type="text"
+            autocomplete="off" placeholder="Enter phone number or target ID">
 
           <div class="price-preview">
             <span>Total price</span>
@@ -509,9 +513,12 @@
     const API_PATHS = {
       ITEMS_PACKAGE: "/category/getAllItemsPackage",
       ITEMS_COUNTER: "/category/getAllItemsCounter",
+      ITEMS_BALANCE: "/category/getAllItemsBalance",
       CREATE_ORDER_PACKAGE: "/orders/createOrderPackage",
-      GET_COUNTER_PRICE: "/orders/getcounterprice",
-      CREATE_ORDER_COUNTER: "/orders/createordercounter",
+      GET_COUNTER_PRICE: "/category/getcounterPrice",
+      GET_BALANCE_PRICE: "/category/getBalancePrice",
+      CREATE_ORDER_COUNTER: "/orders/createOrderCounter",
+      CREATE_ORDER_BALANCE: "/orders/createOrderBalance",
     };
 
     const params = new URLSearchParams(window.location.search);
@@ -549,6 +556,9 @@
     const packageOrderButton = document.getElementById("packageOrderButton");
     const packageMessage = document.getElementById("packageMessage");
     const counterInput = document.getElementById("counterInput");
+    const variableTargetIdentifier = document.getElementById("variableTargetIdentifier");
+    const variableOrderTitle = document.getElementById("variableOrderTitle");
+    const variableAmountLabel = document.getElementById("variableAmountLabel");
     const counterHelp = document.getElementById("counterHelp");
     const counterTotalPrice = document.getElementById("counterTotalPrice");
     const checkPriceButton = document.getElementById("checkPriceButton");
@@ -667,14 +677,11 @@
     function getItemPrice() {
       if (!state.item) return null;
 
-      const field =
-        itemType === "COUNTER"
-          ? state.currency === "USD"
-            ? "price_per_unit_usd"
-            : "price_per_unit_lbp"
-          : state.currency === "USD"
-            ? "price_usd"
-            : "price_lbp";
+      const field = itemType === "COUNTER"
+        ? (state.currency === "USD" ? "price_per_unit_usd" : "price_per_unit_lbp")
+        : itemType === "BALANCE"
+          ? (state.currency === "USD" ? "price_per_dollar_usd" : "price_per_dollar_lbp")
+          : (state.currency === "USD" ? "price_usd" : "price_lbp");
 
       const price = toNumber(state.item[field]);
       return Number.isFinite(price) && price >= 0 ? price : null;
@@ -738,20 +745,28 @@
       itemFacts.innerHTML = "";
       addFact("Company", formatName(item.company) || "—");
       addFact(
-        itemType === "COUNTER" ? "Price per unit" : "Price",
+        itemType === "COUNTER" ? "Price per unit" : itemType === "BALANCE" ? "Price per balance $" : "Price",
         price === null
           ? `Not available in ${state.currency}`
           : `${formatNumber(price)} ${state.currency}`
       );
 
-      if (itemType === "COUNTER") {
-        addFact("Unit", formatName(item.unit) || "Unit");
+      if (itemType === "COUNTER" || itemType === "BALANCE") {
+        const isBalance = itemType === "BALANCE";
+        variableOrderTitle.textContent = isBalance ? "Choose balance amount" : "Choose counter amount";
+        variableAmountLabel.textContent = isBalance ? "Balance amount" : "Counter amount";
+        counterInput.placeholder = isBalance ? "Enter balance amount" : "Enter counter amount";
+        addFact("Unit", isBalance ? "Balance $" : (formatName(item.unit) || "Unit"));
         addFact(
-          "Allowed counter",
+          "Allowed amount",
           `${formatNumber(item.minimum_amount ?? 0)} – ${formatNumber(
             item.maximum_amount ?? 0
           )}`
         );
+        if (isBalance) {
+          addFact("Maximum per message", formatNumber(item.maximum_per_message));
+          addFact("Message cost", `${formatNumber(item.message_cost)} balance $`);
+        }
 
         const minimum = toNumber(item.minimum_amount, 0);
         const maximum = toNumber(item.maximum_amount);
@@ -788,7 +803,7 @@
 
       const numericCounter = toNumber(counterInput.value);
       if (!Number.isFinite(numericCounter) || numericCounter <= 0) {
-        showMessage(counterMessage, "Enter a valid counter", "error");
+        showMessage(counterMessage, "Enter a valid amount", "error");
         counterInput.focus();
         return null;
       }
@@ -797,20 +812,22 @@
       checkPriceButton.textContent = "Checking...";
 
       try {
-        const result = await apiRequest(API_PATHS.GET_COUNTER_PRICE, {
-          method: "POST",
-          auth: false,
-          body: {
-            item_id: state.item.id,
-            counter: numericCounter,
-            currency: state.currency,
-          },
-        });
+        const result = await apiRequest(
+          itemType === "BALANCE" ? API_PATHS.GET_BALANCE_PRICE : API_PATHS.GET_COUNTER_PRICE,
+          {
+            method: "POST",
+            auth: false,
+            body: itemType === "BALANCE"
+              ? { company: state.item.company, balance_amount: numericCounter, currency: state.currency }
+              : { company: state.item.company, amount: numericCounter, currency: state.currency },
+          }
+        );
 
         const totalPrice = toNumber(
           result.total_price ??
           result.price ??
-          result.data?.total_price
+          result.data?.total_price ??
+          result.data?.price
         );
 
         if (!Number.isFinite(totalPrice)) {
@@ -915,6 +932,13 @@
     async function createCounterOrder() {
       clearMessage(counterMessage);
 
+      const target = String(variableTargetIdentifier.value || "").trim();
+      if (!target) {
+        showMessage(counterMessage, "Target identifier is required", "error");
+        variableTargetIdentifier.focus();
+        return;
+      }
+
       const checked = await checkCounterPrice(false);
       if (!checked) return;
 
@@ -930,14 +954,25 @@
       counterOrderButton.textContent = "Processing...";
 
       try {
-        const result = await apiRequest(API_PATHS.CREATE_ORDER_COUNTER, {
-          method: "POST",
-          body: {
-            item_id: state.item.id,
-            counter: checked.counter,
-            currency: state.currency,
-          },
-        });
+        const result = await apiRequest(
+          itemType === "BALANCE" ? API_PATHS.CREATE_ORDER_BALANCE : API_PATHS.CREATE_ORDER_COUNTER,
+          {
+            method: "POST",
+            body: itemType === "BALANCE"
+              ? {
+                  item_id: state.item.id,
+                  target_identifier: target,
+                  balance_amount: checked.counter,
+                  currency: state.currency,
+                }
+              : {
+                  item_id: state.item.id,
+                  target_identifier: target,
+                  amount: checked.counter,
+                  currency: state.currency,
+                },
+          }
+        );
 
         const orderId =
           result.order?.id ?? result.data?.id ?? result.order_id;
@@ -950,6 +985,7 @@
           "success"
         );
         counterInput.value = "";
+        variableTargetIdentifier.value = "";
         resetCounterPrice();
       } catch (error) {
         showMessage(
@@ -969,7 +1005,7 @@
         !subcategoryId ||
         !childcategoryId ||
         !itemId ||
-        (itemType !== "PACKAGE" && itemType !== "COUNTER")
+        !["PACKAGE", "COUNTER", "BALANCE"].includes(itemType)
       ) {
         window.location.href = "./home.html";
         return;
@@ -983,9 +1019,10 @@
       });
 
       try {
-        const path =
-          itemType === "COUNTER"
-            ? API_PATHS.ITEMS_COUNTER
+        const path = itemType === "COUNTER"
+          ? API_PATHS.ITEMS_COUNTER
+          : itemType === "BALANCE"
+            ? API_PATHS.ITEMS_BALANCE
             : API_PATHS.ITEMS_PACKAGE;
 
         const result = await apiRequest(path);
@@ -993,7 +1030,9 @@
           result,
           itemType === "COUNTER"
             ? ["items", "counters", "items_counter"]
-            : ["items", "packages", "items_package"]
+            : itemType === "BALANCE"
+              ? ["items", "balances", "items_balance"]
+              : ["items", "packages", "items_package"]
         );
 
         state.item = items.find(
