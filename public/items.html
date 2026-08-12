@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Item details</title>
+  <link rel="stylesheet" href="./theme.css">
   <style>
     :root {
       --primary: #a63a00;
@@ -200,6 +201,10 @@
       border-radius: 22px;
       background: var(--surface);
       box-shadow: var(--shadow);
+    }
+
+    .item-card.balance-simple {
+      display: block;
     }
 
     .item-visual {
@@ -418,7 +423,6 @@
       <div class="topbar-actions">
         <a class="button secondary" href="./home.html" aria-label="Home">🏠</a>
         <button id="backButton" class="button secondary" type="button">Back</button>
-        <button id="logoutButton" class="button" type="button">Logout</button>
       </div>
     </header>
 
@@ -473,6 +477,11 @@
 
         <section id="counterOrderBox" class="order-box hidden">
           <h2 id="variableOrderTitle">Choose amount</h2>
+
+          <label id="variableTargetLabel" class="field-label" for="variableTargetIdentifier">Target identifier</label>
+          <input id="variableTargetIdentifier" class="order-input" type="text"
+            autocomplete="off" placeholder="Enter phone number or target ID">
+
           <label id="variableAmountLabel" class="field-label" for="counterInput">Amount</label>
           <input
             id="counterInput"
@@ -483,10 +492,6 @@
             placeholder="Enter amount"
           >
           <p id="counterHelp" class="field-help"></p>
-
-          <label class="field-label" for="variableTargetIdentifier">Target identifier</label>
-          <input id="variableTargetIdentifier" class="order-input" type="text"
-            autocomplete="off" placeholder="Enter phone number or target ID">
 
           <div class="price-preview">
             <span>Total price</span>
@@ -541,6 +546,8 @@
       checkedTotal: null,
     };
 
+    let automaticPriceTimer = null;
+
     const loading = document.getElementById("loading");
     const page = document.getElementById("page");
     const pageError = document.getElementById("pageError");
@@ -557,6 +564,7 @@
     const packageMessage = document.getElementById("packageMessage");
     const counterInput = document.getElementById("counterInput");
     const variableTargetIdentifier = document.getElementById("variableTargetIdentifier");
+    const variableTargetLabel = document.getElementById("variableTargetLabel");
     const variableOrderTitle = document.getElementById("variableOrderTitle");
     const variableAmountLabel = document.getElementById("variableAmountLabel");
     const counterHelp = document.getElementById("counterHelp");
@@ -722,6 +730,15 @@
       const item = state.item;
       const price = getItemPrice();
 
+      const isBalance = itemType === "BALANCE";
+
+      itemCard.classList.toggle("balance-simple", isBalance);
+      itemVisual.classList.toggle("hidden", isBalance);
+      itemTypeBadge.classList.toggle("hidden", isBalance);
+      itemName.classList.toggle("hidden", isBalance);
+      itemDescription.classList.toggle("hidden", isBalance);
+      itemFacts.classList.toggle("hidden", isBalance);
+
       itemTypeBadge.textContent = itemType;
       itemName.textContent = formatName(item.name) || "Item";
       itemDescription.textContent =
@@ -743,47 +760,60 @@
       }
 
       itemFacts.innerHTML = "";
-      addFact("Company", formatName(item.company) || "—");
-      addFact(
-        itemType === "COUNTER" ? "Price per unit" : itemType === "BALANCE" ? "Price per balance $" : "Price",
-        price === null
-          ? `Not available in ${state.currency}`
-          : `${formatNumber(price)} ${state.currency}`
-      );
+      if (!isBalance) {
+        addFact("Company", formatName(item.company) || "—");
+        addFact(
+          itemType === "COUNTER" ? "Price per unit" : "Price",
+          price === null
+            ? `Not available in ${state.currency}`
+            : `${formatNumber(price)} ${state.currency}`
+        );
+      }
 
       if (itemType === "COUNTER" || itemType === "BALANCE") {
-        const isBalance = itemType === "BALANCE";
-        variableOrderTitle.textContent = isBalance ? "Choose balance amount" : "Choose counter amount";
-        variableAmountLabel.textContent = isBalance ? "Balance amount" : "Counter amount";
+        variableOrderTitle.textContent = isBalance ? "Create balance order" : "Choose counter amount";
+        variableAmountLabel.textContent = isBalance ? "Amount" : "Counter amount";
         counterInput.placeholder = isBalance ? "Enter balance amount" : "Enter counter amount";
-        addFact("Unit", isBalance ? "Balance $" : (formatName(item.unit) || "Unit"));
-        addFact(
-          "Allowed amount",
-          `${formatNumber(item.minimum_amount ?? 0)} – ${formatNumber(
-            item.maximum_amount ?? 0
-          )}`
-        );
-        if (isBalance) {
-          addFact("Maximum per message", formatNumber(item.maximum_per_message));
-          addFact("Message cost", `${formatNumber(item.message_cost)} balance $`);
+        variableTargetLabel.textContent = isBalance ? "Phone number" : "Target identifier";
+        variableTargetIdentifier.placeholder = isBalance
+          ? "Enter phone number"
+          : "Enter phone number or target ID";
+        variableTargetIdentifier.inputMode = isBalance ? "numeric" : "text";
+        checkPriceButton.classList.toggle("hidden", isBalance);
+
+        if (!isBalance) {
+          addFact("Unit", formatName(item.unit) || "Unit");
+          addFact(
+            "Allowed amount",
+            `${formatNumber(item.minimum_amount ?? 0)} – ${formatNumber(
+              item.maximum_amount ?? 0
+            )}`
+          );
         }
 
         const minimum = toNumber(item.minimum_amount, 0);
         const maximum = toNumber(item.maximum_amount);
         const step = toNumber(item.step_amount);
 
-        if (Number.isFinite(minimum)) counterInput.min = minimum;
-        if (Number.isFinite(maximum)) counterInput.max = maximum;
-        if (Number.isFinite(step) && step > 0) counterInput.step = step;
+        counterInput.removeAttribute("min");
+        counterInput.removeAttribute("max");
+        counterInput.removeAttribute("step");
 
-        counterHelp.textContent =
-          `Minimum: ${formatNumber(minimum)}` +
-          (Number.isFinite(maximum)
-            ? ` • Maximum: ${formatNumber(maximum)}`
-            : "") +
-          (Number.isFinite(step) && step > 0
-            ? ` • Step: ${formatNumber(step)}`
-            : "");
+        if (!isBalance) {
+          if (Number.isFinite(minimum)) counterInput.min = minimum;
+          if (Number.isFinite(maximum)) counterInput.max = maximum;
+          if (Number.isFinite(step) && step > 0) counterInput.step = step;
+        }
+
+        counterHelp.textContent = isBalance
+          ? "The price is calculated automatically."
+          : `Minimum: ${formatNumber(minimum)}` +
+            (Number.isFinite(maximum)
+              ? ` • Maximum: ${formatNumber(maximum)}`
+              : "") +
+            (Number.isFinite(step) && step > 0
+              ? ` • Step: ${formatNumber(step)}`
+              : "");
 
         packageOrderBox.classList.add("hidden");
         counterOrderBox.classList.remove("hidden");
@@ -859,6 +889,22 @@
         checkPriceButton.disabled = false;
         checkPriceButton.textContent = "Check price";
       }
+    }
+
+    function scheduleAutomaticBalancePrice() {
+      if (itemType !== "BALANCE") return;
+
+      clearTimeout(automaticPriceTimer);
+      resetCounterPrice();
+      clearMessage(counterMessage);
+
+      const amount = toNumber(counterInput.value);
+      if (!Number.isFinite(amount) || amount <= 0) return;
+
+      counterTotalPrice.textContent = "Calculating...";
+      automaticPriceTimer = setTimeout(() => {
+        checkCounterPrice(false);
+      }, 500);
     }
 
     async function createPackageOrder() {
@@ -1069,26 +1115,38 @@
         syncCurrency();
 
         if (state.item) renderItem();
+        if (itemType === "BALANCE" && counterInput.value) {
+          scheduleAutomaticBalancePrice();
+        }
       });
     });
 
     counterInput.addEventListener("input", () => {
-      resetCounterPrice();
-      clearMessage(counterMessage);
+      if (itemType === "BALANCE") {
+        scheduleAutomaticBalancePrice();
+      } else {
+        resetCounterPrice();
+        clearMessage(counterMessage);
+      }
     });
     targetIdentifier.addEventListener("keydown", (event) => {
       if (event.key === "Enter") createPackageOrder();
     });
     counterInput.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") checkCounterPrice();
+      if (event.key === "Enter") {
+        event.preventDefault();
+        itemType === "BALANCE"
+          ? createCounterOrder()
+          : checkCounterPrice();
+      }
     });
 
     checkPriceButton.addEventListener("click", () => checkCounterPrice());
     packageOrderButton.addEventListener("click", createPackageOrder);
     counterOrderButton.addEventListener("click", createCounterOrder);
-    document.getElementById("logoutButton").addEventListener("click", logout);
 
     loadPage();
   </script>
+  <script src="./theme.js"></script>
 </body>
 </html>

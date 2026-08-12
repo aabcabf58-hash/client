@@ -6,17 +6,18 @@
   <meta name="color-scheme" content="light">
   <title>Account Activity</title>
   <link rel="stylesheet" href="./site.css">
+  <link rel="stylesheet" href="./theme.css">
   <style>
     :root {
       color-scheme: light;
-      --bg: #fff7f0;
-      --background: #fff7f0;
+      --bg: #dff5ff;
+      --background: #dff5ff;
       --card: #ffffff;
-      --card-soft: #fff0e3;
-      --text: #2d1b12;
-      --muted: #806354;
-      --border: #edc7ae;
-      --shadow: 0 12px 32px rgba(127, 44, 0, 0.10);
+      --card-soft: #eef9ff;
+      --text: #17324a;
+      --muted: #627d91;
+      --border: #bddcec;
+      --shadow: 0 12px 32px rgba(36, 105, 143, 0.10);
     }
 
     html,
@@ -82,15 +83,15 @@
 
     .nav-link.active,
     .filter-button.active {
-      background: #ffe1cc !important;
-      color: #7f2c00 !important;
+      background: #dbeafe !important;
+      color: #075985 !important;
     }
 
     .button:not(.secondary),
     .logout-button {
-      background: #a63a00 !important;
+      background: #075985 !important;
       color: #fff !important;
-      border-color: #a63a00 !important;
+      border-color: #075985 !important;
     }
 
     .button.secondary,
@@ -99,14 +100,14 @@
     .badge,
     .message,
     .count {
-      background: #fff0e3 !important;
-      color: #7f2c00 !important;
+      background: #e0f2fe !important;
+      color: #075985 !important;
       border-color: var(--border) !important;
     }
 
     a,
     .nav-link {
-      color: #a63a00 !important;
+      color: #0369a1 !important;
     }
 
     input,
@@ -115,7 +116,7 @@
     .search-input,
     .filter-input,
     .input {
-      background: #fffaf6 !important;
+      background: #f4fbff !important;
       color: var(--text) !important;
       border-color: var(--border) !important;
     }
@@ -129,6 +130,28 @@
       overflow-y: visible !important;
     }
 
+    .activity-balance-change {
+      min-width: 190px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.5;
+      white-space: nowrap;
+    }
+
+    .activity-balance-arrow {
+      color: #38bdf8;
+      font-size: 16px;
+      font-weight: 900;
+    }
+
     @media (max-width: 640px) {
       .page {
         width: calc(100% - 20px) !important;
@@ -137,7 +160,7 @@
     }
   </style>
 </head>
-<body>
+<body class="activity-page">
   <div id="loading" class="loading">Loading activity...</div>
 
   <main id="page" class="page hidden">
@@ -151,9 +174,6 @@
         <a class="button secondary" href="./home.html" title="Home" aria-label="Home">🏠</a>
         <button id="refreshButton" class="button secondary" type="button">
           Refresh
-        </button>
-        <button id="logoutButton" class="button logout-button" type="button">
-          Logout
         </button>
       </div>
     </header>
@@ -207,7 +227,6 @@
     const activityCount = document.getElementById("activityCount");
     const searchInput = document.getElementById("searchInput");
     const refreshButton = document.getElementById("refreshButton");
-    const logoutButton = document.getElementById("logoutButton");
     const directionButtons = document.querySelectorAll("[data-direction]");
 
     function logout() {
@@ -400,18 +419,6 @@
             activity.counterparty_numberphone
           )
         );
-        meta.appendChild(
-          createMeta(
-            "Balance Before",
-            `${formatNumber(activity.balance_before)} ${currency}`
-          )
-        );
-        meta.appendChild(
-          createMeta(
-            "Balance After",
-            `${formatNumber(activity.balance_after)} ${currency}`
-          )
-        );
         meta.appendChild(createMeta("Currency", currency));
 
         main.appendChild(titleRow);
@@ -432,8 +439,26 @@
         currencyText.className = "extra";
         currencyText.textContent = currency || "—";
 
+        const balanceChange = document.createElement("div");
+        balanceChange.className = "activity-balance-change";
+
+        const balanceBefore = document.createElement("span");
+        balanceBefore.textContent = formatNumber(activity.balance_before);
+
+        const balanceArrow = document.createElement("span");
+        balanceArrow.className = "activity-balance-arrow";
+        balanceArrow.textContent = "===>";
+
+        const balanceAfter = document.createElement("span");
+        balanceAfter.textContent = formatNumber(activity.balance_after);
+
+        balanceChange.appendChild(balanceBefore);
+        balanceChange.appendChild(balanceArrow);
+        balanceChange.appendChild(balanceAfter);
+
         amountBox.appendChild(amount);
         amountBox.appendChild(currencyText);
+        amountBox.appendChild(balanceChange);
 
         card.appendChild(main);
         card.appendChild(amountBox);
@@ -483,8 +508,8 @@
     });
 
     refreshButton.addEventListener("click", loadActivity);
-    logoutButton.addEventListener("click", logout);
     loadActivity();
   </script>
+  <script src="./theme.js"></script>
 </body>
 </html>

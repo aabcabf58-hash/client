@@ -6,21 +6,22 @@
   <meta name="color-scheme" content="light">
   <title>Categories</title>
   <link rel="stylesheet" href="./site.css">
+  <link rel="stylesheet" href="./theme.css">
 
   <style>
     :root {
       color-scheme: light;
-      --bg: #fff7f0;
-      --background: #fff7f0;
+      --bg: #dff5ff;
+      --background: #dff5ff;
       --card: #ffffff;
-      --card-soft: #fff0e3;
-      --text: #2d1b12;
-      --muted: #806354;
-      --border: #edc7ae;
+      --card-soft: #eef9ff;
+      --text: #17324a;
+      --muted: #627d91;
+      --border: #bddcec;
       --primary: #a63a00;
       --primary-dark: #7f2c00;
-      --primary-soft: #ffe1cc;
-      --shadow: 0 12px 30px rgba(127, 44, 0, 0.10);
+      --primary-soft: #e0f2fe;
+      --shadow: 0 12px 30px rgba(36, 105, 143, 0.10);
     }
 
     * { box-sizing: border-box; }
@@ -34,7 +35,7 @@
     body {
       margin: 0;
       background:
-        radial-gradient(circle at top right, #ffe5d2 0, transparent 34%),
+        linear-gradient(180deg, #bfe8ff 0%, #e8f8ff 100%),
         var(--bg) !important;
       color: var(--text) !important;
     }
@@ -47,6 +48,7 @@
 
     .topbar {
       display: flex;
+      flex-wrap: nowrap !important;
       align-items: center;
       justify-content: space-between;
       gap: 20px;
@@ -59,7 +61,10 @@
       box-shadow: var(--shadow);
     }
 
-    .welcome-block { min-width: 220px; }
+    .welcome-block {
+      min-width: 0;
+      flex: 0 1 220px;
+    }
 
     .topbar h1 {
       margin: 0;
@@ -75,21 +80,24 @@
       display: flex;
       align-items: stretch;
       justify-content: flex-end;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       gap: 10px;
       flex: 1;
+      min-width: 0;
     }
 
     .summary-chip {
-      min-width: 145px;
+      min-width: 0;
+      flex: 1 1 145px;
       padding: 11px 14px;
-      background: #fffaf6;
+      background: #f4fbff;
       border: 1px solid var(--border);
       border-radius: 14px;
     }
 
     .summary-chip.role-chip {
-      min-width: 112px;
+      min-width: 0;
+      flex-basis: 112px;
       background: var(--primary-soft);
     }
 
@@ -114,6 +122,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      flex: 0 0 auto;
     }
 
     .icon-link,
@@ -150,11 +159,18 @@
       flex-direction: column;
       gap: 32px;
       margin-top: 30px;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
     }
 
     .category-section {
       width: 100%;
       overflow: hidden;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
     }
 
     .category-heading {
@@ -188,6 +204,12 @@
       overflow-y: hidden;
       scrollbar-width: thin;
       scroll-snap-type: x proximity;
+      background: transparent !important;
+      background-color: transparent !important;
+      background-image: none !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
     }
 
     .subcategory-card {
@@ -251,7 +273,7 @@
     .category-empty {
       padding: 13px 15px;
       color: var(--muted);
-      background: #fffaf6;
+      background: #f4fbff;
       border: 1px dashed var(--border);
       border-radius: 14px;
       font-size: 13px;
@@ -261,7 +283,7 @@
     .empty {
       padding: 18px;
       color: var(--primary-dark);
-      background: #fff1e7;
+      background: #eef9ff;
       border: 1px solid var(--border);
       border-radius: 14px;
     }
@@ -274,8 +296,11 @@
     }
 
     @media (max-width: 900px) {
-      .topbar { align-items: flex-start; flex-wrap: wrap; }
-      .header-summary { justify-content: flex-start; order: 3; flex-basis: 100%; }
+      .topbar { align-items: center; flex-wrap: nowrap !important; gap: 10px; }
+      .header-summary { justify-content: flex-end; order: initial; flex-basis: auto; gap: 6px; }
+      .summary-chip { padding: 8px; }
+      .chip-label { font-size: 9px; }
+      .chip-value { font-size: 12px; }
     }
 
     @media (max-width: 640px) {
@@ -284,13 +309,17 @@
         padding: 12px 0 32px !important;
       }
 
-      .topbar { padding: 14px !important; border-radius: 17px; }
-      .welcome-block { min-width: 0; flex: 1; }
-      .topbar h1 { font-size: 22px; }
-      .header-summary { display: grid; grid-template-columns: 1fr 1fr; }
-      .summary-chip { min-width: 0; padding: 9px 10px; }
-      .role-chip { grid-column: 1 / -1; }
-      .chip-value { font-size: 13px; }
+      .topbar { padding: 10px !important; border-radius: 17px; gap: 6px; }
+      .welcome-block { flex: 0 1 86px; }
+      .topbar h1 { overflow: hidden; font-size: 16px; text-overflow: ellipsis; white-space: nowrap; }
+      .topbar p { overflow: hidden; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+      .header-summary { display: flex; grid-template-columns: none; gap: 4px; }
+      .summary-chip { min-width: 0; padding: 6px 5px; border-radius: 10px; }
+      .role-chip { grid-column: auto; }
+      .chip-label { margin-bottom: 2px; font-size: 7px; letter-spacing: 0; }
+      .chip-value { display: block; overflow: hidden; font-size: 9px; text-overflow: ellipsis; }
+      .topbar-actions { gap: 4px; }
+      .icon-link, .logout-button, .home-sidebar-open { min-width: 34px; width: 34px; height: 34px; flex-basis: 34px; }
       .logout-button { width: 42px; padding: 0; font-size: 0; }
       .logout-button::before { content: "↪"; font-size: 20px; }
       .catalog-sections { gap: 27px; margin-top: 24px; }
@@ -337,6 +366,8 @@
       border-radius: 20px;
       box-shadow: 0 15px 38px rgba(127, 44, 0, .13);
       transition: transform .22s ease;
+      display: flex;
+      flex-direction: column;
     }
 
     .home-sidebar-title {
@@ -364,6 +395,23 @@
       flex-direction: column;
       gap: 7px;
     }
+
+    .home-sidebar-logout {
+      width: 100%;
+      min-height: 44px;
+      margin-top: auto;
+      padding: 8px 10px;
+      border: 1px solid rgba(248, 113, 113, .35);
+      border-radius: 12px;
+      color: #fecaca;
+      background: rgba(127, 29, 29, .22);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .home-sidebar-logout:hover { background: rgba(127, 29, 29, .38); }
 
     .home-sidebar-link {
       min-height: 44px;
@@ -485,6 +533,10 @@
         <span>My Years</span>
       </a>
     </nav>
+
+    <button id="logoutButton" class="home-sidebar-logout" type="button">
+      ↪ Logout
+    </button>
   </aside>
 
   <label
@@ -526,7 +578,6 @@
         >☰</label>
         <a class="icon-link" href="./years.html" title="Years" aria-label="Years">📅</a>
         <a class="icon-link" href="./activity.html" title="Activity" aria-label="Activity">🧾</a>
-        <button id="logoutButton" class="logout-button" type="button">Logout</button>
       </div>
     </header>
 
@@ -575,21 +626,24 @@
       return text ? text.charAt(0).toUpperCase() : "?";
     }
 
-    async function requestJson(path) {
+    async function requestJson(path, options = {}) {
+      const requiresAuth = options.auth !== false;
       const token = getToken();
-      if (!token) {
+      if (requiresAuth && !token) {
         logout();
         throw new Error("Token not found");
       }
 
       const response = await fetch(`${API_BASE_URL}${path}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: requiresAuth && token
+          ? { Authorization: `Bearer ${token}` }
+          : {},
       });
 
       let result = {};
       try { result = await response.json(); } catch (_) {}
 
-      if (response.status === 401 || response.status === 403) {
+      if (requiresAuth && response.status === 401) {
         logout();
         throw new Error(result.message || "Session expired");
       }
@@ -608,8 +662,15 @@
     }
 
     async function getCategoriesTree() {
-      const result = await requestJson("/category/getAllCategoriesTree");
-      return Array.isArray(result.data) ? result.data : [];
+      const result = await requestJson(
+        "/category/getAllCategoriesTree",
+        { auth: false }
+      );
+      if (Array.isArray(result)) return result;
+      if (Array.isArray(result.data)) return result.data;
+      if (Array.isArray(result.categories)) return result.categories;
+      if (Array.isArray(result.tree)) return result.tree;
+      return [];
     }
 
     function renderUser(user) {
@@ -697,12 +758,27 @@
 
     async function loadPage() {
       try {
-        const [user, categories] = await Promise.all([
-          getInfoUser(),
-          getCategoriesTree(),
-        ]);
-        renderUser(user);
-        renderCategories(categories);
+        try {
+          const user = await getInfoUser();
+          renderUser(user);
+        } catch (userError) {
+          console.error("User information error:", userError);
+          const savedUser = localStorage.getItem("user");
+          if (savedUser) {
+            try {
+              renderUser(JSON.parse(savedUser));
+            } catch (_) {}
+          }
+        }
+
+        try {
+          const categories = await getCategoriesTree();
+          renderCategories(categories);
+        } catch (catalogError) {
+          console.error("Categories error:", catalogError);
+          catalogContainer.innerHTML =
+            `<div class="empty">${catalogError.message || "Unable to load categories"}</div>`;
+        }
       } catch (error) {
         console.error("Home error:", error);
         pageError.textContent = error.message || "Unable to load the home page";
@@ -716,5 +792,6 @@
     logoutButton.addEventListener("click", logout);
     loadPage();
   </script>
+  <script src="./theme.js"></script>
 </body>
 </html>

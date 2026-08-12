@@ -50,6 +50,19 @@
   applyTheme(getInitialTheme());
 
   document.addEventListener("DOMContentLoaded", function () {
+    if (!document.getElementById("spacePlanets")) {
+      const planets = document.createElement("div");
+      planets.id = "spacePlanets";
+      planets.className = "space-planets";
+      planets.setAttribute("aria-hidden", "true");
+      planets.innerHTML = `
+        <span class="space-planet planet-blue"></span>
+        <span class="space-planet planet-gold"></span>
+        <span class="space-planet planet-ringed"></span>
+      `;
+      document.body.appendChild(planets);
+    }
+
     if (document.getElementById("themeToggleButton")) {
       return;
     }

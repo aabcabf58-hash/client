@@ -6,6 +6,7 @@
   <meta name="color-scheme" content="light">
   <title>Services & Items</title>
   <link rel="stylesheet" href="./site.css">
+  <link rel="stylesheet" href="./theme.css">
   <script src="./app-navigation.js" defer></script>
 
   <style>
@@ -234,7 +235,7 @@
 
     .year-action-button.check { background: #059669; }
     .year-action-button.confirm { background: #d97706; }
-    .year-action-button.copy { background: #7c3aed; }
+    .year-action-button.copy { background: #0369a1; }
     .year-action-button.secondary {
       color: var(--text);
       background: var(--card-soft);
@@ -300,8 +301,8 @@
     .recharge-card-box {
       margin-top: 10px;
       padding: 14px;
-      background: rgba(124, 58, 237, 0.10);
-      border: 1px solid rgba(167, 139, 250, 0.42);
+      background: rgba(3, 105, 161, 0.10);
+      border: 1px solid rgba(56, 189, 248, 0.42);
       border-radius: 15px;
     }
 
@@ -309,9 +310,9 @@
       margin-top: 10px;
       padding: 12px;
       overflow-wrap: anywhere;
-      color: #f3e8ff;
+      color: #e0f2fe;
       background: rgba(17, 24, 39, 0.75);
-      border: 1px dashed rgba(196, 181, 253, 0.55);
+      border: 1px dashed rgba(125, 211, 252, 0.55);
       border-radius: 12px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 17px;
@@ -902,9 +903,6 @@
         <button id="backButton" class="button secondary" type="button">
           Back
         </button>
-        <button id="logoutButton" class="button logout-button" type="button">
-          Logout
-        </button>
       </div>
     </header>
 
@@ -998,7 +996,6 @@
       document.getElementById("itemsContainer");
     const itemsTitle = document.getElementById("itemsTitle");
     const itemsCount = document.getElementById("itemsCount");
-    const logoutButton = document.getElementById("logoutButton");
     const currencyButtons = document.querySelectorAll(".currency-button");
 
     function getToken() {
@@ -2518,12 +2515,7 @@
     }
 
     function buildSubcategoriesUrl() {
-      const backParams = new URLSearchParams({
-        category_id: categoryId,
-        category_name: categoryNameFromUrl,
-      });
-
-      return `./subcategories.html?${backParams.toString()}`;
+      return "./home.html";
     }
 
     async function loadPage() {
@@ -2616,7 +2608,6 @@
       }
     }
 
-    logoutButton.addEventListener("click", logout);
     currencyButtons.forEach((button) => {
       button.addEventListener("click", () => {
         selectCurrency(button.dataset.currency);
@@ -2625,5 +2616,6 @@
     syncCurrencyButtons();
     loadPage();
   </script>
+  <script src="./theme.js"></script>
 </body>
 </html>

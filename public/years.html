@@ -6,6 +6,7 @@
   <meta name="color-scheme" content="light">
   <title>My Years</title>
   <link rel="stylesheet" href="./site.css">
+  <link rel="stylesheet" href="./theme.css">
   <style>
     .years-toolbar {
       display: grid;
@@ -100,7 +101,7 @@
     }
     .status-created { color: #dbeafe; background: #2563eb22; border-color: #60a5fa66; }
     .status-pending { color: #fef3c7; background: #d9770622; border-color: #f59e0b66; }
-    .status-checking { color: #e9d5ff; background: #7c3aed22; border-color: #a78bfa66; }
+    .status-checking { color: #e0f2fe; background: #0369a122; border-color: #38bdf866; }
     .status-complete { color: #dcfce7; background: #16a34a22; border-color: #4ade8066; }
 
     .year-info-grid {
@@ -335,7 +336,6 @@
       <div class="topbar-actions">
         <a class="button secondary" href="./home.html" title="Home" aria-label="Home">🏠</a>
         <button id="refreshButton" class="button secondary" type="button">Refresh</button>
-        <button id="logoutButton" class="button logout-button" type="button">Logout</button>
       </div>
     </header>
 
@@ -720,8 +720,8 @@
       renderYears();
     });
     document.getElementById("refreshButton").addEventListener("click", () => loadYears(false));
-    document.getElementById("logoutButton").addEventListener("click", logout);
     loadYears();
   </script>
+  <script src="./theme.js"></script>
 </body>
 </html>

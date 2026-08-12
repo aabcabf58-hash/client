@@ -6,7 +6,6 @@ Files:
 - register.html
 - home.html
 - categories.html
-- subcategories.html
 - childcategories.html
 - activity.html
 - auth.css

@@ -6,6 +6,7 @@
   <meta name="color-scheme" content="light">
   <title>Create Account</title>
   <link rel="stylesheet" href="./auth.css">
+  <link rel="stylesheet" href="./theme.css">
   <style>
     :root {
       color-scheme: light;
@@ -147,7 +148,7 @@
         </button>
       </form>
 
-      <form class="hidden" id="verifyForm">
+      <form class="hidden" id="verifyForm" hidden>
         <div class="otp-number" id="selectedNumber"></div>
 
         <div class="form-group">
@@ -247,6 +248,8 @@
 
       registerForm.classList.add("hidden");
       verifyForm.classList.remove("hidden");
+      registerForm.hidden = true;
+      verifyForm.hidden = false;
       otpInput.focus();
     }
 
@@ -255,6 +258,8 @@
       otpInput.value = "";
       verifyForm.classList.add("hidden");
       registerForm.classList.remove("hidden");
+      verifyForm.hidden = true;
+      registerForm.hidden = false;
       clearMessage();
     }
 
@@ -457,5 +462,6 @@
       showRegisterStep
     );
   </script>
+  <script src="./theme.js"></script>
 </body>
 </html>
