@@ -345,7 +345,7 @@
       <label class="filter-field">
         <span class="filter-label">Search numbers</span>
         <input id="searchInput" class="filter-input" type="search"
-          placeholder="Buyer number or any returned-to number">
+          placeholder="Target number or any returned-to number">
       </label>
 
       <label class="filter-field">
@@ -484,8 +484,8 @@
         id: year.id ?? year.year_id,
         year_name: String(year.year_name ?? "-"),
         status: String(year.status ?? "").toUpperCase(),
-        number_client: String(year.number_client ?? ""),
-        buyer_numberphone: String(year.buyer_numberphone ?? ""),
+        client_numberphone: String(year.client_numberphone ?? ""),
+        target_identifier: String(year.target_identifier ?? ""),
         source_group_id: year.source_group_id ?? null,
         pending_at: year.pending_at ?? null,
         total_received: toNumber(year.total_received),
@@ -552,7 +552,7 @@
         if (!isInsideDateFilter(year)) return false;
         if (!search) return true;
         const searchableNumbers = [
-          year.buyer_numberphone,
+          year.target_identifier,
           ...year.numbers.map((entry) => entry.numberphone),
         ].join(" ").toLowerCase();
         return searchableNumbers.includes(search);
@@ -594,8 +594,8 @@
           </div>
 
           <div class="year-info-grid">
-            ${infoBox("Buyer number", year.buyer_numberphone || "—")}
-            ${infoBox("Client number", year.number_client || "—")}
+            ${infoBox("Target number", year.target_identifier || "—")}
+            ${infoBox("Client number", year.client_numberphone || "—")}
             ${infoBox("Total received", `${money(year.total_received)}$`)}
             ${infoBox("Total balance difference", `${money(year.total_balance_difference)}$`)}
             ${infoBox("Final year price", `${money(year.final_year_price)} LBP`)}
@@ -700,7 +700,7 @@
       try {
         const result = await apiRequest(API_PATHS.CONFIRM_YEAR, {
           method: "POST",
-          body: { year_id: year.id, number_client: year.number_client },
+          body: { year_id: year.id, client_numberphone: year.client_numberphone },
         });
         showMessage(yearId, result.message || "Year confirmed successfully.", "success");
         await loadYears(false);
