@@ -948,7 +948,7 @@
       GET_YEAR: "/api/ushare/getyear",
       CHECK_YEAR: "/api/ushare/chekyear",
       CONFIRM_YEAR: "/api/ushare/confirmYear",
-      CREATE_ORDER: "/orders/createOrder",
+      CREATE_ORDER_PACKAGE: "/orders/createOrderPackage",
     };
 
     const params = new URLSearchParams(window.location.search);
@@ -1347,12 +1347,11 @@
 
       try {
         const result = await apiRequest(
-          API_PATHS.CREATE_ORDER,
+          API_PATHS.CREATE_ORDER_PACKAGE,
           {
             method: "POST",
             body: {
               item_id: item.id,
-              item_type: "PACKAGE",
               target_identifier: targetIdentifier,
               currency: state.selectedCurrency,
             },

@@ -519,9 +519,11 @@
       ITEMS_PACKAGE: "/category/getAllItemsPackage",
       ITEMS_COUNTER: "/category/getAllItemsCounter",
       ITEMS_BALANCE: "/category/getAllItemsBalance",
-      CREATE_ORDER: "/orders/createOrder",
+      CREATE_ORDER_PACKAGE: "/orders/createOrderPackage",
       GET_COUNTER_PRICE: "/category/getcounterPrice",
       GET_BALANCE_PRICE: "/category/getBalancePrice",
+      CREATE_ORDER_COUNTER: "/orders/createOrderCounter",
+      CREATE_ORDER_BALANCE: "/orders/createOrderBalance",
     };
 
     const params = new URLSearchParams(window.location.search);
@@ -941,11 +943,10 @@
       packageOrderButton.textContent = "Processing...";
 
       try {
-        const result = await apiRequest(API_PATHS.CREATE_ORDER, {
+        const result = await apiRequest(API_PATHS.CREATE_ORDER_PACKAGE, {
           method: "POST",
           body: {
             item_id: state.item.id,
-            item_type: itemType,
             target_identifier: target,
             currency: state.currency,
           },
@@ -999,16 +1000,25 @@
       counterOrderButton.textContent = "Processing...";
 
       try {
-        const result = await apiRequest(API_PATHS.CREATE_ORDER, {
-          method: "POST",
-          body: {
-            item_id: state.item.id,
-            item_type: itemType,
-            target_identifier: target,
-            amount: checked.counter,
-            currency: state.currency,
-          },
-        });
+        const result = await apiRequest(
+          itemType === "BALANCE" ? API_PATHS.CREATE_ORDER_BALANCE : API_PATHS.CREATE_ORDER_COUNTER,
+          {
+            method: "POST",
+            body: itemType === "BALANCE"
+              ? {
+                  item_id: state.item.id,
+                  target_identifier: target,
+                  balance_amount: checked.counter,
+                  currency: state.currency,
+                }
+              : {
+                  item_id: state.item.id,
+                  target_identifier: target,
+                  amount: checked.counter,
+                  currency: state.currency,
+                },
+          }
+        );
 
         const orderId =
           result.order?.id ?? result.data?.id ?? result.order_id;
