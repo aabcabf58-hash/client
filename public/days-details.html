@@ -1201,7 +1201,7 @@
       return {
         raw: data,
         year_id: data.year_id ?? data.id ?? null,
-        number_client: data.number_client ?? inputText,
+        number_client: data.client_numberphone  ?? inputText,
         buyer_numberphone:
           data.buyer_numberphone ??
           data.bayer_numberphone ??
@@ -2019,6 +2019,7 @@
 
     loadPage();
   </script>
+  <script type="module" src="./firebase-notifications.js"></script>
   <script src="./theme.js"></script>
 </body>
 </html>

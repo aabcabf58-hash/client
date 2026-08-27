@@ -144,6 +144,19 @@
       font-size: 18px;
     }
 
+    #notificationButton {
+      padding: 0;
+      font: inherit;
+    }
+
+    #notificationButton.notification-enabled {
+      box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.18);
+    }
+
+    #notificationButton.notification-blocked {
+      opacity: 0.68;
+    }
+
     .logout-button {
       padding: 0 14px;
       color: #fff !important;
@@ -576,6 +589,13 @@
           title="Open menu"
           aria-label="Open menu"
         >☰</label>
+        <button
+          id="notificationButton"
+          class="icon-link"
+          type="button"
+          title="Enable notifications"
+          aria-label="Enable notifications"
+        >🔔</button>
         <a class="icon-link" href="./years.html" title="Years" aria-label="Years">📅</a>
         <a class="icon-link" href="./activity.html" title="Activity" aria-label="Activity">🧾</a>
       </div>
@@ -792,6 +812,7 @@
     logoutButton.addEventListener("click", logout);
     loadPage();
   </script>
+  <script type="module" src="./firebase-notifications.js"></script>
   <script src="./theme.js"></script>
 </body>
 </html>
