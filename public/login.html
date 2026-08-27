@@ -110,6 +110,9 @@
       </section>
     </section>
   </main>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
+  <script src="./firebase-client.js"></script>
   <script>
     const API_BASE_URL="https://abdd-production.up.railway.app";
     const loginForm=document.getElementById("loginForm"),numberphoneInput=document.getElementById("numberphone"),
@@ -123,15 +126,15 @@
     function saveLoginData(token,user){localStorage.setItem("token",token);if(user)localStorage.setItem("user",JSON.stringify(user))}
     passwordToggle.addEventListener("click",()=>{const hidden=passwordInput.type==="password";passwordInput.type=hidden?"text":"password";passwordToggle.textContent=hidden?"Hide":"Show"});
     loginForm.addEventListener("submit",async event=>{
-      event.preventDefault();clearMessage();const numberphone=normalizeNumberphone(numberphoneInput.value),password=passwordInput.value;
+      event.preventDefault();const fcmPermissionPromise=prepareFcmPermission();clearMessage();const numberphone=normalizeNumberphone(numberphoneInput.value),password=passwordInput.value;
       if(!numberphone){showMessage("Phone number is required","error");numberphoneInput.focus();return}
       if(!password){showMessage("Password is required","error");passwordInput.focus();return}
       setLoading(true);
-      try{const response=await fetch(`${API_BASE_URL}/auth/login/password`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({numberphone,password,fcm_token:null})});
+      try{const response=await fetch(`${API_BASE_URL}/auth/login/password`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({numberphone,password})});
         let data={};try{data=await response.json()}catch(parseError){}
         if(!response.ok||data.success===false)throw new Error(data.message||"Login failed");
         if(!data.token)throw new Error("Token was not returned by server");
-        saveLoginData(data.token,data.data);showMessage(data.message||"Login successful","success");window.location.href="./home.html";
+        saveLoginData(data.token,data.data);showMessage(data.message||"Login successful","success");await saveFcmTokenAfterAuth(data.token,fcmPermissionPromise);window.location.href="./home.html";
       }catch(error){console.error("Login error:",error);showMessage(error.message||"Unable to connect to server","error")}finally{setLoading(false)}
     });
   </script>
