@@ -444,14 +444,15 @@
 
     .year-numbers-table {
       width: 100%;
-      min-width: 690px;
+      min-width: 540px;
       border-collapse: collapse;
+      table-layout: auto;
       background: var(--card);
     }
 
     .year-numbers-table th,
     .year-numbers-table td {
-      padding: 11px 12px;
+      padding: 8px 7px;
       text-align: left;
       white-space: nowrap;
       border-bottom: 1px solid var(--border);
@@ -467,8 +468,27 @@
     }
 
     .year-numbers-table td {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 800;
+    }
+
+    .year-numbers-table th:first-child,
+    .year-numbers-table td:first-child {
+      width: 105px;
+    }
+
+    .year-numbers-table th:nth-child(2),
+    .year-numbers-table td:nth-child(2) {
+      width: 105px;
+    }
+
+    .year-numbers-table th:nth-child(3),
+    .year-numbers-table td:nth-child(3),
+    .year-numbers-table th:nth-child(4),
+    .year-numbers-table td:nth-child(4),
+    .year-numbers-table th:nth-child(5),
+    .year-numbers-table td:nth-child(5) {
+      width: 75px;
     }
 
     .year-numbers-table tr:last-child td {
