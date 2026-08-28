@@ -185,6 +185,118 @@
       .years-summary, .year-info-grid { grid-template-columns: 1fr 1fr; }
       .year-head { align-items: stretch; }
     }
+
+    /* Compact years rows - always one row, even on small screens */
+    .years-list {
+      gap: 8px;
+      overflow-x: auto !important;
+      overflow-y: visible !important;
+      padding-bottom: 6px;
+    }
+
+    .years-row-head,
+    .year-row {
+      display: grid;
+      grid-template-columns: minmax(150px, 1.1fr) minmax(140px, 1fr) minmax(165px, 1fr) minmax(110px, 0.65fr);
+      align-items: center;
+      gap: 12px;
+      min-width: 600px;
+    }
+
+    .years-row-head {
+      padding: 0 14px 7px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .year-row {
+      min-height: 58px;
+      padding: 10px 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 5px 16px rgba(127, 44, 0, 0.06);
+      box-sizing: border-box;
+    }
+
+    .year-row-cell {
+      min-width: 0;
+    }
+
+    .year-row-value {
+      min-width: 0;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 900;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .year-row-price {
+      font-size: 15px;
+    }
+
+    .year-row-status {
+      justify-self: start;
+      white-space: nowrap;
+    }
+
+    /* لا نحول السطر إلى عمود أو سطرين على الموبايل، فقط نصغّر الخط والمسافات */
+    @media (max-width: 720px) {
+      .years-row-head,
+      .year-row {
+        grid-template-columns: minmax(135px, 1.1fr) minmax(125px, 1fr) minmax(150px, 1fr) minmax(95px, 0.65fr);
+        gap: 8px;
+        min-width: 535px;
+      }
+
+      .years-row-head {
+        padding: 0 10px 6px;
+        font-size: 9px;
+      }
+
+      .year-row {
+        min-height: 52px;
+        padding: 8px 10px;
+      }
+
+      .year-row-value {
+        font-size: 12px;
+      }
+
+      .year-row-price {
+        font-size: 13px;
+      }
+
+      .year-row-status {
+        font-size: 10px;
+        padding: 6px 8px;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .years-row-head,
+      .year-row {
+        grid-template-columns: minmax(125px, 1.1fr) minmax(115px, 1fr) minmax(140px, 1fr) minmax(90px, 0.65fr);
+        min-width: 500px;
+      }
+
+      .year-row-value {
+        font-size: 11px;
+      }
+
+      .year-row-price {
+        font-size: 12px;
+      }
+
+      .year-row-status {
+        font-size: 9px;
+      }
+    }
   </style>
   <style>
     :root {
@@ -491,6 +603,9 @@
         total_received: toNumber(year.total_received),
         total_balance_difference: toNumber(year.total_balance_difference),
         final_year_price: toNumber(year.final_year_price),
+        price_sene_now: year.price_sene_now === null || year.price_sene_now === undefined
+          ? null
+          : toNumber(year.price_sene_now),
         refund_amount: toNumber(year.refund_amount),
         numbers: Array.isArray(year.numbers) ? year.numbers : [],
       };
@@ -573,63 +688,37 @@
         yearsList.innerHTML = '<div class="empty-years">No years match the selected filters.</div>';
         return;
       }
-      yearsList.innerHTML = visible.map(renderYearCard).join("");
+      yearsList.innerHTML = `
+        <div class="years-row-head" aria-hidden="true">
+          <div>Final year price</div>
+          <div>Target number</div>
+          <div>Date</div>
+          <div>Status</div>
+        </div>
+        ${visible.map(renderYearRow).join("")}
+      `;
     }
 
-    function renderYearCard(year) {
+    function renderYearRow(year) {
       const statusClass = `status-${year.status.toLowerCase()}`;
-      const numbers = year.numbers.length
-        ? year.numbers.map(renderNumber).join("")
-        : '<div class="empty-years">No numbers were returned.</div>';
-      const canCheck = year.status === "PENDING" || year.status === "CHECKING";
-      const canConfirm = year.status === "CHECKING";
+
       return `
-        <article class="year-card" id="year-${escapeHtml(year.id)}">
-          <div class="year-head">
-            <div>
-              <h2 class="year-title">${escapeHtml(year.year_name)} · #${escapeHtml(year.id)}</h2>
-              <div class="year-subtitle">Pending at ${escapeHtml(formatDate(year.pending_at))}</div>
-            </div>
-            <span class="status ${statusClass}">${escapeHtml(year.status || "UNKNOWN")}</span>
+        <article class="year-row" id="year-${escapeHtml(year.id)}" data-year-id="${escapeHtml(year.id)}">
+          <div class="year-row-cell price">
+            <div class="year-row-value year-row-price">${escapeHtml(money(year.final_year_price))} LBP</div>
           </div>
 
-          <div class="year-info-grid">
-            ${infoBox("Target number", year.target_identifier || "—")}
-            ${infoBox("Client number", year.client_numberphone || "—")}
-            ${infoBox("Total received", `${money(year.total_received)}$`)}
-            ${infoBox("Total balance difference", `${money(year.total_balance_difference)}$`)}
-            ${infoBox("Final year price", `${money(year.final_year_price)} LBP`)}
-            ${infoBox("Refund amount", `${money(year.refund_amount)} LBP`)}
-            ${infoBox("Numbers count", year.numbers.length)}
-            ${infoBox("Completed at", formatDate(year.completed_at))}
+          <div class="year-row-cell target">
+            <div class="year-row-value">${escapeHtml(year.target_identifier || "—")}</div>
           </div>
 
-          <h3 class="numbers-title">Numbers and returned amounts</h3>
-          <div class="numbers-grid">${numbers}</div>
+          <div class="year-row-cell date">
+            <div class="year-row-value">${escapeHtml(formatDate(year.pending_at))}</div>
+          </div>
 
-          ${(canCheck || canConfirm) ? `
-            <div class="year-actions">
-              ${canCheck ? `
-                <button id="check-${escapeHtml(year.id)}" class="year-button"
-                  type="button" onclick="checkYear('${escapeJsString(year.id)}')">
-                  Check
-                </button>` : ""}
-
-              ${canConfirm ? `
-                <div class="confirm-area">
-                  <label class="confirm-label">
-                    <input id="confirm-checkbox-${escapeHtml(year.id)}" type="checkbox"
-                      onchange="toggleConfirm('${escapeJsString(year.id)}')">
-                    <span>I am sure that I want to confirm this year and return the calculated amount to my wallet.</span>
-                  </label>
-                  <button id="confirm-${escapeHtml(year.id)}" class="year-button confirm"
-                    type="button" onclick="confirmYear('${escapeJsString(year.id)}')" disabled>
-                    Confirm Year
-                  </button>
-                </div>` : ""}
-            </div>` : ""}
-
-          <div id="message-${escapeHtml(year.id)}" class="hidden"></div>
+          <div class="year-row-cell state">
+            <span class="status ${statusClass} year-row-status">${escapeHtml(year.status || "UNKNOWN")}</span>
+          </div>
         </article>
       `;
     }
