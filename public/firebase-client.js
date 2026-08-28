@@ -18,7 +18,7 @@ const ZOUZOU_VAPID_KEY =
   "BCofxZV5smmcYOqlGyfzkXW7MpYBgEa1hftl6yL4hlgNcugCZgIRtTmt5LCnTZ2IQCe-ADSxV05oQXD_dYZXyYE";
 
 const ZOUZOU_FCM_TOKEN_ENDPOINT =
-  "https://abdd-production.up.railway.app/routes/authRouter/fcm-token";
+  "https://abdd-production.up.railway.app/authRouter/fcm-token";
 
 if (!firebase.apps.length) {
   firebase.initializeApp(ZOUZOU_FIREBASE_CONFIG);
