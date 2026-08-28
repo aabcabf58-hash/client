@@ -517,6 +517,73 @@
       }
     }
   </style>
+
+  <style>
+    /* Mobile: show LBP / USD / Role as three full-width rows */
+    @media (max-width: 640px) {
+      .topbar {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) auto !important;
+        align-items: center !important;
+        gap: 8px !important;
+      }
+
+      .welcome-block {
+        grid-column: 1;
+        grid-row: 1;
+        width: 100%;
+        min-width: 0;
+        flex: none !important;
+      }
+
+      .topbar-actions {
+        grid-column: 2;
+        grid-row: 1;
+        align-self: center;
+      }
+
+      .header-summary {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        width: 100%;
+        min-width: 0;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 5px !important;
+      }
+
+      .summary-chip,
+      .summary-chip.role-chip {
+        width: 100%;
+        min-width: 0;
+        padding: 7px 10px !important;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex: none !important;
+      }
+
+      .chip-label {
+        margin: 0 !important;
+        flex: 0 0 auto;
+        font-size: 8px !important;
+        white-space: nowrap;
+      }
+
+      .chip-value {
+        min-width: 0;
+        display: block;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        white-space: nowrap !important;
+        text-align: right;
+        font-size: 11px !important;
+        line-height: 1.25;
+      }
+    }
+  </style>
+
 </head>
 <body>
   <input
