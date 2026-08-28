@@ -297,6 +297,241 @@
         font-size: 9px;
       }
     }
+
+
+    /* Year details modal */
+    .year-row {
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+
+    .year-row:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(127, 44, 0, 0.10);
+    }
+
+    .year-row:focus-visible {
+      outline: 3px solid rgba(166, 58, 0, 0.22);
+      outline-offset: 2px;
+    }
+
+    body.year-modal-open {
+      overflow: hidden !important;
+    }
+
+    .year-modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(22, 14, 10, 0.58);
+      backdrop-filter: blur(4px);
+      box-sizing: border-box;
+    }
+
+    .year-modal-overlay.hidden {
+      display: none !important;
+    }
+
+    .year-modal {
+      width: min(960px, 100%);
+      max-height: calc(100vh - 36px);
+      overflow: auto;
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.26);
+    }
+
+    .year-modal-header {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 18px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .year-modal-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .year-modal-close {
+      width: 40px;
+      height: 40px;
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--card-soft);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .year-modal-body {
+      padding: 18px;
+    }
+
+    .year-modal-info {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .year-modal-info-box {
+      min-width: 0;
+      padding: 12px;
+      background: var(--card-soft);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+    }
+
+    .year-modal-info-value {
+      margin-top: 5px;
+      font-size: 14px;
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .year-modal-section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 4px 0 10px;
+    }
+
+    .year-modal-section-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .copy-numbers-button {
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--card-soft);
+      color: var(--text);
+      cursor: pointer;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .year-numbers-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+    }
+
+    .year-numbers-table {
+      width: 100%;
+      min-width: 690px;
+      border-collapse: collapse;
+      background: var(--card);
+    }
+
+    .year-numbers-table th,
+    .year-numbers-table td {
+      padding: 11px 12px;
+      text-align: left;
+      white-space: nowrap;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .year-numbers-table th {
+      color: var(--muted);
+      background: var(--card-soft);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .year-numbers-table td {
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .year-numbers-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .year-number-cell {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 900 !important;
+    }
+
+    .year-modal-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .year-modal-actions .year-button {
+      min-width: 130px;
+    }
+
+    .year-modal-confirm {
+      width: 100%;
+      margin-top: 14px;
+      padding: 13px;
+      background: rgba(217, 119, 6, 0.10);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      border-radius: 14px;
+      box-sizing: border-box;
+    }
+
+    .year-modal-confirm .year-button {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 700px) {
+      .year-modal-overlay {
+        padding: 10px;
+        align-items: flex-end;
+      }
+
+      .year-modal {
+        width: 100%;
+        max-height: 92vh;
+        border-radius: 18px 18px 12px 12px;
+      }
+
+      .year-modal-header,
+      .year-modal-body {
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+
+      .year-modal-info {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .year-modal-title {
+        font-size: 17px;
+      }
+    }
   </style>
   <style>
     :root {
@@ -435,6 +670,49 @@
       }
     }
   </style>
+
+  <style>
+    /* Fix scrolling inside year details on small screens.
+       This must come after the generic section overflow rules. */
+    .year-modal-overlay {
+      overflow-y: auto !important;
+      overscroll-behavior: contain;
+    }
+
+    section.year-modal {
+      max-height: calc(100dvh - 36px) !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+    }
+
+    @media (max-width: 700px) {
+      .year-modal-overlay {
+        padding: 6px !important;
+        align-items: flex-end;
+      }
+
+      section.year-modal {
+        width: 100% !important;
+        height: calc(100dvh - 12px);
+        max-height: calc(100dvh - 12px) !important;
+        border-radius: 16px 16px 8px 8px;
+      }
+
+      .year-modal-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      .year-modal-body {
+        padding-bottom: 28px;
+      }
+    }
+  </style>
+
 </head>
 <body>
   <div id="loading" class="loading">Loading your years...</div>
@@ -505,6 +783,10 @@
     <section id="yearsList" class="years-list"></section>
   </main>
 
+  <div id="yearModalOverlay" class="year-modal-overlay hidden" aria-hidden="true">
+    <section id="yearModal" class="year-modal" role="dialog" aria-modal="true" aria-labelledby="yearModalTitle"></section>
+  </div>
+
   <script>
     const API_BASE_URL = "https://abdd-production.up.railway.app";
     const API_PATHS = {
@@ -513,7 +795,11 @@
       CONFIRM_YEAR: "/api/ushare/confirmYear",
     };
 
-    const state = { years: [] };
+    const state = {
+      years: [],
+      openYearId: null,
+      modalMessage: null,
+    };
     const loading = document.getElementById("loading");
     const page = document.getElementById("page");
     const pageError = document.getElementById("pageError");
@@ -524,6 +810,8 @@
     const customDates = document.getElementById("customDates");
     const dateFrom = document.getElementById("dateFrom");
     const dateTo = document.getElementById("dateTo");
+    const yearModalOverlay = document.getElementById("yearModalOverlay");
+    const yearModal = document.getElementById("yearModal");
 
     function getToken() { return localStorage.getItem("token"); }
     function logout() {
@@ -548,6 +836,10 @@
     function money(value) {
       return new Intl.NumberFormat("en-GB", { maximumFractionDigits: 2 })
         .format(toNumber(value));
+    }
+    function moneyOrDash(value) {
+      if (value === null || value === undefined || String(value).trim() === "") return "—";
+      return money(value);
     }
     function formatDate(value) {
       if (!value) return "—";
@@ -607,7 +899,12 @@
           ? null
           : toNumber(year.price_sene_now),
         refund_amount: toNumber(year.refund_amount),
-        numbers: Array.isArray(year.numbers) ? year.numbers : [],
+        numbers: Array.isArray(year.numbers)
+          ? year.numbers.map((entry) => ({
+              ...entry,
+              required_balance: entry.required_balance ?? null,
+            }))
+          : [],
       };
     }
 
@@ -623,6 +920,9 @@
           .map(normalizeYear)
           .sort((a, b) => new Date(b.pending_at || 0) - new Date(a.pending_at || 0));
         renderYears();
+        if (state.openYearId !== null) {
+          renderYearModal(state.openYearId);
+        }
         loading.classList.add("hidden");
         page.classList.remove("hidden");
       } catch (error) {
@@ -703,7 +1003,16 @@
       const statusClass = `status-${year.status.toLowerCase()}`;
 
       return `
-        <article class="year-row" id="year-${escapeHtml(year.id)}" data-year-id="${escapeHtml(year.id)}">
+        <article
+          class="year-row"
+          id="year-${escapeHtml(year.id)}"
+          data-year-id="${escapeHtml(year.id)}"
+          role="button"
+          tabindex="0"
+          aria-label="Open year details"
+          onclick="openYearDetails('${escapeJsString(year.id)}')"
+          onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openYearDetails('${escapeJsString(year.id)}'); }"
+        >
           <div class="year-row-cell price">
             <div class="year-row-value year-row-price">${escapeHtml(money(year.final_year_price))} LBP</div>
           </div>
@@ -723,25 +1032,182 @@
       `;
     }
 
-    function infoBox(label, value) {
-      return `<div class="year-info-box"><div class="info-label">${escapeHtml(label)}</div><div class="info-value">${escapeHtml(value)}</div></div>`;
-    }
-    function renderNumber(entry) {
+    function modalInfoBox(label, value) {
       return `
-        <div class="year-number">
-          <div class="info-label">Number ${escapeHtml(entry.number_index ?? "")}</div>
-          <div class="numberphone">${escapeHtml(entry.numberphone || "—")}</div>
-          <div class="number-details">
-            <div>Returned<strong>${money(entry.returned_amount)}$</strong></div>
-            <div>Before<strong>${money(entry.balance_before)}$</strong></div>
-            <div>After<strong>${money(entry.balance_after)}$</strong></div>
-            <div>Difference<strong>${money(entry.balance_difference)}$</strong></div>
-          </div>
+        <div class="year-modal-info-box">
+          <div class="info-label">${escapeHtml(label)}</div>
+          <div class="year-modal-info-value">${escapeHtml(value)}</div>
         </div>
       `;
     }
 
+    function renderYearNumberRow(entry) {
+      return `
+        <tr>
+          <td class="year-number-cell">${escapeHtml(entry.numberphone || "—")}</td>
+          <td>${escapeHtml(moneyOrDash(entry.required_balance))}${entry.required_balance === null || entry.required_balance === undefined ? "" : "$"}</td>
+          <td>${escapeHtml(moneyOrDash(entry.balance_before))}${entry.balance_before === null || entry.balance_before === undefined ? "" : "$"}</td>
+          <td>${escapeHtml(moneyOrDash(entry.balance_after))}${entry.balance_after === null || entry.balance_after === undefined ? "" : "$"}</td>
+          <td>${escapeHtml(moneyOrDash(entry.balance_difference))}${entry.balance_difference === null || entry.balance_difference === undefined ? "" : "$"}</td>
+        </tr>
+      `;
+    }
+
+    function openYearDetails(yearId) {
+      state.openYearId = String(yearId);
+      state.modalMessage = null;
+      renderYearModal(yearId);
+    }
+
+    function closeYearDetails() {
+      state.openYearId = null;
+      state.modalMessage = null;
+      yearModalOverlay.classList.add("hidden");
+      yearModalOverlay.setAttribute("aria-hidden", "true");
+      yearModal.innerHTML = "";
+      document.body.classList.remove("year-modal-open");
+    }
+
+    function renderYearModal(yearId) {
+      const year = state.years.find((entry) => String(entry.id) === String(yearId));
+
+      if (!year) {
+        closeYearDetails();
+        return;
+      }
+
+      state.openYearId = String(year.id);
+
+      const statusClass = `status-${year.status.toLowerCase()}`;
+      const canCheck = year.status === "PENDING" || year.status === "CHECKING";
+      const canConfirm = year.status === "CHECKING";
+
+      const numbersRows = year.numbers.length
+        ? year.numbers.map(renderYearNumberRow).join("")
+        : `<tr><td colspan="5">No numbers were returned.</td></tr>`;
+
+      const estimatedPrice = year.price_sene_now === null
+        ? "—"
+        : `${money(year.price_sene_now)} LBP`;
+
+      const messageHtml = state.modalMessage && String(state.modalMessage.yearId) === String(year.id)
+        ? `<div id="message-${escapeHtml(year.id)}" class="year-message ${escapeHtml(state.modalMessage.type)}">${escapeHtml(state.modalMessage.text)}</div>`
+        : `<div id="message-${escapeHtml(year.id)}" class="hidden"></div>`;
+
+      yearModal.innerHTML = `
+        <div class="year-modal-header">
+          <div>
+            <h2 id="yearModalTitle" class="year-modal-title">${escapeHtml(year.year_name)} · #${escapeHtml(year.id)}</h2>
+          </div>
+          <button class="year-modal-close" type="button" onclick="closeYearDetails()" aria-label="Close">×</button>
+        </div>
+
+        <div class="year-modal-body">
+          <div class="year-modal-info">
+            ${modalInfoBox("Target number", year.target_identifier || "—")}
+            ${modalInfoBox("Date", formatDate(year.pending_at))}
+            ${modalInfoBox("Status", year.status || "UNKNOWN")}
+            ${modalInfoBox("Final year price", `${money(year.final_year_price)} LBP`)}
+            ${modalInfoBox("Estimated price", estimatedPrice)}
+          </div>
+
+          <div class="year-modal-section-head">
+            <h3 class="year-modal-section-title">Numbers and balances</h3>
+            <button id="copy-numbers-${escapeHtml(year.id)}" class="copy-numbers-button" type="button" onclick="copyYearNumbers('${escapeJsString(year.id)}')">
+              Copy Numbers
+            </button>
+          </div>
+
+          <div class="year-numbers-wrap">
+            <table class="year-numbers-table">
+              <thead>
+                <tr>
+                  <th>Number</th>
+                  <th>Required Balance</th>
+                  <th>Before</th>
+                  <th>After</th>
+                  <th>Received</th>
+                </tr>
+              </thead>
+              <tbody>${numbersRows}</tbody>
+            </table>
+          </div>
+
+          ${canCheck ? `
+            <div class="year-modal-actions">
+              <button id="check-${escapeHtml(year.id)}" class="year-button" type="button" onclick="checkYear('${escapeJsString(year.id)}')">
+                Check
+              </button>
+            </div>
+          ` : ""}
+
+          ${canConfirm ? `
+            <div class="year-modal-confirm">
+              <label class="confirm-label">
+                <input id="confirm-checkbox-${escapeHtml(year.id)}" type="checkbox" onchange="toggleConfirm('${escapeJsString(year.id)}')">
+                <span>I am sure that I want to confirm this year and return the calculated amount to my wallet.</span>
+              </label>
+              <button id="confirm-${escapeHtml(year.id)}" class="year-button confirm" type="button" onclick="confirmYear('${escapeJsString(year.id)}')" disabled>
+                Confirm Year
+              </button>
+            </div>
+          ` : ""}
+
+          ${messageHtml}
+        </div>
+      `;
+
+      yearModalOverlay.classList.remove("hidden");
+      yearModalOverlay.setAttribute("aria-hidden", "false");
+      document.body.classList.add("year-modal-open");
+    }
+
+    async function copyYearNumbers(yearId) {
+      const year = state.years.find((entry) => String(entry.id) === String(yearId));
+      if (!year) return;
+
+      const numbers = year.numbers
+        .map((entry) => String(entry.numberphone ?? "").trim())
+        .filter(Boolean);
+
+      if (!numbers.length) return;
+
+      const text = numbers.join("\n");
+      const button = document.getElementById(`copy-numbers-${yearId}`);
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const textarea = document.createElement("textarea");
+          textarea.value = text;
+          textarea.style.position = "fixed";
+          textarea.style.opacity = "0";
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand("copy");
+          textarea.remove();
+        }
+
+        if (button) {
+          const oldText = button.textContent;
+          button.textContent = "Copied";
+          setTimeout(() => {
+            if (button) button.textContent = oldText;
+          }, 1200);
+        }
+      } catch (error) {
+        console.error("copyYearNumbers error:", error);
+      }
+    }
+
     function showMessage(yearId, message, type = "info") {
+      state.modalMessage = {
+        yearId: String(yearId),
+        text: String(message ?? ""),
+        type,
+      };
+
       const box = document.getElementById(`message-${yearId}`);
       if (!box) return;
       box.className = `year-message ${type}`;
@@ -809,6 +1275,19 @@
       renderYears();
     });
     document.getElementById("refreshButton").addEventListener("click", () => loadYears(false));
+
+    yearModalOverlay.addEventListener("click", (event) => {
+      if (event.target === yearModalOverlay) {
+        closeYearDetails();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && state.openYearId !== null) {
+        closeYearDetails();
+      }
+    });
+
     loadYears();
   </script>
   <script type="module" src="./firebase-notifications.js"></script>
