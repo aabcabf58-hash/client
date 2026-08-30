@@ -10,6 +10,11 @@
   <script src="./app-navigation.js" defer></script>
 
   <style>
+    #page {
+      width: min(1500px, calc(100% - 32px));
+      max-width: 1500px;
+    }
+
     .breadcrumb {
       display: flex;
       gap: 8px;
@@ -184,6 +189,56 @@
     .year-order-form {
       padding-top: 15px;
       border-top: 1px solid var(--border);
+    }
+
+    .balance-order-card {
+      display: grid;
+      gap: 14px;
+      height: fit-content;
+      align-self: start;
+      padding: 20px;
+      color: var(--text);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .balance-items-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 900px);
+      justify-content: center;
+      align-items: start;
+      gap: 14px;
+      width: 100%;
+    }
+
+    .balance-order-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .balance-price-result {
+      min-height: 49px;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      color: #a63a00;
+      background: var(--card-soft);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    @media (max-width: 640px) {
+      .balance-items-grid { grid-template-columns: 1fr; }
+      .balance-order-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (min-width: 641px) and (max-width: 1000px) {
+      .balance-items-grid { grid-template-columns: minmax(0, 760px); }
     }
 
     .year-field-label {
@@ -990,6 +1045,8 @@
       document.getElementById("breadcrumbSubcategory");
     const childrenContainer =
       document.getElementById("childrenContainer");
+    const childTabsSection =
+      document.querySelector(".child-tabs-section");
     const childrenCount =
       document.getElementById("childrenCount");
     const itemsContainer =
@@ -1221,6 +1278,7 @@
     }
 
     function renderChildren() {
+      childTabsSection?.classList.remove("hidden");
       childrenContainer.innerHTML = "";
       childrenCount.textContent = String(state.children.length);
 
@@ -1533,7 +1591,141 @@
         return;
       }
 
+      if (normalizeName(selectedChild.name) === "balance") {
+        renderBalanceItems(selectedChild);
+        return;
+      }
+
       renderPackageItems(selectedChild);
+    }
+
+    function calculateBalanceOrderPrice(item, amount) {
+      const numericAmount = toNumber(amount, Number.NaN);
+      const unitPrice = getBalanceUnitPrice(item);
+
+      if (!Number.isFinite(numericAmount) || numericAmount <= 0 || unitPrice === null) {
+        return null;
+      }
+
+      const rawPrice = numericAmount * unitPrice;
+      return state.selectedCurrency === "LBP"
+        ? Math.ceil(rawPrice / 1000) * 1000
+        : Math.round((rawPrice + Number.EPSILON) * 100) / 100;
+    }
+
+    function updateBalancePrice(itemId) {
+      const item = state.balanceItems.find((entry) => String(entry.id) === String(itemId));
+      const amountInput = document.getElementById(`balance-amount-${itemId}`);
+      const priceBox = document.getElementById(`balance-price-${itemId}`);
+      if (!item || !priceBox) return;
+
+      const price = calculateBalanceOrderPrice(item, amountInput?.value);
+      priceBox.textContent = price === null
+        ? `0 ${state.selectedCurrency}`
+        : `${formatNumber(price)} ${state.selectedCurrency}`;
+    }
+
+    async function submitBalanceOrder(event, itemId) {
+      event.preventDefault();
+
+      const item = state.balanceItems.find((entry) => String(entry.id) === String(itemId));
+      const phoneInput = document.getElementById(`balance-phone-${itemId}`);
+      const amountInput = document.getElementById(`balance-amount-${itemId}`);
+      const button = document.getElementById(`balance-submit-${itemId}`);
+      const message = document.getElementById(`balance-message-${itemId}`);
+      const targetIdentifier = String(phoneInput?.value ?? "").trim();
+      const balanceAmount = toNumber(amountInput?.value, Number.NaN);
+      const price = calculateBalanceOrderPrice(item, balanceAmount);
+
+      message.className = "package-order-message";
+      message.textContent = "";
+
+      if (!item || !targetIdentifier) {
+        message.classList.add("error");
+        message.textContent = "Phone number is required";
+        phoneInput?.focus();
+        return;
+      }
+
+      if (!Number.isFinite(balanceAmount) || balanceAmount <= 0 || price === null) {
+        message.classList.add("error");
+        message.textContent = "Enter a valid balance amount";
+        amountInput?.focus();
+        return;
+      }
+
+      const confirmed = window.confirm(
+        `Confirm ${formatNumber(balanceAmount)}$ balance for ${targetIdentifier} at ${formatNumber(price)} ${state.selectedCurrency}?`
+      );
+      if (!confirmed) return;
+
+      button.disabled = true;
+      button.textContent = "Sending...";
+
+      try {
+        const result = await apiRequest(API_PATHS.CREATE_ORDER, {
+          method: "POST",
+          body: {
+            item_id: item.id,
+            item_type: "BALANCE",
+            target_identifier: targetIdentifier,
+            balance_amount: balanceAmount,
+            currency: state.selectedCurrency,
+          },
+        });
+
+        message.classList.add("success");
+        message.textContent = result.message || "Order created successfully";
+        phoneInput.value = "";
+        amountInput.value = "";
+        updateBalancePrice(itemId);
+      } catch (error) {
+        message.classList.add("error");
+        message.textContent = error.message || "Failed to create order";
+      } finally {
+        button.disabled = false;
+        button.textContent = "Send Order";
+      }
+    }
+
+    function renderBalanceItems(selectedChild) {
+      itemsContainer.className = "balance-items-grid";
+      const visibleItems = getVisibleBalanceItems().slice(0, 1);
+      itemsTitle.textContent = `${formatName(selectedChild.name)} Order`;
+      itemsCount.textContent = String(visibleItems.length);
+
+      if (!visibleItems.length) {
+        itemsContainer.innerHTML = '<div class="empty">No balance service is available</div>';
+        return;
+      }
+
+      itemsContainer.innerHTML = visibleItems.map((item) => `
+        <form class="balance-order-card" onsubmit="submitBalanceOrder(event, '${escapeJsString(item.id)}')">
+          <div>
+            <h3 class="days-item-title">${escapeHtml(formatName(item.name || "Balance"))}</h3>
+            <div class="days-item-note">${escapeHtml(item.description || "Enter the phone number and required balance")}</div>
+          </div>
+
+          <div class="balance-order-grid">
+            <label>
+              <span class="year-field-label">Phone number</span>
+              <input id="balance-phone-${escapeHtml(item.id)}" class="year-input" type="text" inputmode="tel" autocomplete="off" placeholder="Enter phone number" required>
+            </label>
+            <label>
+              <span class="year-field-label">Balance amount ($)</span>
+              <input id="balance-amount-${escapeHtml(item.id)}" class="year-input" type="number" inputmode="decimal" min="${escapeHtml(item.minimum_amount ?? 0)}" max="${escapeHtml(item.maximum_amount ?? "")}" step="${escapeHtml(item.step_amount || "any")}" placeholder="Enter balance" oninput="updateBalancePrice('${escapeJsString(item.id)}')" required>
+            </label>
+          </div>
+
+          <div>
+            <div class="year-field-label">Price</div>
+            <div id="balance-price-${escapeHtml(item.id)}" class="balance-price-result">0 ${escapeHtml(state.selectedCurrency)}</div>
+          </div>
+
+          <button id="balance-submit-${escapeHtml(item.id)}" class="year-action-button" type="submit">Send Order</button>
+          <div id="balance-message-${escapeHtml(item.id)}" class="package-order-message"></div>
+        </form>
+      `).join("");
     }
 
     function renderPackageItems(selectedChild) {
@@ -1708,19 +1900,33 @@
 
     function renderDaysItemCard(item) {
       return `
-        <button
-          class="days-item-link"
-          type="button"
-          onclick="openDaysItem('${escapeJsString(item.id)}')"
-        >
-          <span class="days-item-link-title">
-            ${escapeHtml(item.name || `Item ${item.id}`)}
-          </span>
-          <span class="days-item-link-bottom">
-            <span>Year item</span>
-            <span>Open →</span>
-          </span>
-        </button>
+        <article id="days-card-${escapeHtml(item.id)}" class="days-item-card">
+          <div id="days-order-content-${escapeHtml(item.id)}">
+            <div class="days-item-head">
+              <div>
+                <h3 class="days-item-title">${escapeHtml(item.name || `Item ${item.id}`)}</h3>
+                <div class="days-item-note">Enter the number you want to activate the year for.</div>
+              </div>
+              <span class="active-badge">Available</span>
+            </div>
+
+            <div class="days-price-grid" style="margin-top:16px">
+              ${renderDaysInfoBox("Full card price", `${formatNumber(item.full_card_price)} LBP`)}
+              ${renderDaysInfoBox("Base dollar amount", `${formatNumber(item.base_dollar_amount)}$`)}
+            </div>
+
+            <form class="year-order-form" style="margin-top:16px" onsubmit="submitGetYear(event, '${escapeJsString(item.id)}')">
+              <label class="year-field-label" for="year-input-${escapeHtml(item.id)}">Phone number</label>
+              <input id="year-input-${escapeHtml(item.id)}" class="year-input" type="text" inputmode="tel" autocomplete="off" placeholder="Enter phone number" required>
+              <div class="year-form-actions">
+                <button id="get-year-button-${escapeHtml(item.id)}" class="year-action-button" type="submit">Get Year</button>
+              </div>
+            </form>
+          </div>
+
+          <div id="message-${escapeHtml(item.id)}" class="hidden"></div>
+          <div id="year-result-${escapeHtml(item.id)}"></div>
+        </article>
       `;
     }
 
@@ -1863,11 +2069,8 @@
 
       button.disabled = true;
       button.textContent = "Getting year...";
-      showItemMessage(
-        itemId,
-        "Sending the year request...",
-        "info"
-      );
+      hideItemMessage(itemId);
+      document.getElementById(`year-result-${itemId}`).innerHTML = "";
 
       try {
         const response = await apiRequest(API_PATHS.GET_YEAR, {
@@ -1886,6 +2089,10 @@
           `year-result-${itemId}`
         ).innerHTML = renderYearResult(item, year);
 
+        const orderContent = document.getElementById(`days-order-content-${itemId}`);
+        if (orderContent) orderContent.classList.add("hidden");
+        childTabsSection?.classList.add("hidden");
+
         showItemMessage(
           itemId,
           response.message || "Year received successfully.",
@@ -1894,8 +2101,10 @@
       } catch (error) {
         showItemMessage(itemId, error.message, "error");
       } finally {
-        button.disabled = false;
-        button.textContent = "Get Year";
+        if (!yearResultsByItemId.has(String(itemId))) {
+          button.disabled = false;
+          button.textContent = "Get Year";
+        }
       }
     }
 
@@ -2046,7 +2255,7 @@
             >
               Confirm Year
             </button>
-+          </div>
+          </div>
         </div>
       `;
     }
@@ -2484,6 +2693,13 @@
 
       if (result) result.innerHTML = "";
       if (input) input.value = "";
+      const orderContent = document.getElementById(`days-order-content-${itemId}`);
+      const button = document.getElementById(`get-year-button-${itemId}`);
+      if (orderContent) orderContent.classList.remove("hidden");
+      if (button) {
+        button.disabled = false;
+        button.textContent = "Get Year";
+      }
       hideItemMessage(itemId);
     }
 
