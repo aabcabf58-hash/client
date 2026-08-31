@@ -10,11 +10,6 @@
   <script src="./app-navigation.js" defer></script>
 
   <style>
-    #page {
-      width: min(1500px, calc(100% - 32px));
-      max-width: 1500px;
-    }
-
     .breadcrumb {
       display: flex;
       gap: 8px;
@@ -85,6 +80,41 @@
 
     .items-section {
       margin-top: 34px;
+    }
+
+    .balance-direct-container {
+      display: grid;
+      grid-template-columns: minmax(0, 900px);
+      justify-content: center;
+      align-items: start;
+      width: 100%;
+    }
+
+    .balance-direct-card {
+      display: grid;
+      gap: 14px;
+      height: fit-content;
+      padding: 20px;
+      color: var(--text);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .balance-direct-card label { display: grid; gap: 8px; }
+
+    .balance-direct-price {
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      color: #a63a00;
+      background: var(--card-soft);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      font-size: 18px;
+      font-weight: 900;
     }
 
 
@@ -189,56 +219,6 @@
     .year-order-form {
       padding-top: 15px;
       border-top: 1px solid var(--border);
-    }
-
-    .balance-order-card {
-      display: grid;
-      gap: 14px;
-      height: fit-content;
-      align-self: start;
-      padding: 20px;
-      color: var(--text);
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      box-shadow: var(--shadow);
-    }
-
-    .balance-items-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 900px);
-      justify-content: center;
-      align-items: start;
-      gap: 14px;
-      width: 100%;
-    }
-
-    .balance-order-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-
-    .balance-price-result {
-      min-height: 49px;
-      display: flex;
-      align-items: center;
-      padding: 0 14px;
-      color: #a63a00;
-      background: var(--card-soft);
-      border: 1px solid var(--border);
-      border-radius: 13px;
-      font-size: 18px;
-      font-weight: 900;
-    }
-
-    @media (max-width: 640px) {
-      .balance-items-grid { grid-template-columns: 1fr; }
-      .balance-order-grid { grid-template-columns: 1fr; }
-    }
-
-    @media (min-width: 641px) and (max-width: 1000px) {
-      .balance-items-grid { grid-template-columns: minmax(0, 760px); }
     }
 
     .year-field-label {
@@ -999,6 +979,7 @@
       ITEMS_PACKAGE: "/category/getAllItemsPackage",
       ITEMS_COUNTER: "/category/getAllItemsCounter",
       ITEMS_BALANCE: "/category/getAllItemsBalance",
+      BALANCE_PRICE: "/category/getBalancePrice",
       ITEMS_DAYS: "/category/getAllItemsDays",
       GET_YEAR: "/api/ushare/getyear",
       CHECK_YEAR: "/api/ushare/chekyear",
@@ -1033,6 +1014,8 @@
     };
 
     const yearResultsByItemId = new Map();
+    const balancePriceRequestIds = new Map();
+    const balancePricesByItemId = new Map();
 
     const loading = document.getElementById("loading");
     const page = document.getElementById("page");
@@ -1045,8 +1028,6 @@
       document.getElementById("breadcrumbSubcategory");
     const childrenContainer =
       document.getElementById("childrenContainer");
-    const childTabsSection =
-      document.querySelector(".child-tabs-section");
     const childrenCount =
       document.getElementById("childrenCount");
     const itemsContainer =
@@ -1278,7 +1259,6 @@
     }
 
     function renderChildren() {
-      childTabsSection?.classList.remove("hidden");
       childrenContainer.innerHTML = "";
       childrenCount.textContent = String(state.children.length);
 
@@ -1592,50 +1572,88 @@
       }
 
       if (normalizeName(selectedChild.name) === "balance") {
-        renderBalanceItems(selectedChild);
+        renderDirectBalance(selectedChild);
         return;
       }
 
       renderPackageItems(selectedChild);
     }
 
-    function calculateBalanceOrderPrice(item, amount) {
-      const numericAmount = toNumber(amount, Number.NaN);
-      const unitPrice = getBalanceUnitPrice(item);
+    function extractBalancePrice(response) {
+      const candidates = [
+        response?.price,
+        response?.final_price,
+        response?.total_price,
+        response?.data?.price,
+        response?.data?.final_price,
+        response?.data?.total_price,
+        response?.result?.price,
+        response?.result?.final_price,
+        response?.result?.total_price,
+      ];
 
-      if (!Number.isFinite(numericAmount) || numericAmount <= 0 || unitPrice === null) {
-        return null;
+      for (const value of candidates) {
+        const price = toNumber(value, Number.NaN);
+        if (Number.isFinite(price)) return price;
       }
-
-      const rawPrice = numericAmount * unitPrice;
-      return state.selectedCurrency === "LBP"
-        ? Math.ceil(rawPrice / 1000) * 1000
-        : Math.round((rawPrice + Number.EPSILON) * 100) / 100;
+      return null;
     }
 
-    function updateBalancePrice(itemId) {
+    async function getDirectBalancePrice(item, balanceAmount) {
+      const response = await apiRequest(API_PATHS.BALANCE_PRICE, {
+        method: "POST",
+        body: {
+          company: item.company || state.currentSubcategory?.name,
+          balance_amount: balanceAmount,
+          currency: state.selectedCurrency,
+        },
+      });
+
+      const price = extractBalancePrice(response);
+      if (price === null) {
+        throw new Error(response.message || "Price was not returned by the server");
+      }
+      return price;
+    }
+
+    async function updateDirectBalancePrice(itemId) {
       const item = state.balanceItems.find((entry) => String(entry.id) === String(itemId));
       const amountInput = document.getElementById(`balance-amount-${itemId}`);
       const priceBox = document.getElementById(`balance-price-${itemId}`);
       if (!item || !priceBox) return;
 
-      const price = calculateBalanceOrderPrice(item, amountInput?.value);
-      priceBox.textContent = price === null
-        ? `0 ${state.selectedCurrency}`
-        : `${formatNumber(price)} ${state.selectedCurrency}`;
+      const balanceAmount = toNumber(amountInput?.value, Number.NaN);
+      const requestId = (balancePriceRequestIds.get(String(itemId)) || 0) + 1;
+      balancePriceRequestIds.set(String(itemId), requestId);
+      balancePricesByItemId.delete(String(itemId));
+
+      if (!Number.isFinite(balanceAmount) || balanceAmount <= 0) {
+        priceBox.textContent = `0 ${state.selectedCurrency}`;
+        return;
+      }
+
+      priceBox.textContent = "Calculating...";
+      try {
+        const price = await getDirectBalancePrice(item, balanceAmount);
+        if (balancePriceRequestIds.get(String(itemId)) !== requestId) return;
+        balancePricesByItemId.set(String(itemId), { balanceAmount, price });
+        priceBox.textContent = `${formatNumber(price)} ${state.selectedCurrency}`;
+      } catch (error) {
+        if (balancePriceRequestIds.get(String(itemId)) !== requestId) return;
+        priceBox.textContent = error.message || "Unable to calculate price";
+      }
     }
 
-    async function submitBalanceOrder(event, itemId) {
+    async function submitDirectBalance(event, itemId) {
       event.preventDefault();
-
       const item = state.balanceItems.find((entry) => String(entry.id) === String(itemId));
       const phoneInput = document.getElementById(`balance-phone-${itemId}`);
       const amountInput = document.getElementById(`balance-amount-${itemId}`);
+      const priceBox = document.getElementById(`balance-price-${itemId}`);
       const button = document.getElementById(`balance-submit-${itemId}`);
       const message = document.getElementById(`balance-message-${itemId}`);
       const targetIdentifier = String(phoneInput?.value ?? "").trim();
       const balanceAmount = toNumber(amountInput?.value, Number.NaN);
-      const price = calculateBalanceOrderPrice(item, balanceAmount);
 
       message.className = "package-order-message";
       message.textContent = "";
@@ -1646,23 +1664,31 @@
         phoneInput?.focus();
         return;
       }
-
-      if (!Number.isFinite(balanceAmount) || balanceAmount <= 0 || price === null) {
+      if (!Number.isFinite(balanceAmount) || balanceAmount <= 0) {
         message.classList.add("error");
         message.textContent = "Enter a valid balance amount";
         amountInput?.focus();
         return;
       }
 
-      const confirmed = window.confirm(
-        `Confirm ${formatNumber(balanceAmount)}$ balance for ${targetIdentifier} at ${formatNumber(price)} ${state.selectedCurrency}?`
-      );
-      if (!confirmed) return;
-
       button.disabled = true;
-      button.textContent = "Sending...";
+      button.textContent = "Checking price...";
 
       try {
+        let priceData = balancePricesByItemId.get(String(itemId));
+        if (!priceData || priceData.balanceAmount !== balanceAmount) {
+          const price = await getDirectBalancePrice(item, balanceAmount);
+          priceData = { balanceAmount, price };
+          balancePricesByItemId.set(String(itemId), priceData);
+          priceBox.textContent = `${formatNumber(price)} ${state.selectedCurrency}`;
+        }
+
+        const confirmed = window.confirm(
+          `Confirm ${formatNumber(balanceAmount)}$ balance for ${targetIdentifier} at ${formatNumber(priceData.price)} ${state.selectedCurrency}?`
+        );
+        if (!confirmed) return;
+
+        button.textContent = "Sending...";
         const result = await apiRequest(API_PATHS.CREATE_ORDER, {
           method: "POST",
           body: {
@@ -1678,7 +1704,8 @@
         message.textContent = result.message || "Order created successfully";
         phoneInput.value = "";
         amountInput.value = "";
-        updateBalancePrice(itemId);
+        balancePricesByItemId.delete(String(itemId));
+        priceBox.textContent = `0 ${state.selectedCurrency}`;
       } catch (error) {
         message.classList.add("error");
         message.textContent = error.message || "Failed to create order";
@@ -1688,44 +1715,40 @@
       }
     }
 
-    function renderBalanceItems(selectedChild) {
-      itemsContainer.className = "balance-items-grid";
-      const visibleItems = getVisibleBalanceItems().slice(0, 1);
+    function renderDirectBalance(selectedChild) {
+      const item = getVisibleBalanceItems()[0];
       itemsTitle.textContent = `${formatName(selectedChild.name)} Order`;
-      itemsCount.textContent = String(visibleItems.length);
+      itemsCount.textContent = item ? "1" : "0";
+      itemsContainer.className = "balance-direct-container";
 
-      if (!visibleItems.length) {
+      if (!item) {
         itemsContainer.innerHTML = '<div class="empty">No balance service is available</div>';
         return;
       }
 
-      itemsContainer.innerHTML = visibleItems.map((item) => `
-        <form class="balance-order-card" onsubmit="submitBalanceOrder(event, '${escapeJsString(item.id)}')">
-          <div>
-            <h3 class="days-item-title">${escapeHtml(formatName(item.name || "Balance"))}</h3>
-            <div class="days-item-note">${escapeHtml(item.description || "Enter the phone number and required balance")}</div>
-          </div>
+      itemsContainer.innerHTML = `
+        <form class="balance-direct-card" onsubmit="submitDirectBalance(event, '${escapeJsString(item.id)}')">
+          <h3 class="days-item-title">${escapeHtml(formatName(item.name || "Balance"))}</h3>
 
-          <div class="balance-order-grid">
-            <label>
-              <span class="year-field-label">Phone number</span>
-              <input id="balance-phone-${escapeHtml(item.id)}" class="year-input" type="text" inputmode="tel" autocomplete="off" placeholder="Enter phone number" required>
-            </label>
-            <label>
-              <span class="year-field-label">Balance amount ($)</span>
-              <input id="balance-amount-${escapeHtml(item.id)}" class="year-input" type="number" inputmode="decimal" min="${escapeHtml(item.minimum_amount ?? 0)}" max="${escapeHtml(item.maximum_amount ?? "")}" step="${escapeHtml(item.step_amount || "any")}" placeholder="Enter balance" oninput="updateBalancePrice('${escapeJsString(item.id)}')" required>
-            </label>
-          </div>
+          <label>
+            <span class="year-field-label">Phone number</span>
+            <input id="balance-phone-${escapeHtml(item.id)}" class="year-input" type="text" inputmode="tel" autocomplete="off" placeholder="Enter phone number" required>
+          </label>
+
+          <label>
+            <span class="year-field-label">Balance amount ($)</span>
+            <input id="balance-amount-${escapeHtml(item.id)}" class="year-input" type="number" inputmode="decimal" min="${escapeHtml(item.minimum_amount ?? 0)}" max="${escapeHtml(item.maximum_amount ?? "")}" step="${escapeHtml(item.step_amount || "any")}" placeholder="Enter balance" oninput="updateDirectBalancePrice('${escapeJsString(item.id)}')" required>
+          </label>
 
           <div>
             <div class="year-field-label">Price</div>
-            <div id="balance-price-${escapeHtml(item.id)}" class="balance-price-result">0 ${escapeHtml(state.selectedCurrency)}</div>
+            <div id="balance-price-${escapeHtml(item.id)}" class="balance-direct-price">0 ${escapeHtml(state.selectedCurrency)}</div>
           </div>
 
           <button id="balance-submit-${escapeHtml(item.id)}" class="year-action-button" type="submit">Send Order</button>
           <div id="balance-message-${escapeHtml(item.id)}" class="package-order-message"></div>
         </form>
-      `).join("");
+      `;
     }
 
     function renderPackageItems(selectedChild) {
@@ -1900,33 +1923,19 @@
 
     function renderDaysItemCard(item) {
       return `
-        <article id="days-card-${escapeHtml(item.id)}" class="days-item-card">
-          <div id="days-order-content-${escapeHtml(item.id)}">
-            <div class="days-item-head">
-              <div>
-                <h3 class="days-item-title">${escapeHtml(item.name || `Item ${item.id}`)}</h3>
-                <div class="days-item-note">Enter the number you want to activate the year for.</div>
-              </div>
-              <span class="active-badge">Available</span>
-            </div>
-
-            <div class="days-price-grid" style="margin-top:16px">
-              ${renderDaysInfoBox("Full card price", `${formatNumber(item.full_card_price)} LBP`)}
-              ${renderDaysInfoBox("Base dollar amount", `${formatNumber(item.base_dollar_amount)}$`)}
-            </div>
-
-            <form class="year-order-form" style="margin-top:16px" onsubmit="submitGetYear(event, '${escapeJsString(item.id)}')">
-              <label class="year-field-label" for="year-input-${escapeHtml(item.id)}">Phone number</label>
-              <input id="year-input-${escapeHtml(item.id)}" class="year-input" type="text" inputmode="tel" autocomplete="off" placeholder="Enter phone number" required>
-              <div class="year-form-actions">
-                <button id="get-year-button-${escapeHtml(item.id)}" class="year-action-button" type="submit">Get Year</button>
-              </div>
-            </form>
-          </div>
-
-          <div id="message-${escapeHtml(item.id)}" class="hidden"></div>
-          <div id="year-result-${escapeHtml(item.id)}"></div>
-        </article>
+        <button
+          class="days-item-link"
+          type="button"
+          onclick="openDaysItem('${escapeJsString(item.id)}')"
+        >
+          <span class="days-item-link-title">
+            ${escapeHtml(item.name || `Item ${item.id}`)}
+          </span>
+          <span class="days-item-link-bottom">
+            <span>Year item</span>
+            <span>Open →</span>
+          </span>
+        </button>
       `;
     }
 
@@ -2069,8 +2078,11 @@
 
       button.disabled = true;
       button.textContent = "Getting year...";
-      hideItemMessage(itemId);
-      document.getElementById(`year-result-${itemId}`).innerHTML = "";
+      showItemMessage(
+        itemId,
+        "Sending the year request...",
+        "info"
+      );
 
       try {
         const response = await apiRequest(API_PATHS.GET_YEAR, {
@@ -2089,10 +2101,6 @@
           `year-result-${itemId}`
         ).innerHTML = renderYearResult(item, year);
 
-        const orderContent = document.getElementById(`days-order-content-${itemId}`);
-        if (orderContent) orderContent.classList.add("hidden");
-        childTabsSection?.classList.add("hidden");
-
         showItemMessage(
           itemId,
           response.message || "Year received successfully.",
@@ -2101,10 +2109,8 @@
       } catch (error) {
         showItemMessage(itemId, error.message, "error");
       } finally {
-        if (!yearResultsByItemId.has(String(itemId))) {
-          button.disabled = false;
-          button.textContent = "Get Year";
-        }
+        button.disabled = false;
+        button.textContent = "Get Year";
       }
     }
 
@@ -2255,7 +2261,7 @@
             >
               Confirm Year
             </button>
-          </div>
++          </div>
         </div>
       `;
     }
@@ -2693,13 +2699,6 @@
 
       if (result) result.innerHTML = "";
       if (input) input.value = "";
-      const orderContent = document.getElementById(`days-order-content-${itemId}`);
-      const button = document.getElementById(`get-year-button-${itemId}`);
-      if (orderContent) orderContent.classList.remove("hidden");
-      if (button) {
-        button.disabled = false;
-        button.textContent = "Get Year";
-      }
       hideItemMessage(itemId);
     }
 
