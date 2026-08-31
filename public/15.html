@@ -4,9 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light">
-  <title>Year Item Details</title>
+  <title>Services & Items</title>
   <link rel="stylesheet" href="./site.css">
   <link rel="stylesheet" href="./theme.css">
+  <script src="./app-navigation.js" defer></script>
 
   <style>
     .breadcrumb {
@@ -79,6 +80,41 @@
 
     .items-section {
       margin-top: 34px;
+    }
+
+    .balance-direct-container {
+      display: grid;
+      grid-template-columns: minmax(0, 900px);
+      justify-content: center;
+      align-items: start;
+      width: 100%;
+    }
+
+    .balance-direct-card {
+      display: grid;
+      gap: 14px;
+      height: fit-content;
+      padding: 20px;
+      color: var(--text);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .balance-direct-card label { display: grid; gap: 8px; }
+
+    .balance-direct-price {
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      color: #a63a00;
+      background: var(--card-soft);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      font-size: 18px;
+      font-weight: 900;
     }
 
 
@@ -505,36 +541,381 @@
     }
   </style>
   <style>
-    .details-hidden { display: none !important; }
-    .items-section { margin-top: 8px !important; }
+    .child-grid {
+      display: flex !important;
+      flex-wrap: nowrap !important;
+      gap: 11px !important;
+      padding: 11px 3px 8px !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      scrollbar-width: thin;
+      background: transparent !important;
+      scroll-snap-type: x proximity;
+    }
+
+    .child-card {
+      position: relative;
+      flex: 0 0 118px !important;
+      min-width: 118px !important;
+      min-height: 84px !important;
+      gap: 6px !important;
+      padding: 13px 8px 9px !important;
+      background: #ffffff !important;
+      border-radius: 7px 14px 14px 14px !important;
+      isolation: isolate;
+      scroll-snap-align: start;
+    }
+
+    .child-card::before {
+      content: "";
+      position: absolute;
+      top: -9px;
+      left: -1px;
+      width: 43%;
+      height: 15px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-bottom: 0;
+      border-radius: 9px 11px 0 0;
+      z-index: -1;
+    }
+
+    .child-card.active {
+      background: #ffe1cc !important;
+      border-color: #a63a00 !important;
+    }
+    .child-card.active::before { background: #ffe1cc; border-color: #a63a00; }
+
+    .child-image {
+      width: 34px !important;
+      height: 34px !important;
+      border-radius: 10px !important;
+      font-size: 15px !important;
+    }
+    .child-name { font-size: 12px !important; }
+
     .days-items-grid {
-      grid-template-columns: minmax(0, 820px) !important;
-      justify-content: center;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      gap: 14px !important;
+    }
+    .days-item-link {
+      min-height: 110px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 17px;
+      color: var(--text);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      text-align: left;
+      font: inherit;
+      transition: transform .18s ease, border-color .18s ease;
+    }
+    .days-item-link:hover { transform: translateY(-3px); border-color: #a63a00; }
+    .days-item-link-title { font-size: 17px; font-weight: 900; text-transform: capitalize; }
+    .days-item-link-bottom { display: flex; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 12px; font-weight: 800; }
+
+    @media (max-width: 900px) {
+      .days-items-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+    }
+
+    @media (max-width: 640px) {
+      .child-grid { gap: 8px !important; }
+      .child-card {
+        flex-basis: 88px !important;
+        min-width: 88px !important;
+        min-height: 70px !important;
+        padding: 10px 6px 7px !important;
+      }
+      .child-image { width: 29px !important; height: 29px !important; font-size: 13px !important; }
+      .child-name { font-size: 10px !important; }
+      .items-section { margin-top: 24px !important; }
+      .days-items-grid { grid-template-columns: 1fr 1fr !important; gap: 9px !important; }
+      .days-item-link { min-height: 92px; padding: 12px; border-radius: 14px; }
+      .days-item-link-title { font-size: 14px; }
+      .days-item-link-bottom { font-size: 10px; }
+    }
+  </style>
+  <style>
+    /* Child-category tabs inspired by the supplied reference. */
+    .child-tabs-section {
+      margin-top: 8px;
+      padding: 0 !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .child-tabs-section .section-header { display: none !important; }
+
+    .child-grid {
+      display: flex !important;
+      align-items: center !important;
+      flex-wrap: nowrap !important;
+      gap: 6px !important;
+      width: 100% !important;
+      padding: 11px 13px !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      background: #ffffff !important;
+      border: 0 !important;
+      border-bottom: 8px solid #f1f4f7 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      box-sizing: border-box;
+      scrollbar-width: none;
+      scroll-snap-type: x proximity;
+    }
+
+    .child-grid::-webkit-scrollbar { display: none; }
+
+    .child-card {
+      position: relative;
+      flex: 0 0 auto !important;
+      min-width: max-content !important;
+      min-height: 40px !important;
+      height: 40px !important;
+      display: inline-flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 0 !important;
+      padding: 0 17px !important;
+      color: #969ba2 !important;
+      background: transparent !important;
+      border: 0 !important;
+      border-radius: 20px !important;
+      box-shadow: none !important;
+      scroll-snap-align: start;
+      white-space: nowrap;
+    }
+
+    .child-card::before { display: none !important; }
+
+    .child-card:hover {
+      color: #4b5563 !important;
+      background: #f5f7f8 !important;
+      transform: none !important;
+    }
+
+    .child-card.active {
+      color: #7f2c00 !important;
+      background: #ffe1cc !important;
+      border: 0 !important;
+    }
+
+    .child-card.active::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 4px;
+      width: 20px;
+      height: 2px;
+      background: #a63a00;
+      border-radius: 999px;
+      transform: translateX(-50%);
+    }
+
+    .child-image { display: none !important; }
+
+    .child-name {
+      color: inherit !important;
+      font-size: 12px !important;
+      font-weight: 500 !important;
+      line-height: 1 !important;
+      text-transform: none !important;
+      white-space: nowrap;
+    }
+
+    .items-section { margin-top: 20px !important; }
+
+    /* Items are intentionally about half the former visual size. */
+    .items-grid {
+      display: grid !important;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      gap: 9px !important;
       background: transparent !important;
     }
-    .days-item-card { padding: 24px !important; }
-    .days-item-title { font-size: 24px !important; }
-    .days-price-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
 
-    @media (max-width: 700px) {
-      .topbar {
-        min-height: auto !important;
-        align-items: flex-start !important;
-        padding: 14px !important;
-      }
-      .topbar-actions { width: 100%; }
-      .topbar-actions .button { flex: 1; }
-      .days-item-card { padding: 14px !important; border-radius: 16px !important; }
-      .days-item-title { font-size: 19px !important; }
-      .days-price-grid,
-      .year-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-      .year-numbers-grid { grid-template-columns: 1fr !important; }
-      .year-action-button { flex-basis: 100% !important; }
+    .item-card {
+      min-height: 72px !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      padding: 9px !important;
+      border-radius: 12px !important;
+      box-shadow: 0 5px 14px rgba(31, 41, 55, .06) !important;
+      box-sizing: border-box;
     }
 
-    @media (max-width: 390px) {
-      .days-price-grid,
-      .year-summary-grid { grid-template-columns: 1fr !important; }
+    .item-image {
+      width: 40px !important;
+      height: 40px !important;
+      min-width: 40px !important;
+      flex: 0 0 40px !important;
+      border-radius: 10px !important;
+      font-size: 15px !important;
+    }
+
+    .item-content { min-width: 0 !important; }
+
+    .item-name {
+      margin: 0 !important;
+      font-size: 13px !important;
+      line-height: 1.15 !important;
+    }
+
+    .item-description {
+      margin: 3px 0 5px !important;
+      display: -webkit-box;
+      overflow: hidden;
+      color: var(--muted) !important;
+      font-size: 9px !important;
+      line-height: 1.25 !important;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+
+    .item-meta { gap: 5px !important; }
+    .price-label { font-size: 8px !important; }
+    .price { font-size: 12px !important; }
+    .badge { padding: 3px 5px !important; font-size: 8px !important; }
+
+    .days-items-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      gap: 8px !important;
+    }
+
+    .days-item-link {
+      min-height: 58px !important;
+      gap: 7px !important;
+      padding: 8px !important;
+      border-radius: 10px !important;
+      box-shadow: 0 5px 14px rgba(31, 41, 55, .06) !important;
+    }
+
+    .days-item-link-title { font-size: 10px !important; }
+    .days-item-link-bottom { gap: 5px !important; font-size: 7px !important; }
+
+    @media (min-width: 1180px) {
+      .items-grid,
+      .days-items-grid { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }
+    }
+
+    @media (max-width: 640px) {
+      .child-grid {
+        gap: 2px !important;
+        padding: 9px 8px !important;
+        border-bottom-width: 6px !important;
+      }
+      .child-card {
+        min-width: max-content !important;
+        min-height: 37px !important;
+        height: 37px !important;
+        padding: 0 13px !important;
+      }
+      .child-name { font-size: 11px !important; }
+
+      .items-grid,
+      .days-items-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 7px !important;
+      }
+
+      .item-card {
+        min-height: 64px !important;
+        gap: 6px !important;
+        padding: 7px !important;
+      }
+      .item-image {
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        flex-basis: 34px !important;
+      }
+      .item-name { font-size: 11px !important; }
+      .item-description { font-size: 8px !important; }
+      .price { font-size: 10px !important; }
+    }
+  </style>
+  <style>
+    .currency-switch {
+      display: inline-flex;
+      padding: 3px;
+      background: #fff0e3;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .currency-button {
+      min-width: 48px;
+      height: 34px;
+      padding: 0 9px;
+      color: var(--muted);
+      background: transparent;
+      border: 0;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .currency-button.active { color: #fff; background: #a63a00; }
+    .item-card { cursor: pointer; flex-wrap: wrap; }
+    .package-order-panel {
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 7px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+    .package-target-input {
+      width: 100%;
+      min-width: 0;
+      height: 38px;
+      padding: 0 10px;
+      color: var(--text);
+      background: #fffaf6;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      outline: none;
+      font: inherit;
+      font-size: 12px;
+    }
+    .package-target-input:focus {
+      border-color: #a63a00;
+      box-shadow: 0 0 0 3px rgba(166, 58, 0, .12);
+    }
+    .package-buy-button {
+      min-height: 38px;
+      padding: 0 13px;
+      color: #fff;
+      background: #a63a00;
+      border: 0;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .package-buy-button:disabled { cursor: not-allowed; opacity: .55; }
+    .package-order-message {
+      grid-column: 1 / -1;
+      min-height: 16px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.35;
+    }
+    .package-order-message.error { color: #b42318; }
+    .package-order-message.success { color: #087b4b; }
+    @media (max-width: 640px) {
+      .currency-button { min-width: 43px; padding: 0 7px; }
+      .package-order-panel { grid-template-columns: 1fr; }
+      .package-order-message { grid-column: 1; }
+      .package-buy-button { width: 100%; }
     }
   </style>
 </head>
@@ -544,11 +925,15 @@
   <main id="page" class="page hidden">
     <header class="topbar">
       <div>
-        <h1 id="pageTitle">Year Item</h1>
-        <p>Review this year package, then request and confirm it.</p>
+        <h1 id="pageTitle">Services</h1>
+        <p>Choose a service to view its items.</p>
       </div>
 
       <div class="topbar-actions">
+        <div class="currency-switch" aria-label="Select currency">
+          <button class="currency-button" data-currency="LBP" type="button">LBP</button>
+          <button class="currency-button" data-currency="USD" type="button">USD</button>
+        </div>
         <a class="button secondary" href="./home.html" title="Home" aria-label="Home">🏠</a>
         <button id="backButton" class="button secondary" type="button">
           Back
@@ -566,7 +951,7 @@
 
     <div id="pageError" class="error-box hidden"></div>
 
-    <section class="details-hidden">
+    <section class="child-tabs-section">
       <div class="section-header">
         <h2>Services</h2>
         <span id="childrenCount" class="count"></span>
@@ -577,7 +962,7 @@
 
     <section class="items-section">
       <div class="section-header">
-        <h2 id="itemsTitle">Year Details</h2>
+        <h2 id="itemsTitle">Items</h2>
         <span id="itemsCount" class="count"></span>
       </div>
 
@@ -592,10 +977,14 @@
     const API_PATHS = {
       CATEGORIES_TREE: "/category/getAllCategoriesTree",
       ITEMS_PACKAGE: "/category/getAllItemsPackage",
+      ITEMS_COUNTER: "/category/getAllItemsCounter",
+      ITEMS_BALANCE: "/category/getAllItemsBalance",
+      BALANCE_PRICE: "/category/getBalancePrice",
       ITEMS_DAYS: "/category/getAllItemsDays",
       GET_YEAR: "/api/ushare/getyear",
       CHECK_YEAR: "/api/ushare/chekyear",
       CONFIRM_YEAR: "/api/ushare/confirmYear",
+      CREATE_ORDER: "/orders/createOrder",
     };
 
     const params = new URLSearchParams(window.location.search);
@@ -604,24 +993,29 @@
     const subcategoryId = params.get("subcategory_id");
     const subcategoryNameFromUrl =
       params.get("subcategory_name") || "Subcategory";
-    const childcategoryId = params.get("childcategory_id");
-    const childcategoryNameFromUrl =
-      params.get("childcategory_name") || "Days";
-    const itemId = params.get("item_id");
+    const selectedChildIdFromUrl = params.get("selected_child_id");
 
     const state = {
       selectedChildcategoryId: null,
       children: [],
       packageItems: [],
+      counterItems: [],
+      balanceItems: [],
       daysItems: [],
       daysItemsLoaded: false,
       daysItemsError: "",
       currentCategory: null,
       currentSubcategory: null,
+      selectedCurrency:
+        localStorage.getItem("selectedCurrency") === "USD"
+          ? "USD"
+          : "LBP",
+      expandedPackageItemId: null,
     };
 
     const yearResultsByItemId = new Map();
-    const yearRequestsInFlight = new Set();
+    const balancePriceRequestIds = new Map();
+    const balancePricesByItemId = new Map();
 
     const loading = document.getElementById("loading");
     const page = document.getElementById("page");
@@ -640,6 +1034,7 @@
       document.getElementById("itemsContainer");
     const itemsTitle = document.getElementById("itemsTitle");
     const itemsCount = document.getElementById("itemsCount");
+    const currencyButtons = document.querySelectorAll(".currency-button");
 
     function getToken() {
       return localStorage.getItem("token");
@@ -791,6 +1186,16 @@
       return extractArray(result, ["items", "packages", "items_package"]);
     }
 
+    async function getAllItemsCounter() {
+      const result = await apiRequest(API_PATHS.ITEMS_COUNTER);
+      return extractArray(result, ["items", "counters", "items_counter"]);
+    }
+
+    async function getAllItemsBalance() {
+      const result = await apiRequest(API_PATHS.ITEMS_BALANCE);
+      return extractArray(result, ["items", "balances", "items_balance"]);
+    }
+
     function normalizeDaysItem(item) {
       return {
         id: item.id,
@@ -900,10 +1305,160 @@
           state.selectedChildcategoryId = child.id;
           renderChildren();
           renderItems();
+
+          if (isDaysChild(child) && !state.daysItemsLoaded) {
+            reloadDaysItems();
+          }
         });
 
         childrenContainer.appendChild(card);
       }
+    }
+
+    function getPackagePrice(item) {
+      const priceField =
+        state.selectedCurrency === "USD"
+          ? "price_usd"
+          : "price_lbp";
+
+      if (
+        item?.[priceField] === undefined ||
+        item?.[priceField] === null ||
+        item?.[priceField] === ""
+      ) {
+        return null;
+      }
+
+      const price = toNumber(item[priceField], Number.NaN);
+      return Number.isFinite(price) && price >= 0 ? price : null;
+    }
+
+    function syncCurrencyButtons() {
+      currencyButtons.forEach((button) => {
+        button.classList.toggle(
+          "active",
+          button.dataset.currency === state.selectedCurrency
+        );
+      });
+    }
+
+    function selectCurrency(currency) {
+      if (currency !== "LBP" && currency !== "USD") return;
+
+      state.selectedCurrency = currency;
+      state.expandedPackageItemId = null;
+      localStorage.setItem("selectedCurrency", currency);
+      syncCurrencyButtons();
+      renderItems();
+    }
+
+    async function submitPackageOrder(item, input, button, message) {
+      const targetIdentifier = String(input.value ?? "").trim();
+      const price = getPackagePrice(item);
+
+      message.className = "package-order-message";
+      message.textContent = "";
+
+      if (!targetIdentifier) {
+        message.classList.add("error");
+        message.textContent = "Target identifier is required";
+        input.focus();
+        return;
+      }
+
+      if (price === null) {
+        message.classList.add("error");
+        message.textContent =
+          `This item is not available in ${state.selectedCurrency}`;
+        return;
+      }
+
+      const confirmed = window.confirm(
+        `Confirm ${formatName(item.name)} for ${targetIdentifier} ` +
+        `at ${formatNumber(price)} ${state.selectedCurrency}?`
+      );
+
+      if (!confirmed) return;
+
+      button.disabled = true;
+      button.textContent = "Processing...";
+
+      try {
+        const result = await apiRequest(
+          API_PATHS.CREATE_ORDER,
+          {
+            method: "POST",
+            body: {
+              item_id: item.id,
+              item_type: "PACKAGE",
+              target_identifier: targetIdentifier,
+              currency: state.selectedCurrency,
+            },
+          }
+        );
+
+        const orderId =
+          result?.order?.id ??
+          result?.data?.id ??
+          result?.order_id ??
+          null;
+
+        message.classList.add("success");
+        message.textContent = orderId
+          ? `Order #${orderId} created successfully`
+          : (result.message || "Order created successfully");
+        input.value = "";
+      } catch (error) {
+        message.classList.add("error");
+        message.textContent = error.message || "Failed to create order";
+      } finally {
+        button.disabled = false;
+        button.textContent = "Purchase";
+      }
+    }
+
+    function createPackageOrderPanel(item) {
+      const panel = document.createElement("div");
+      panel.className = "package-order-panel";
+
+      const input = document.createElement("input");
+      input.className = "package-target-input";
+      input.id = `package-target-${item.id}`;
+      input.type = "text";
+      input.autocomplete = "off";
+      input.placeholder = "Enter target identifier";
+      input.setAttribute("aria-label", "Target identifier");
+
+      const button = document.createElement("button");
+      button.className = "package-buy-button";
+      button.type = "button";
+      button.textContent = "Purchase";
+      button.disabled = getPackagePrice(item) === null;
+
+      const message = document.createElement("div");
+      message.className = "package-order-message";
+      if (button.disabled) {
+        message.classList.add("error");
+        message.textContent =
+          `Not available in ${state.selectedCurrency}`;
+      }
+
+      panel.addEventListener("click", (event) => event.stopPropagation());
+      panel.addEventListener("keydown", (event) => event.stopPropagation());
+      button.addEventListener("click", () => {
+        submitPackageOrder(item, input, button, message);
+      });
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !button.disabled) {
+          event.preventDefault();
+          submitPackageOrder(item, input, button, message);
+        }
+      });
+
+      panel.appendChild(input);
+      panel.appendChild(button);
+      panel.appendChild(message);
+      return panel;
     }
 
     function getVisiblePackageItems() {
@@ -925,11 +1480,76 @@
         );
     }
 
+    function getVisibleCounterItems() {
+      if (state.selectedChildcategoryId === null) {
+        return [];
+      }
+
+      return state.counterItems.filter(
+        (item) =>
+          item.is_active !== false &&
+          String(item.childcategory_id) ===
+            String(state.selectedChildcategoryId)
+      );
+    }
+
+    function getVisibleBalanceItems() {
+      if (state.selectedChildcategoryId === null) return [];
+      return state.balanceItems.filter(
+        (item) =>
+          item.is_active !== false &&
+          String(item.childcategory_id) === String(state.selectedChildcategoryId)
+      );
+    }
+
+    function getBalanceUnitPrice(item) {
+      const field = state.selectedCurrency === "USD"
+        ? "price_per_dollar_usd"
+        : "price_per_dollar_lbp";
+      if (item?.[field] === undefined || item?.[field] === null || item?.[field] === "") return null;
+      const price = toNumber(item[field], Number.NaN);
+      return Number.isFinite(price) && price >= 0 ? price : null;
+    }
+
+    function getCounterPrice(item) {
+      const priceField =
+        state.selectedCurrency === "USD"
+          ? "price_per_unit_usd"
+          : "price_per_unit_lbp";
+
+      if (
+        item?.[priceField] === undefined ||
+        item?.[priceField] === null ||
+        item?.[priceField] === ""
+      ) {
+        return null;
+      }
+
+      const price = toNumber(item[priceField], Number.NaN);
+      return Number.isFinite(price) && price >= 0 ? price : null;
+    }
+
+    function openItemPage(item, itemType, selectedChild) {
+      const itemParams = new URLSearchParams({
+        category_id: categoryId,
+        category_name:
+          state.currentCategory?.name || categoryNameFromUrl,
+        subcategory_id: subcategoryId,
+        subcategory_name:
+          state.currentSubcategory?.name || subcategoryNameFromUrl,
+        childcategory_id: selectedChild.id,
+        childcategory_name: selectedChild.name || "Items",
+        item_id: item.id,
+        item_type: itemType,
+      });
+
+      window.location.href = `./items.html?${itemParams.toString()}`;
+    }
+
     function getVisibleDaysItems(child) {
       return state.daysItems.filter(
         (item) =>
-          String(item.childcategory_id) === String(child?.id) &&
-          String(item.id) === String(itemId)
+          String(item.childcategory_id) === String(child?.id)
       );
     }
 
@@ -951,11 +1571,205 @@
         return;
       }
 
+      if (normalizeName(selectedChild.name) === "balance") {
+        renderDirectBalance(selectedChild);
+        return;
+      }
+
       renderPackageItems(selectedChild);
     }
 
+    function extractBalancePrice(response) {
+      const candidates = [
+        response?.price,
+        response?.final_price,
+        response?.total_price,
+        response?.data?.price,
+        response?.data?.final_price,
+        response?.data?.total_price,
+        response?.result?.price,
+        response?.result?.final_price,
+        response?.result?.total_price,
+      ];
+
+      for (const value of candidates) {
+        const price = toNumber(value, Number.NaN);
+        if (Number.isFinite(price)) return price;
+      }
+      return null;
+    }
+
+    async function getDirectBalancePrice(item, balanceAmount) {
+      const response = await apiRequest(API_PATHS.BALANCE_PRICE, {
+        method: "POST",
+        body: {
+          company: item.company || state.currentSubcategory?.name,
+          balance_amount: balanceAmount,
+          currency: state.selectedCurrency,
+        },
+      });
+
+      const price = extractBalancePrice(response);
+      if (price === null) {
+        throw new Error(response.message || "Price was not returned by the server");
+      }
+      return price;
+    }
+
+    async function updateDirectBalancePrice(itemId) {
+      const item = state.balanceItems.find((entry) => String(entry.id) === String(itemId));
+      const amountInput = document.getElementById(`balance-amount-${itemId}`);
+      const priceBox = document.getElementById(`balance-price-${itemId}`);
+      if (!item || !priceBox) return;
+
+      const balanceAmount = toNumber(amountInput?.value, Number.NaN);
+      const requestId = (balancePriceRequestIds.get(String(itemId)) || 0) + 1;
+      balancePriceRequestIds.set(String(itemId), requestId);
+      balancePricesByItemId.delete(String(itemId));
+
+      if (!Number.isFinite(balanceAmount) || balanceAmount <= 0) {
+        priceBox.textContent = `0 ${state.selectedCurrency}`;
+        return;
+      }
+
+      priceBox.textContent = "Calculating...";
+      try {
+        const price = await getDirectBalancePrice(item, balanceAmount);
+        if (balancePriceRequestIds.get(String(itemId)) !== requestId) return;
+        balancePricesByItemId.set(String(itemId), { balanceAmount, price });
+        priceBox.textContent = `${formatNumber(price)} ${state.selectedCurrency}`;
+      } catch (error) {
+        if (balancePriceRequestIds.get(String(itemId)) !== requestId) return;
+        priceBox.textContent = error.message || "Unable to calculate price";
+      }
+    }
+
+    async function submitDirectBalance(event, itemId) {
+      event.preventDefault();
+      const item = state.balanceItems.find((entry) => String(entry.id) === String(itemId));
+      const phoneInput = document.getElementById(`balance-phone-${itemId}`);
+      const amountInput = document.getElementById(`balance-amount-${itemId}`);
+      const priceBox = document.getElementById(`balance-price-${itemId}`);
+      const button = document.getElementById(`balance-submit-${itemId}`);
+      const message = document.getElementById(`balance-message-${itemId}`);
+      const targetIdentifier = String(phoneInput?.value ?? "").trim();
+      const balanceAmount = toNumber(amountInput?.value, Number.NaN);
+
+      message.className = "package-order-message";
+      message.textContent = "";
+
+      if (!item || !targetIdentifier) {
+        message.classList.add("error");
+        message.textContent = "Phone number is required";
+        phoneInput?.focus();
+        return;
+      }
+      if (!Number.isFinite(balanceAmount) || balanceAmount <= 0) {
+        message.classList.add("error");
+        message.textContent = "Enter a valid balance amount";
+        amountInput?.focus();
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = "Checking price...";
+
+      try {
+        let priceData = balancePricesByItemId.get(String(itemId));
+        if (!priceData || priceData.balanceAmount !== balanceAmount) {
+          const price = await getDirectBalancePrice(item, balanceAmount);
+          priceData = { balanceAmount, price };
+          balancePricesByItemId.set(String(itemId), priceData);
+          priceBox.textContent = `${formatNumber(price)} ${state.selectedCurrency}`;
+        }
+
+        const confirmed = window.confirm(
+          `Confirm ${formatNumber(balanceAmount)}$ balance for ${targetIdentifier} at ${formatNumber(priceData.price)} ${state.selectedCurrency}?`
+        );
+        if (!confirmed) return;
+
+        button.textContent = "Sending...";
+        const result = await apiRequest(API_PATHS.CREATE_ORDER, {
+          method: "POST",
+          body: {
+            item_id: item.id,
+            item_type: "BALANCE",
+            target_identifier: targetIdentifier,
+            balance_amount: balanceAmount,
+            currency: state.selectedCurrency,
+          },
+        });
+
+        message.classList.add("success");
+        message.textContent = result.message || "Order created successfully";
+        phoneInput.value = "";
+        amountInput.value = "";
+        balancePricesByItemId.delete(String(itemId));
+        priceBox.textContent = `0 ${state.selectedCurrency}`;
+      } catch (error) {
+        message.classList.add("error");
+        message.textContent = error.message || "Failed to create order";
+      } finally {
+        button.disabled = false;
+        button.textContent = "Send Order";
+      }
+    }
+
+    function renderDirectBalance(selectedChild) {
+      const item = getVisibleBalanceItems()[0];
+      itemsTitle.textContent = `${formatName(selectedChild.name)} Order`;
+      itemsCount.textContent = item ? "1" : "0";
+      itemsContainer.className = "balance-direct-container";
+
+      if (!item) {
+        itemsContainer.innerHTML = '<div class="empty">No balance service is available</div>';
+        return;
+      }
+
+      itemsContainer.innerHTML = `
+        <form class="balance-direct-card" onsubmit="submitDirectBalance(event, '${escapeJsString(item.id)}')">
+          <h3 class="days-item-title">${escapeHtml(formatName(item.name || "Balance"))}</h3>
+
+          <label>
+            <span class="year-field-label">Phone number</span>
+            <input id="balance-phone-${escapeHtml(item.id)}" class="year-input" type="text" inputmode="tel" autocomplete="off" placeholder="Enter phone number" required>
+          </label>
+
+          <label>
+            <span class="year-field-label">Balance amount ($)</span>
+            <input id="balance-amount-${escapeHtml(item.id)}" class="year-input" type="number" inputmode="decimal" min="${escapeHtml(item.minimum_amount ?? 0)}" max="${escapeHtml(item.maximum_amount ?? "")}" step="${escapeHtml(item.step_amount || "any")}" placeholder="Enter balance" oninput="updateDirectBalancePrice('${escapeJsString(item.id)}')" required>
+          </label>
+
+          <div>
+            <div class="year-field-label">Price</div>
+            <div id="balance-price-${escapeHtml(item.id)}" class="balance-direct-price">0 ${escapeHtml(state.selectedCurrency)}</div>
+          </div>
+
+          <button id="balance-submit-${escapeHtml(item.id)}" class="year-action-button" type="submit">Send Order</button>
+          <div id="balance-message-${escapeHtml(item.id)}" class="package-order-message"></div>
+        </form>
+      `;
+    }
+
     function renderPackageItems(selectedChild) {
-      const visibleItems = getVisiblePackageItems();
+      const visibleItems = [
+        ...getVisiblePackageItems().map((item) => ({
+          ...item,
+          __itemType: "PACKAGE",
+        })),
+        ...getVisibleCounterItems().map((item) => ({
+          ...item,
+          __itemType: "COUNTER",
+        })),
+        ...getVisibleBalanceItems().map((item) => ({
+          ...item,
+          __itemType: "BALANCE",
+        })),
+      ].sort(
+        (firstItem, secondItem) =>
+          Number(firstItem.sort_order ?? 0) -
+          Number(secondItem.sort_order ?? 0)
+      );
 
       itemsTitle.textContent =
         `${formatName(selectedChild.name)} Items`;
@@ -1005,15 +1819,31 @@
 
         const priceLabel = document.createElement("div");
         priceLabel.className = "price-label";
-        priceLabel.textContent = "Price";
+        priceLabel.textContent = `Price • ${state.selectedCurrency}`;
 
         const price = document.createElement("div");
         price.className = "price";
-        price.textContent = formatNumber(item.price);
+        const selectedPrice = item.__itemType === "COUNTER"
+          ? getCounterPrice(item)
+          : item.__itemType === "BALANCE"
+            ? getBalanceUnitPrice(item)
+            : getPackagePrice(item);
+        price.textContent = selectedPrice === null
+          ? "Not available"
+          : `${formatNumber(selectedPrice)} ${state.selectedCurrency}` +
+            (item.__itemType === "COUNTER"
+              ? ` / ${formatName(item.unit || "unit")}`
+              : item.__itemType === "BALANCE"
+                ? " / balance $"
+              : "");
 
         const badge = document.createElement("div");
-        badge.className = "badge success";
-        badge.textContent = "Available";
+        badge.className = selectedPrice === null
+          ? "badge"
+          : "badge success";
+        badge.textContent = selectedPrice === null
+          ? "Unavailable"
+          : "Open";
 
         priceBox.appendChild(priceLabel);
         priceBox.appendChild(price);
@@ -1026,6 +1856,18 @@
 
         card.appendChild(image);
         card.appendChild(content);
+
+        card.tabIndex = 0;
+        card.setAttribute("role", "button");
+        card.addEventListener("click", () => {
+          openItemPage(item, item.__itemType, selectedChild);
+        });
+        card.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openItemPage(item, item.__itemType, selectedChild);
+          }
+        });
         itemsContainer.appendChild(card);
       }
     }
@@ -1080,75 +1922,36 @@
     };
 
     function renderDaysItemCard(item) {
-      const saved = yearResultsByItemId.get(String(item.id));
-
       return `
-        <article class="days-item-card" id="days-item-${escapeHtml(item.id)}">
-          <div class="days-item-head">
-            <div>
-              <h3 class="days-item-title">
-                ${escapeHtml(item.name || `Item ${item.id}`)}
-              </h3>
-              <div class="days-item-note">
-                Item ID ${escapeHtml(item.id)} · Sort ${escapeHtml(item.sort_order)}
-              </div>
-            </div>
-            <span class="active-badge">Active</span>
-          </div>
-
-          <div class="days-price-grid">
-            ${renderDaysInfoBox("Full card price", `${formatNumber(item.full_card_price)}$`)}
-            ${renderDaysInfoBox("Base dollar amount", `${formatNumber(item.base_dollar_amount)}$`)}
-            ${renderDaysInfoBox("Base sene", formatNumber(item.base_sene))}
-            ${renderDaysInfoBox("Balance + / $", formatNumber(item.balance_plus_price_per_dollar))}
-            ${renderDaysInfoBox("Balance - / $", formatNumber(item.balance_minus_price_per_dollar))}
-          </div>
-
-          <form
-            id="year-order-form-${escapeHtml(item.id)}"
-            class="year-order-form"
-            onsubmit="submitGetYear(event, '${escapeJsString(item.id)}')"
-          >
-            <div
-              id="year-request-controls-${escapeHtml(item.id)}"
-              class="${saved?.year ? "hidden" : ""}"
-            >
-              <label
-                class="year-field-label"
-                for="year-input-${escapeHtml(item.id)}"
-              >
-                Client number
-              </label>
-
-              <input
-                id="year-input-${escapeHtml(item.id)}"
-                class="year-input"
-                type="text"
-                autocomplete="off"
-                placeholder="Enter client number"
-                required
-                value="${escapeHtml(saved?.inputText || "")}"
-              >
-
-              <div class="year-form-actions">
-                <button
-                  id="get-year-button-${escapeHtml(item.id)}"
-                  class="year-action-button"
-                  type="submit"
-                >
-                  Get Year
-                </button>
-              </div>
-            </div>
-
-            <div id="message-${escapeHtml(item.id)}" class="hidden"></div>
-          </form>
-
-          <div id="year-result-${escapeHtml(item.id)}">
-            ${saved?.year ? renderYearResult(item, saved.year) : ""}
-          </div>
-        </article>
+        <button
+          class="days-item-link"
+          type="button"
+          onclick="openDaysItem('${escapeJsString(item.id)}')"
+        >
+          <span class="days-item-link-title">
+            ${escapeHtml(item.name || `Item ${item.id}`)}
+          </span>
+          <span class="days-item-link-bottom">
+            <span>Year item</span>
+            <span>Open →</span>
+          </span>
+        </button>
       `;
+    }
+
+    function openDaysItem(itemId) {
+      const selectedChild = getSelectedChild();
+      const nextParams = new URLSearchParams({
+        category_id: categoryId,
+        category_name: formatName(state.currentCategory?.name || categoryNameFromUrl),
+        subcategory_id: subcategoryId,
+        subcategory_name: formatName(state.currentSubcategory?.name || subcategoryNameFromUrl),
+        childcategory_id: selectedChild?.id ?? "",
+        childcategory_name: formatName(selectedChild?.name || "Days"),
+        item_id: itemId,
+      });
+
+      window.location.href = `./days-details.html?${nextParams.toString()}`;
     }
 
     function renderDaysInfoBox(label, value) {
@@ -1208,7 +2011,7 @@
       return {
         raw: data,
         year_id: data.year_id ?? data.id ?? null,
-        number_client: data.client_numberphone  ?? inputText,
+        number_client: data.number_client ?? inputText,
         buyer_numberphone:
           data.buyer_numberphone ??
           data.bayer_numberphone ??
@@ -1255,15 +2058,6 @@
     async function submitGetYear(event, itemId) {
       event.preventDefault();
 
-      const requestKey = String(itemId);
-
-      if (
-        yearRequestsInFlight.has(requestKey) ||
-        yearResultsByItemId.has(requestKey)
-      ) {
-        return;
-      }
-
       const item = state.daysItems.find(
         (entry) => String(entry.id) === String(itemId)
       );
@@ -1282,8 +2076,6 @@
         return;
       }
 
-      yearRequestsInFlight.add(requestKey);
-      input.disabled = true;
       button.disabled = true;
       button.textContent = "Getting year...";
       showItemMessage(
@@ -1309,14 +2101,6 @@
           `year-result-${itemId}`
         ).innerHTML = renderYearResult(item, year);
 
-        const requestControls = document.getElementById(
-          `year-request-controls-${itemId}`
-        );
-
-        if (requestControls) {
-          requestControls.classList.add("hidden");
-        }
-
         showItemMessage(
           itemId,
           response.message || "Year received successfully.",
@@ -1325,13 +2109,8 @@
       } catch (error) {
         showItemMessage(itemId, error.message, "error");
       } finally {
-        yearRequestsInFlight.delete(requestKey);
-
-        if (!yearResultsByItemId.has(requestKey)) {
-          input.disabled = false;
-          button.disabled = false;
-          button.textContent = "Get Year";
-        }
+        button.disabled = false;
+        button.textContent = "Get Year";
       }
     }
 
@@ -1482,7 +2261,7 @@
             >
               Confirm Year
             </button>
-          </div>
++          </div>
         </div>
       `;
     }
@@ -1917,23 +2696,9 @@
       const input = document.getElementById(
         `year-input-${itemId}`
       );
-      const requestControls = document.getElementById(
-        `year-request-controls-${itemId}`
-      );
-      const button = document.getElementById(
-        `get-year-button-${itemId}`
-      );
 
       if (result) result.innerHTML = "";
-      if (input) {
-        input.value = "";
-        input.disabled = false;
-      }
-      if (requestControls) requestControls.classList.remove("hidden");
-      if (button) {
-        button.disabled = false;
-        button.textContent = "Get Year";
-      }
+      if (input) input.value = "";
       hideItemMessage(itemId);
     }
 
@@ -1965,33 +2730,28 @@
       renderItems();
     }
 
-    function buildChildcategoriesUrl() {
-      const backParams = new URLSearchParams({
-        category_id: categoryId,
-        category_name: categoryNameFromUrl,
-        subcategory_id: subcategoryId,
-        subcategory_name: subcategoryNameFromUrl,
-      });
-
-      return `./childcategories.html?${backParams.toString()}`;
+    function buildSubcategoriesUrl() {
+      return "./home.html";
     }
 
     async function loadPage() {
-      if (!categoryId || !subcategoryId || !childcategoryId || !itemId) {
+      if (!categoryId || !subcategoryId) {
         window.location.href = "./home.html";
         return;
       }
 
-      const backUrl = buildChildcategoriesUrl();
+      const backUrl = buildSubcategoriesUrl();
       backButton.addEventListener("click", function () {
         window.location.href = backUrl;
       });
       categoryBackLink.href = backUrl;
 
       try {
-        const [categories, packageItems] = await Promise.all([
+        const [categories, packageItems, counterItems, balanceItems] = await Promise.all([
           getCategoriesTree(),
           getAllItemsPackage(),
+          getAllItemsCounter(),
+          getAllItemsBalance(),
         ]);
 
         const category = categories.find(
@@ -2018,7 +2778,13 @@
             )
           : [];
         state.packageItems = packageItems;
-        state.selectedChildcategoryId = childcategoryId;
+        state.counterItems = counterItems;
+        state.balanceItems = balanceItems;
+        state.selectedChildcategoryId = state.children.some(
+          (child) => String(child.id) === String(selectedChildIdFromUrl)
+        )
+          ? selectedChildIdFromUrl
+          : state.children[0]?.id ?? null;
 
         const categoryName = formatName(
           category.name || categoryNameFromUrl
@@ -2027,7 +2793,7 @@
           subcategory.name || subcategoryNameFromUrl
         );
 
-        pageTitle.textContent = childcategoryNameFromUrl;
+        pageTitle.textContent = subcategoryName;
         categoryBackLink.textContent = categoryName;
         breadcrumbSubcategory.textContent = subcategoryName;
 
@@ -2037,20 +2803,16 @@
         loading.classList.add("hidden");
         page.classList.remove("hidden");
 
-        const daysChild = state.children.find(
-          (child) => String(child.id) === String(childcategoryId)
-        );
+        const selectedChild = getSelectedChild();
 
-        if (daysChild) {
+        if (selectedChild && isDaysChild(selectedChild)) {
           try {
             await loadAllItemsDays();
           } catch (error) {
             console.error("Items Days error:", error);
           }
 
-          if (isDaysChild(getSelectedChild())) {
-            renderItems();
-          }
+          renderItems();
         }
       } catch (error) {
         console.error("Child categories error:", error);
@@ -2062,6 +2824,12 @@
       }
     }
 
+    currencyButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        selectCurrency(button.dataset.currency);
+      });
+    });
+    syncCurrencyButtons();
     loadPage();
   </script>
   <script type="module" src="./firebase-notifications.js"></script>

@@ -619,6 +619,20 @@
     .days-item-link-title { font-size: 17px; font-weight: 900; text-transform: capitalize; }
     .days-item-link-bottom { display: flex; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 12px; font-weight: 800; }
 
+    .days-item-card-link {
+      width: 100%;
+      color: var(--text);
+      text-align: left;
+      font: inherit;
+      cursor: pointer;
+      transition: transform .18s ease, border-color .18s ease;
+    }
+
+    .days-item-card-link:hover {
+      transform: translateY(-3px);
+      border-color: #a63a00 !important;
+    }
+
     @media (max-width: 900px) {
       .days-items-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
     }
@@ -1200,6 +1214,8 @@
       return {
         id: item.id,
         name: String(item.name ?? "").trim(),
+        description: String(item.description ?? "").trim(),
+        image_url: item.image_url ?? null,
         childcategory_id: item.childcategory_id ?? null,
         full_card_price: toNumber(item.full_card_price),
         base_dollar_amount: toNumber(item.base_dollar_amount),
@@ -1922,18 +1938,47 @@
     };
 
     function renderDaysItemCard(item) {
+      const imageHtml = item.image_url
+        ? `
+          <img
+            class="item-image"
+            src="${escapeHtml(item.image_url)}"
+            alt="${escapeHtml(formatName(item.name))}"
+          >
+        `
+        : `
+          <span class="item-image">
+            ${escapeHtml(firstLetter(item.name))}
+          </span>
+        `;
+
       return `
         <button
-          class="days-item-link"
+          class="item-card days-item-card-link"
           type="button"
           onclick="openDaysItem('${escapeJsString(item.id)}')"
         >
-          <span class="days-item-link-title">
-            ${escapeHtml(item.name || `Item ${item.id}`)}
-          </span>
-          <span class="days-item-link-bottom">
-            <span>Year item</span>
-            <span>Open →</span>
+          ${imageHtml}
+
+          <span class="item-content">
+            <span class="item-name">
+              ${escapeHtml(formatName(item.name || `Item ${item.id}`))}
+            </span>
+
+            <span class="item-description">
+              ${escapeHtml(item.description || "Year item")}
+            </span>
+
+            <span class="item-meta">
+              <span>
+                <span class="price-label">Base sene • LBP</span>
+                <span class="price">
+                  ${escapeHtml(formatNumber(item.base_sene))} LBP
+                </span>
+              </span>
+
+              <span class="badge success">Open</span>
+            </span>
           </span>
         </button>
       `;

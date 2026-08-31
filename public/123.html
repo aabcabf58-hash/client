@@ -621,7 +621,6 @@
     };
 
     const yearResultsByItemId = new Map();
-    const yearRequestsInFlight = new Set();
 
     const loading = document.getElementById("loading");
     const page = document.getElementById("page");
@@ -1105,43 +1104,37 @@
           </div>
 
           <form
-            id="year-order-form-${escapeHtml(item.id)}"
             class="year-order-form"
             onsubmit="submitGetYear(event, '${escapeJsString(item.id)}')"
           >
-            <div
-              id="year-request-controls-${escapeHtml(item.id)}"
-              class="${saved?.year ? "hidden" : ""}"
+            <label
+              class="year-field-label"
+              for="year-input-${escapeHtml(item.id)}"
             >
-              <label
-                class="year-field-label"
-                for="year-input-${escapeHtml(item.id)}"
-              >
-                Client number
-              </label>
+              Client number
+            </label>
 
-              <input
-                id="year-input-${escapeHtml(item.id)}"
-                class="year-input"
-                type="text"
-                autocomplete="off"
-                placeholder="Enter client number"
-                required
-                value="${escapeHtml(saved?.inputText || "")}"
-              >
-
-              <div class="year-form-actions">
-                <button
-                  id="get-year-button-${escapeHtml(item.id)}"
-                  class="year-action-button"
-                  type="submit"
-                >
-                  Get Year
-                </button>
-              </div>
-            </div>
+            <input
+              id="year-input-${escapeHtml(item.id)}"
+              class="year-input"
+              type="text"
+              autocomplete="off"
+              placeholder="Enter client number"
+              required
+              value="${escapeHtml(saved?.inputText || "")}"
+            >
 
             <div id="message-${escapeHtml(item.id)}" class="hidden"></div>
+
+            <div class="year-form-actions">
+              <button
+                id="get-year-button-${escapeHtml(item.id)}"
+                class="year-action-button"
+                type="submit"
+              >
+                Get Year
+              </button>
+            </div>
           </form>
 
           <div id="year-result-${escapeHtml(item.id)}">
@@ -1255,15 +1248,6 @@
     async function submitGetYear(event, itemId) {
       event.preventDefault();
 
-      const requestKey = String(itemId);
-
-      if (
-        yearRequestsInFlight.has(requestKey) ||
-        yearResultsByItemId.has(requestKey)
-      ) {
-        return;
-      }
-
       const item = state.daysItems.find(
         (entry) => String(entry.id) === String(itemId)
       );
@@ -1282,8 +1266,6 @@
         return;
       }
 
-      yearRequestsInFlight.add(requestKey);
-      input.disabled = true;
       button.disabled = true;
       button.textContent = "Getting year...";
       showItemMessage(
@@ -1309,14 +1291,6 @@
           `year-result-${itemId}`
         ).innerHTML = renderYearResult(item, year);
 
-        const requestControls = document.getElementById(
-          `year-request-controls-${itemId}`
-        );
-
-        if (requestControls) {
-          requestControls.classList.add("hidden");
-        }
-
         showItemMessage(
           itemId,
           response.message || "Year received successfully.",
@@ -1325,13 +1299,8 @@
       } catch (error) {
         showItemMessage(itemId, error.message, "error");
       } finally {
-        yearRequestsInFlight.delete(requestKey);
-
-        if (!yearResultsByItemId.has(requestKey)) {
-          input.disabled = false;
-          button.disabled = false;
-          button.textContent = "Get Year";
-        }
+        button.disabled = false;
+        button.textContent = "Get Year";
       }
     }
 
@@ -1917,23 +1886,9 @@
       const input = document.getElementById(
         `year-input-${itemId}`
       );
-      const requestControls = document.getElementById(
-        `year-request-controls-${itemId}`
-      );
-      const button = document.getElementById(
-        `get-year-button-${itemId}`
-      );
 
       if (result) result.innerHTML = "";
-      if (input) {
-        input.value = "";
-        input.disabled = false;
-      }
-      if (requestControls) requestControls.classList.remove("hidden");
-      if (button) {
-        button.disabled = false;
-        button.textContent = "Get Year";
-      }
+      if (input) input.value = "";
       hideItemMessage(itemId);
     }
 
