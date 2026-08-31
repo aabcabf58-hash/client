@@ -168,7 +168,7 @@
 
     .activity-summary {
       display: grid;
-      grid-template-columns: auto minmax(110px, .7fr) minmax(150px, 1fr) auto;
+      grid-template-columns: auto minmax(150px, 1fr) auto;
       align-items: center;
       gap: 14px;
       padding: 10px 14px;
@@ -183,16 +183,6 @@
       color: var(--text);
       font-size: 13px;
       font-weight: 800;
-      white-space: nowrap;
-    }
-
-    .activity-summary-target {
-      min-width: 0;
-      overflow: hidden;
-      color: var(--text);
-      font-size: 13px;
-      font-weight: 900;
-      text-overflow: ellipsis;
       white-space: nowrap;
     }
 
@@ -242,11 +232,6 @@
         grid-column: 1 / -1;
         grid-row: 2;
         justify-content: flex-start;
-        font-size: 12px;
-      }
-
-      .activity-summary-target {
-        text-align: right;
         font-size: 12px;
       }
 
@@ -505,13 +490,6 @@
           `badge ${direction === "CREDIT" ? "credit" : "debit"}`;
         directionBadge.textContent = direction || "—";
 
-        const targetIdentifier = document.createElement("div");
-        targetIdentifier.className = "activity-summary-target";
-        targetIdentifier.textContent =
-          activity.target_identifier ||
-          activity.counterparty_numberphone ||
-          "—";
-
         const compactBalance = document.createElement("div");
         compactBalance.className = "activity-summary-balance";
 
@@ -538,7 +516,6 @@
           )}`;
 
         summary.appendChild(directionBadge);
-        summary.appendChild(targetIdentifier);
         summary.appendChild(compactBalance);
         summary.appendChild(amount);
 
