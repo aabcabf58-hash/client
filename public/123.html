@@ -168,15 +168,22 @@
 
     .activity-summary {
       display: grid;
-      grid-template-columns: minmax(115px, auto) minmax(110px, 1fr) auto;
+      grid-template-columns: auto minmax(110px, .7fr) minmax(150px, 1fr) auto;
       align-items: center;
       gap: 14px;
       padding: 10px 14px;
     }
 
-    .activity-summary-money {
-      display: grid;
-      gap: 2px;
+    .activity-summary-balance {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-width: 0;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
     }
 
     .activity-summary-target {
@@ -187,27 +194,11 @@
       font-weight: 900;
       text-overflow: ellipsis;
       white-space: nowrap;
-      text-align: center;
     }
 
     .activity-summary-amount {
       font-size: 16px;
       font-weight: 900;
-      white-space: nowrap;
-      text-align: right;
-    }
-
-    .activity-summary-balance-line {
-      color: var(--muted);
-      font-size: 10px;
-      font-weight: 800;
-      white-space: nowrap;
-    }
-
-    .activity-summary-date {
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 800;
       white-space: nowrap;
       text-align: right;
     }
@@ -235,51 +226,6 @@
       margin: 0;
     }
 
-    .date-filter-bar {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 12px;
-      margin: 12px 0 18px;
-      padding: 12px;
-      background: var(--card-soft);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-    }
-
-    .period-buttons,
-    .custom-date-range {
-      display: flex;
-      align-items: flex-end;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .date-field {
-      display: grid;
-      gap: 5px;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 800;
-      text-transform: uppercase;
-    }
-
-    .date-field input {
-      min-height: 38px;
-      padding: 7px 10px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      box-sizing: border-box;
-    }
-
-    .date-filter-message {
-      min-height: 18px;
-      margin: -10px 0 10px;
-      color: #dc2626;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
     @media (max-width: 640px) {
       .page {
         width: calc(100% - 20px) !important;
@@ -287,39 +233,25 @@
       }
 
       .activity-summary {
-        grid-template-columns: minmax(95px, auto) minmax(90px, 1fr) auto;
+        grid-template-columns: auto 1fr;
         gap: 8px 10px;
         padding: 9px 10px;
       }
 
+      .activity-summary-balance {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        justify-content: flex-start;
+        font-size: 12px;
+      }
+
       .activity-summary-target {
-        text-align: center;
+        text-align: right;
         font-size: 12px;
       }
 
       .activity-summary-amount {
         font-size: 14px;
-      }
-
-      .activity-summary-date {
-        max-width: 90px;
-        overflow: hidden;
-        font-size: 9px;
-        text-overflow: ellipsis;
-      }
-
-      .date-filter-bar {
-        align-items: stretch;
-        flex-direction: column;
-      }
-
-      .custom-date-range {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .custom-date-range .button {
-        grid-column: 1 / -1;
       }
     }
   </style>
@@ -364,38 +296,6 @@
         >
       </div>
 
-      <div class="date-filter-bar">
-        <div class="period-buttons" aria-label="Activity period">
-          <button class="filter-button active" data-period="1d" type="button">
-            1D
-          </button>
-          <button class="filter-button" data-period="1w" type="button">
-            1W
-          </button>
-          <button class="filter-button" data-period="1m" type="button">
-            1M
-          </button>
-        </div>
-
-        <form id="customDateForm" class="custom-date-range">
-          <label class="date-field">
-            From
-            <input id="fromDate" type="date" required>
-          </label>
-
-          <label class="date-field">
-            To
-            <input id="toDate" type="date" required>
-          </label>
-
-          <button class="button secondary" type="submit">
-            Apply
-          </button>
-        </form>
-      </div>
-
-      <div id="dateFilterMessage" class="date-filter-message"></div>
-
       <div class="section-header">
         <h2>Transactions</h2>
         <span id="activityCount" class="count">0</span>
@@ -414,9 +314,6 @@
       activities: [],
       direction: "ALL",
       search: "",
-      period: "1d",
-      from: "",
-      to: "",
     };
 
     const loading = document.getElementById("loading");
@@ -427,11 +324,6 @@
     const searchInput = document.getElementById("searchInput");
     const refreshButton = document.getElementById("refreshButton");
     const directionButtons = document.querySelectorAll("[data-direction]");
-    const periodButtons = document.querySelectorAll("[data-period]");
-    const customDateForm = document.getElementById("customDateForm");
-    const fromDate = document.getElementById("fromDate");
-    const toDate = document.getElementById("toDate");
-    const dateFilterMessage = document.getElementById("dateFilterMessage");
 
     function logout() {
       localStorage.removeItem("token");
@@ -485,17 +377,8 @@
         return [];
       }
 
-      const query = new URLSearchParams();
-
-      if (state.from && state.to) {
-        query.set("from", state.from);
-        query.set("to", state.to);
-      } else {
-        query.set("period", state.period);
-      }
-
       const response = await fetch(
-        `${API_BASE_URL}/auth/getActivity?${query.toString()}`,
+        `${API_BASE_URL}/auth/getActivity`,
         {
           method: "GET",
           headers: {
@@ -549,8 +432,6 @@
           activity.currency,
           activity.status,
           activity.direction,
-          activity.target_identifier,
-          activity.item_name,
         ]
           .join(" ")
           .toLowerCase();
@@ -619,12 +500,34 @@
         const summary = document.createElement("div");
         summary.className = "activity-summary";
 
+        const directionBadge = document.createElement("span");
+        directionBadge.className =
+          `badge ${direction === "CREDIT" ? "credit" : "debit"}`;
+        directionBadge.textContent = direction || "—";
+
         const targetIdentifier = document.createElement("div");
         targetIdentifier.className = "activity-summary-target";
         targetIdentifier.textContent =
           activity.target_identifier ||
           activity.counterparty_numberphone ||
           "—";
+
+        const compactBalance = document.createElement("div");
+        compactBalance.className = "activity-summary-balance";
+
+        const balanceBefore = document.createElement("span");
+        balanceBefore.textContent = formatNumber(activity.balance_before);
+
+        const balanceArrow = document.createElement("span");
+        balanceArrow.className = "activity-balance-arrow";
+        balanceArrow.textContent = "→";
+
+        const balanceAfter = document.createElement("span");
+        balanceAfter.textContent = formatNumber(activity.balance_after);
+
+        compactBalance.appendChild(balanceBefore);
+        compactBalance.appendChild(balanceArrow);
+        compactBalance.appendChild(balanceAfter);
 
         const amount = document.createElement("div");
         amount.className =
@@ -634,29 +537,10 @@
             Math.abs(Number(activity.amount) || 0)
           )}`;
 
-        const balanceAfter = document.createElement("div");
-        balanceAfter.className = "activity-summary-balance-line";
-        balanceAfter.textContent =
-          `After: ${formatNumber(activity.balance_after)}`;
-
-        const balanceBefore = document.createElement("div");
-        balanceBefore.className = "activity-summary-balance-line";
-        balanceBefore.textContent =
-          `Before: ${formatNumber(activity.balance_before)}`;
-
-        const moneySummary = document.createElement("div");
-        moneySummary.className = "activity-summary-money";
-        moneySummary.appendChild(amount);
-        moneySummary.appendChild(balanceAfter);
-        moneySummary.appendChild(balanceBefore);
-
-        const activityDate = document.createElement("div");
-        activityDate.className = "activity-summary-date";
-        activityDate.textContent = formatDate(activity.created_at);
-
-        summary.appendChild(moneySummary);
+        summary.appendChild(directionBadge);
         summary.appendChild(targetIdentifier);
-        summary.appendChild(activityDate);
+        summary.appendChild(compactBalance);
+        summary.appendChild(amount);
 
         const details = document.createElement("div");
         details.className = "activity-details";
@@ -677,10 +561,15 @@
         meta.appendChild(
           createMeta("Date", formatDate(activity.created_at))
         );
+        meta.appendChild(
+          createMeta(
+            "Other Number",
+            activity.counterparty_numberphone
+          )
+        );
         meta.appendChild(createMeta("Currency", currency));
         meta.appendChild(createMeta("Status", status));
-        meta.appendChild(createMeta("Direction", direction));
-        meta.appendChild(createMeta("Item Name", activity.item_name));
+        meta.appendChild(createMeta("Client Number", activity.client_numberphone));
         meta.appendChild(createMeta("Target", activity.target_identifier));
         meta.appendChild(createMeta("Order ID", activity.order_id));
         meta.appendChild(
@@ -746,66 +635,12 @@
       });
     }
 
-    function syncPeriodButtons() {
-      for (const button of periodButtons) {
-        button.classList.toggle(
-          "active",
-          !state.from && button.dataset.period === state.period
-        );
-      }
-    }
-
-    for (const button of periodButtons) {
-      button.addEventListener("click", async function () {
-        state.period = button.dataset.period;
-        state.from = "";
-        state.to = "";
-        fromDate.value = "";
-        toDate.value = "";
-        dateFilterMessage.textContent = "";
-        syncPeriodButtons();
-        await loadActivity();
-      });
-    }
-
-    customDateForm.addEventListener("submit", async function (event) {
-      event.preventDefault();
-
-      const from = fromDate.value;
-      const to = toDate.value;
-
-      if (!from || !to) {
-        dateFilterMessage.textContent = "From and To dates are required";
-        return;
-      }
-
-      if (from > to) {
-        dateFilterMessage.textContent = "From date cannot be after To date";
-        return;
-      }
-
-      state.from = from;
-      state.to = to;
-      dateFilterMessage.textContent = "";
-      syncPeriodButtons();
-      await loadActivity();
-    });
-
     searchInput.addEventListener("input", function () {
       state.search = searchInput.value.trim();
       renderActivities();
     });
 
     refreshButton.addEventListener("click", loadActivity);
-    const currentDate = new Date();
-    const today = [
-      currentDate.getFullYear(),
-      String(currentDate.getMonth() + 1).padStart(2, "0"),
-      String(currentDate.getDate()).padStart(2, "0"),
-    ].join("-");
-    fromDate.max = today;
-    toDate.max = today;
-    syncPeriodButtons();
     loadActivity();
   </script>
   <script type="module" src="./firebase-notifications.js"></script>
