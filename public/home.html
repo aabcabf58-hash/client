@@ -713,24 +713,23 @@
       return text ? text.charAt(0).toUpperCase() : "?";
     }
 
-    async function requestJson(path, options = {}) {
-      const requiresAuth = options.auth !== false;
+    async function requestJson(path) {
       const token = getToken();
-      if (requiresAuth && !token) {
+      if (!token) {
         logout();
         throw new Error("Token not found");
       }
 
       const response = await fetch(`${API_BASE_URL}${path}`, {
-        headers: requiresAuth && token
-          ? { Authorization: `Bearer ${token}` }
-          : {},
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       let result = {};
       try { result = await response.json(); } catch (_) {}
 
-      if (requiresAuth && response.status === 401) {
+      if (response.status === 401) {
         logout();
         throw new Error(result.message || "Session expired");
       }
@@ -750,8 +749,7 @@
 
     async function getCategoriesTree() {
       const result = await requestJson(
-        "/category/getAllCategoriesTree",
-        { auth: false }
+        "/category/getAllCategoriesTree"
       );
       if (Array.isArray(result)) return result;
       if (Array.isArray(result.data)) return result.data;
