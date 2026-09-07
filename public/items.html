@@ -520,6 +520,8 @@
       ITEMS_COUNTER: "/category/getAllItemsCounter",
       ITEMS_BALANCE: "/category/getAllItemsBalance",
       CREATE_ORDER: "/orders/createOrder",
+      CREATE_ORDER_BALANCE: "/orders/createorderBalance",
+      CREATE_ORDER_GIFT: "/orders/createOrdergift",
       GET_COUNTER_PRICE: "/category/getcounterPrice",
       GET_BALANCE_PRICE: "/category/getBalancePrice",
     };
@@ -609,10 +611,9 @@
     }
 
     async function apiRequest(path, options = {}) {
-      const requiresAuth = options.auth !== false;
       const token = getToken();
 
-      if (requiresAuth && !token) {
+      if (!token) {
         logout();
         throw new Error("Token not found");
       }
@@ -620,9 +621,7 @@
       const response = await fetch(`${API_BASE_URL}${path}`, {
         method: options.method || "GET",
         headers: {
-          ...(requiresAuth
-            ? { Authorization: `Bearer ${token}` }
-            : {}),
+          Authorization: `Bearer ${token}`,
           ...(options.body !== undefined
             ? { "Content-Type": "application/json" }
             : {}),
@@ -642,7 +641,7 @@
         result = { raw: text };
       }
 
-      if (requiresAuth && response.status === 401) {
+      if (response.status === 401) {
         logout();
         throw new Error(result.message || "Session expired");
       }
@@ -844,7 +843,6 @@
           itemType === "BALANCE" ? API_PATHS.GET_BALANCE_PRICE : API_PATHS.GET_COUNTER_PRICE,
           {
             method: "POST",
-            auth: false,
             body: itemType === "BALANCE"
               ? { company: state.item.company, balance_amount: numericCounter, currency: state.currency }
               : { company: state.item.company, amount: numericCounter, currency: state.currency },
@@ -941,14 +939,35 @@
       packageOrderButton.textContent = "Processing...";
 
       try {
-        const result = await apiRequest(API_PATHS.CREATE_ORDER, {
+        const cleanChildcategoryName = formatName(
+          childcategoryName
+        ).toLowerCase();
+
+        const isGiftOrBooster =
+          cleanChildcategoryName.includes("gift") ||
+          cleanChildcategoryName.includes("booster");
+
+        const requestPath = isGiftOrBooster
+          ? API_PATHS.CREATE_ORDER_GIFT
+          : API_PATHS.CREATE_ORDER;
+
+        const requestBody = isGiftOrBooster
+          ? {
+              target_identifier: target,
+              id_items: state.item.id,
+              company: state.item.company,
+              currency: state.currency,
+            }
+          : {
+              item_id: state.item.id,
+              item_type: itemType,
+              target_identifier: target,
+              currency: state.currency,
+            };
+
+        const result = await apiRequest(requestPath, {
           method: "POST",
-          body: {
-            item_id: state.item.id,
-            item_type: itemType,
-            target_identifier: target,
-            currency: state.currency,
-          },
+          body: requestBody,
         });
 
         const orderId =
@@ -999,15 +1018,30 @@
       counterOrderButton.textContent = "Processing...";
 
       try {
-        const result = await apiRequest(API_PATHS.CREATE_ORDER, {
+        const isBalanceOrder = itemType === "BALANCE";
+
+        const requestPath = isBalanceOrder
+          ? API_PATHS.CREATE_ORDER_BALANCE
+          : API_PATHS.CREATE_ORDER;
+
+        const requestBody = isBalanceOrder
+          ? {
+              target_identifier: target,
+              amount_pure: checked.counter,
+              company: state.item.company,
+              currency: state.currency,
+            }
+          : {
+              item_id: state.item.id,
+              item_type: itemType,
+              target_identifier: target,
+              amount: checked.counter,
+              currency: state.currency,
+            };
+
+        const result = await apiRequest(requestPath, {
           method: "POST",
-          body: {
-            item_id: state.item.id,
-            item_type: itemType,
-            target_identifier: target,
-            amount: checked.counter,
-            currency: state.currency,
-          },
+          body: requestBody,
         });
 
         const orderId =
