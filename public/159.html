@@ -999,7 +999,6 @@
       CHECK_YEAR: "/api/ushare/chekyear",
       CONFIRM_YEAR: "/api/ushare/confirmYear",
       CREATE_ORDER: "/orders/createOrder",
-      CREATE_ORDER_BALANCE: "/orders/createorderBalance",
     };
 
     const params = new URLSearchParams(window.location.search);
@@ -1706,12 +1705,13 @@
         if (!confirmed) return;
 
         button.textContent = "Sending...";
-        const result = await apiRequest(API_PATHS.CREATE_ORDER_BALANCE, {
+        const result = await apiRequest(API_PATHS.CREATE_ORDER, {
           method: "POST",
           body: {
+            item_id: item.id,
+            item_type: "BALANCE",
             target_identifier: targetIdentifier,
-            amount_pure: balanceAmount,
-            company: item.company,
+            balance_amount: balanceAmount,
             currency: state.selectedCurrency,
           },
         });
