@@ -903,6 +903,15 @@
     }
 
     function normalizeYear(year) {
+      // Keep empty positions: each amount belongs to the number at the same index.
+      const splitText = String(year.split_text ?? "").trim();
+      const requiredAmounts = splitText === "" ? null : splitText.split(",").map((value) => {
+        const amountText = value.trim();
+        if (amountText === "") return null;
+        const amount = Number(amountText);
+        return Number.isFinite(amount) && amount >= 0 ? amount : null;
+      });
+
       return {
         ...year,
         id: year.id ?? year.year_id,
@@ -920,9 +929,11 @@
           : toNumber(year.price_sene_now),
         refund_amount: toNumber(year.refund_amount),
         numbers: Array.isArray(year.numbers)
-          ? year.numbers.map((entry) => ({
+          ? year.numbers.map((entry, index) => ({
               ...entry,
-              required_balance: entry.required_balance ?? null,
+              required_balance: requiredAmounts === null
+                ? (entry.required_balance ?? null)
+                : (requiredAmounts[index] ?? null),
             }))
           : [],
       };
@@ -1186,9 +1197,20 @@
       const year = state.years.find((entry) => String(entry.id) === String(yearId));
       if (!year) return;
 
+      const formatCopiedBalance = (value) => {
+        if (value === null || value === undefined || String(value).trim() === "") return "—";
+        const amount = Number(String(value).replaceAll(",", "").trim());
+        return Number.isFinite(amount) ? `$${amount.toFixed(2)}` : "—";
+      };
+
       const numbers = year.numbers
-        .map((entry) => String(entry.numberphone ?? "").trim())
-        .filter(Boolean);
+        .filter((entry) => String(entry.numberphone ?? "").trim() !== "")
+        .map((entry) => [
+          String(entry.numberphone).trim(),
+          `BEFORE: ${formatCopiedBalance(entry.balance_before)}`,
+          `AFTER: ${formatCopiedBalance(entry.balance_after)}`,
+          `REUQIRED: ${formatCopiedBalance(entry.required_balance)}`,
+        ].join(" | "));
 
       if (!numbers.length) return;
 
