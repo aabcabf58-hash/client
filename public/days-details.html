@@ -587,14 +587,16 @@
 
   <script>
     const API_BASE_URL =
-      "https://abdd-production.up.railway.app";
+    "https://abdd-production.up.railway.app";
 
     const API_PATHS = {
       CATEGORIES_TREE: "/category/getAllCategoriesTree",
       ITEMS_PACKAGE: "/category/getAllItemsPackage",
       ITEMS_DAYS: "/category/getAllItemsDays",
       GET_YEAR: "/api/ushare/getyear",
-      // CHECK_YEAR: "/api/ushare/chekyear",
+      GET_THREE_MONTHS: "/api/ushare/get3monthe",
+      GET_THIRTY_DAYS: "/api/ushare/get30days",
+      CHECK_YEAR: "/api/ushare/chekyears",
       // CONFIRM_YEAR: "/api/ushare/confirmYear",
     };
 
@@ -1252,6 +1254,13 @@
       };
     }
 
+    function getItemRequestPath(item) {
+      const name = String(item?.name ?? "").trim().toLowerCase();
+      if (name === "alfa$22.73") return API_PATHS.GET_THREE_MONTHS;
+      if (name === "alfs$7.58") return API_PATHS.GET_THIRTY_DAYS;
+      return API_PATHS.GET_YEAR;
+    }
+
     async function submitGetYear(event, itemId) {
       event.preventDefault();
 
@@ -1293,9 +1302,9 @@
       );
 
       try {
-        const response = await apiRequest(API_PATHS.GET_YEAR, {
+        const response = await apiRequest(getItemRequestPath(item), {
           method: "POST",
-          body: { numberphone: inputText },
+          body: { numberphone: inputText, nameItem: item.name },
         });
 
         const year = normalizeYearResponse(response, inputText);
@@ -1754,159 +1763,159 @@
       }
     }
 
-    async function confirmYear(itemId) {
-      const item = state.daysItems.find(
-        (entry) => String(entry.id) === String(itemId)
-      );
-      const saved = yearResultsByItemId.get(String(itemId));
-      const checkbox = document.getElementById(
-        `confirm-year-checkbox-${itemId}`
-      );
-      const button = document.getElementById(
-        `confirm-year-button-${itemId}`
-      );
+    // async function confirmYear(itemId) {
+    //   const item = state.daysItems.find(
+    //     (entry) => String(entry.id) === String(itemId)
+    //   );
+    //   const saved = yearResultsByItemId.get(String(itemId));
+    //   const checkbox = document.getElementById(
+    //     `confirm-year-checkbox-${itemId}`
+    //   );
+    //   const button = document.getElementById(
+    //     `confirm-year-button-${itemId}`
+    //   );
 
-      if (!item || !saved?.year) {
-        showItemMessage(
-          itemId,
-          "Get and check a year before confirmation.",
-          "error"
-        );
-        return;
-      }
+    //   if (!item || !saved?.year) {
+    //     showItemMessage(
+    //       itemId,
+    //       "Get and check a year before confirmation.",
+    //       "error"
+    //     );
+    //     return;
+    //   }
 
-      if (saved.year.status !== "CHECKING") {
-        showItemMessage(
-          itemId,
-          "Year status must be CHECKING before confirmation.",
-          "error"
-        );
-        return;
-      }
+    //   if (saved.year.status !== "CHECKING") {
+    //     showItemMessage(
+    //       itemId,
+    //       "Year status must be CHECKING before confirmation.",
+    //       "error"
+    //     );
+    //     return;
+    //   }
 
-      if (!saved.year.year_id || !saved.year.number_client) {
-        showItemMessage(
-          itemId,
-          "Year ID or client number is missing.",
-          "error"
-        );
-        return;
-      }
+    //   if (!saved.year.year_id || !saved.year.number_client) {
+    //     showItemMessage(
+    //       itemId,
+    //       "Year ID or client number is missing.",
+    //       "error"
+    //     );
+    //     return;
+    //   }
 
-      if (!checkbox?.checked) {
-        showItemMessage(
-          itemId,
-          "Tick the confirmation checkbox first.",
-          "error"
-        );
-        return;
-      }
+    //   if (!checkbox?.checked) {
+    //     showItemMessage(
+    //       itemId,
+    //       "Tick the confirmation checkbox first.",
+    //       "error"
+    //     );
+    //     return;
+    //   }
 
-      const accepted = window.confirm(
-        "Are you sure you want to confirm this year? " +
-        "This action cannot be undone."
-      );
+    //   const accepted = window.confirm(
+    //     "Are you sure you want to confirm this year? " +
+    //     "This action cannot be undone."
+    //   );
 
-      if (!accepted) return;
+    //   if (!accepted) return;
 
-      button.disabled = true;
-      button.textContent = "Confirming...";
-      showItemMessage(
-        itemId,
-        "Confirming the year and updating the client wallet...",
-        "info"
-      );
+    //   button.disabled = true;
+    //   button.textContent = "Confirming...";
+    //   showItemMessage(
+    //     itemId,
+    //     "Confirming the year and updating the client wallet...",
+    //     "info"
+    //   );
 
-      try {
-        const response = await apiRequest(
-          API_PATHS.CONFIRM_YEAR,
-          {
-            method: "POST",
-            body: {
-              year_id: saved.year.year_id,
-              number_client: saved.year.number_client,
-            },
-          }
-        );
+    //   try {
+    //     const response = await apiRequest(
+    //       API_PATHS.CONFIRM_YEAR,
+    //       {
+    //         method: "POST",
+    //         body: {
+    //           year_id: saved.year.year_id,
+    //           number_client: saved.year.number_client,
+    //         },
+    //       }
+    //     );
 
-        const confirmedYear =
-          response?.year && typeof response.year === "object"
-            ? response.year
-            : response?.data && typeof response.data === "object"
-              ? response.data
-              : {};
+    //     const confirmedYear =
+    //       response?.year && typeof response.year === "object"
+    //         ? response.year
+    //         : response?.data && typeof response.data === "object"
+    //           ? response.data
+    //           : {};
 
-        const calculation =
-          response?.calculation &&
-          typeof response.calculation === "object"
-            ? response.calculation
-            : {};
+    //     const calculation =
+    //       response?.calculation &&
+    //       typeof response.calculation === "object"
+    //         ? response.calculation
+    //         : {};
 
-        const balance =
-          response?.balance &&
-          typeof response.balance === "object"
-            ? response.balance
-            : {};
+    //     const balance =
+    //       response?.balance &&
+    //       typeof response.balance === "object"
+    //         ? response.balance
+    //         : {};
 
-        const merged = {
-          ...saved.year,
-          ...confirmedYear,
-          year_id:
-            confirmedYear.id ??
-            confirmedYear.year_id ??
-            saved.year.year_id,
-          number_client:
-            confirmedYear.number_client ??
-            saved.year.number_client,
-          status: String(
-            confirmedYear.status ?? "COMPLETE"
-          ).toUpperCase(),
-          final_year_price: toNumber(
-            confirmedYear.final_year_price ??
-            calculation.final_year_price
-          ),
-          refund_amount: toNumber(
-            confirmedYear.refund_amount ??
-            calculation.refund_amount
-          ),
-          balance_before: toNumber(
-            balance.balance_before ??
-            saved.year.balance_before
-          ),
-          balance_after: toNumber(
-            balance.balance_after ??
-            saved.year.balance_after
-          ),
-        };
+    //     const merged = {
+    //       ...saved.year,
+    //       ...confirmedYear,
+    //       year_id:
+    //         confirmedYear.id ??
+    //         confirmedYear.year_id ??
+    //         saved.year.year_id,
+    //       number_client:
+    //         confirmedYear.number_client ??
+    //         saved.year.number_client,
+    //       status: String(
+    //         confirmedYear.status ?? "COMPLETE"
+    //       ).toUpperCase(),
+    //       final_year_price: toNumber(
+    //         confirmedYear.final_year_price ??
+    //         calculation.final_year_price
+    //       ),
+    //       refund_amount: toNumber(
+    //         confirmedYear.refund_amount ??
+    //         calculation.refund_amount
+    //       ),
+    //       balance_before: toNumber(
+    //         balance.balance_before ??
+    //         saved.year.balance_before
+    //       ),
+    //       balance_after: toNumber(
+    //         balance.balance_after ??
+    //         saved.year.balance_after
+    //       ),
+    //     };
 
-        yearResultsByItemId.set(String(itemId), {
-          inputText: saved.inputText,
-          year: merged,
-        });
+    //     yearResultsByItemId.set(String(itemId), {
+    //       inputText: saved.inputText,
+    //       year: merged,
+    //     });
 
-        document.getElementById(
-          `year-result-${itemId}`
-        ).innerHTML = renderYearResult(item, merged);
+    //     document.getElementById(
+    //       `year-result-${itemId}`
+    //     ).innerHTML = renderYearResult(item, merged);
 
-        showItemMessage(
-          itemId,
-          response.message ||
-            "Year confirmed and client wallet updated successfully.",
-          "success"
-        );
-      } catch (error) {
-        showItemMessage(itemId, error.message, "error");
+    //     showItemMessage(
+    //       itemId,
+    //       response.message ||
+    //         "Year confirmed and client wallet updated successfully.",
+    //       "success"
+    //     );
+    //   } catch (error) {
+    //     showItemMessage(itemId, error.message, "error");
 
-        const currentButton = document.getElementById(
-          `confirm-year-button-${itemId}`
-        );
+    //     const currentButton = document.getElementById(
+    //       `confirm-year-button-${itemId}`
+    //     );
 
-        if (currentButton) {
-          currentButton.disabled = false;
-          currentButton.textContent = "Confirm Year";
-        }
-      }
-    }
+    //     if (currentButton) {
+    //       currentButton.disabled = false;
+    //       currentButton.textContent = "Confirm Year";
+    //     }
+    //   }
+    // }
 
     function clearYearResult(itemId) {
       yearResultsByItemId.delete(String(itemId));

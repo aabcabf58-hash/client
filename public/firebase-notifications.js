@@ -6,7 +6,7 @@ import {
   isSupported
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging.js";
 
-const API_BASE_URL = "https://abdd-production.up.railway.app";
+const API_BASE_URL = "http://localhost:3000";
 const FCM_SAVE_PATH = "/auth/fcm-token";
 
 const firebaseConfig = {
