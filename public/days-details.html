@@ -594,7 +594,9 @@
       ITEMS_PACKAGE: "/category/getAllItemsPackage",
       ITEMS_DAYS: "/category/getAllItemsDays",
       GET_YEAR: "/api/ushare/getyear",
-      // CHECK_YEAR: "/api/ushare/chekyear",
+      GET_THREE_MONTHS: "/api/ushare/get3monthe",
+      GET_THIRTY_DAYS: "/api/ushare/get30days",
+      CHECK_YEAR: "/api/ushare/chekyears",
       // CONFIRM_YEAR: "/api/ushare/confirmYear",
     };
 
@@ -1252,6 +1254,13 @@
       };
     }
 
+    function getItemRequestPath(item) {
+      const name = String(item?.name ?? "").trim().toLowerCase();
+      if (name === "alfa$22.73") return API_PATHS.GET_THREE_MONTHS;
+      if (name === "alfa$7.58") return API_PATHS.GET_THIRTY_DAYS;
+      return API_PATHS.GET_YEAR;
+    }
+
     async function submitGetYear(event, itemId) {
       event.preventDefault();
 
@@ -1293,9 +1302,9 @@
       );
 
       try {
-        const response = await apiRequest(API_PATHS.GET_YEAR, {
+        const response = await apiRequest(getItemRequestPath(item), {
           method: "POST",
-          body: { numberphone: inputText },
+          body: { numberphone: inputText, nameItem: item.name },
         });
 
         const year = normalizeYearResponse(response, inputText);
