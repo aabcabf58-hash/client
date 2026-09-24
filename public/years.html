@@ -772,12 +772,10 @@
       <label class="filter-field">
         <span class="filter-label">Pending date</span>
         <select id="dateFilter" class="filter-input">
-          <option value="ALL">All dates</option>
-          <option value="TODAY">Today</option>
+          <option value="TODAY" selected>Today</option>
           <option value="YESTERDAY">Yesterday</option>
           <option value="7_DAYS">Last 7 days</option>
           <option value="30_DAYS">Last 30 days</option>
-          <option value="CUSTOM">Custom range</option>
         </select>
       </label>
 
@@ -819,6 +817,13 @@
       years: [],
       openYearId: null,
       modalMessage: null,
+    };
+
+    const YEARS_PERIOD_BY_FILTER = {
+      TODAY: "",
+      YESTERDAY: "?period=yesterdays",
+      "7_DAYS": "?period=weeks",
+      "30_DAYS": "?period=monthes",
     };
     const loading = document.getElementById("loading");
     const page = document.getElementById("page");
@@ -939,6 +944,11 @@
       };
     }
 
+    function getMyYearsPath() {
+      const periodQuery = YEARS_PERIOD_BY_FILTER[dateFilter.value] ?? "";
+      return `${API_PATHS.GET_MY_YEARS}${periodQuery}`;
+    }
+
     async function loadYears(showLoader = true) {
       if (showLoader) {
         loading.classList.remove("hidden");
@@ -946,7 +956,7 @@
       }
       pageError.classList.add("hidden");
       try {
-        const result = await apiRequest(API_PATHS.GET_MY_YEARS);
+        const result = await apiRequest(getMyYearsPath());
         state.years = (Array.isArray(result.data) ? result.data : [])
           .map(normalizeYear)
           .sort((a, b) => new Date(b.pending_at || 0) - new Date(a.pending_at || 0));
@@ -1313,8 +1323,7 @@
       element.addEventListener("change", renderYears);
     });
     dateFilter.addEventListener("change", () => {
-      customDates.classList.toggle("hidden", dateFilter.value !== "CUSTOM");
-      renderYears();
+      loadYears(false);
     });
     document.getElementById("refreshButton").addEventListener("click", () => loadYears(false));
 
