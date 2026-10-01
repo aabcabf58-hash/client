@@ -519,6 +519,8 @@
       ITEMS_COUNTER: "/category/getAllItemsCounter",
       ITEMS_BALANCE: "/category/getAllItemsBalance",
       CREATE_ORDER: "/orders/createOrder",
+      CREATE_ORDER_CARD: "/orders/createOrderCard",
+
       CREATE_ORDER_BALANCE: "/orders/createorderBalance",
       CREATE_ORDER_GIFT: "/orders/createOrdergift",
       GET_COUNTER_PRICE: "/category/getcounterPrice",
@@ -946,23 +948,34 @@
           cleanChildcategoryName.includes("gift") ||
           cleanChildcategoryName.includes("booster");
 
-        const requestPath = isGiftOrBooster
-          ? API_PATHS.CREATE_ORDER_GIFT
-          : API_PATHS.CREATE_ORDER;
+        const isCard =
+          String(state.item.unit ?? "").trim().toUpperCase() === "CARD";
 
-        const requestBody = isGiftOrBooster
+        const requestPath = isCard
+          ? API_PATHS.CREATE_ORDER_CARD
+          : isGiftOrBooster
+            ? API_PATHS.CREATE_ORDER_GIFT
+            : API_PATHS.CREATE_ORDER;
+
+        const requestBody = isCard
           ? {
+              item_id: state.item.id,
               target_identifier: target,
-              id_items: state.item.id,
-              company: state.item.company,
               currency: state.currency,
             }
-          : {
-              item_id: state.item.id,
-              item_type: itemType,
-              target_identifier: target,
-              currency: state.currency,
-            };
+          : isGiftOrBooster
+            ? {
+                target_identifier: target,
+                id_items: state.item.id,
+                company: state.item.company,
+                currency: state.currency,
+              }
+            : {
+                item_id: state.item.id,
+                item_type: itemType,
+                target_identifier: target,
+                currency: state.currency,
+              };
 
         const result = await apiRequest(requestPath, {
           method: "POST",

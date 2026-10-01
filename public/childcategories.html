@@ -999,6 +999,7 @@
       CHECK_YEAR: "/api/ushare/chekyear",
       CONFIRM_YEAR: "/api/ushare/confirmYear",
       CREATE_ORDER: "/orders/createOrder",
+      CREATE_ORDER_CARD: "/orders/createOrderCard",
       CREATE_ORDER_BALANCE: "/orders/createorderBalance",
     };
 
@@ -1401,16 +1402,27 @@
       button.textContent = "Processing...";
 
       try {
+        const isCard =
+          String(item.unit ?? "").trim().toUpperCase() === "CARD";
+
         const result = await apiRequest(
-          API_PATHS.CREATE_ORDER,
+          isCard
+            ? API_PATHS.CREATE_ORDER_CARD
+            : API_PATHS.CREATE_ORDER,
           {
             method: "POST",
-            body: {
-              item_id: item.id,
-              item_type: "PACKAGE",
-              target_identifier: targetIdentifier,
-              currency: state.selectedCurrency,
-            },
+            body: isCard
+              ? {
+                  item_id: item.id,
+                  target_identifier: targetIdentifier,
+                  currency: state.selectedCurrency,
+                }
+              : {
+                  item_id: item.id,
+                  item_type: "PACKAGE",
+                  target_identifier: targetIdentifier,
+                  currency: state.selectedCurrency,
+                },
           }
         );
 
