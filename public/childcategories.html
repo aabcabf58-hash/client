@@ -1001,7 +1001,6 @@
       CREATE_ORDER: "/orders/createOrder",
       CREATE_ORDER_CARD: "/orders/createOrderCard",
       CREATE_ORDER_BALANCE: "/orders/createorderBalance",
-      CREATE_ORDER_VALIDITY: "/orders/createOrderValidity",
     };
 
     const params = new URLSearchParams(window.location.search);
@@ -1736,9 +1735,9 @@
         const result = await apiRequest(API_PATHS.CREATE_ORDER_BALANCE, {
           method: "POST",
           body: {
+            item_id: item.id,
             target_identifier: targetIdentifier,
             amount_pure: balanceAmount,
-            company: item.company,
             currency: state.selectedCurrency,
           },
         });
@@ -1873,13 +1872,13 @@
         if (!confirmed) return;
 
         button.textContent = "Sending...";
-        const result = await apiRequest(API_PATHS.CREATE_ORDER_VALIDITY, {
+        const result = await apiRequest(API_PATHS.CREATE_ORDER_BALANCE, {
           method: "POST",
           body: {
+            item_id: item.id,
             target_identifier: targetIdentifier,
-            company: item.company || state.currentSubcategory?.name,
             currency: state.selectedCurrency,
-            days,
+            amount_pure: days,
           },
         });
 
