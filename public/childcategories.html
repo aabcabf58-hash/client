@@ -1001,6 +1001,7 @@
       CREATE_ORDER: "/orders/createOrder",
       CREATE_ORDER_CARD: "/orders/createOrderCard",
       CREATE_ORDER_BALANCE: "/orders/createorderBalance",
+      CREATE_ORDER_VALIDITY: "/orders/createOrderValidity",
     };
 
     const params = new URLSearchParams(window.location.search);
@@ -1531,6 +1532,14 @@
       );
     }
 
+    function isValidityChild(child) {
+      return normalizeName(child?.name) === "validity";
+    }
+
+    function getVisibleValidityItems() {
+      return getVisibleBalanceItems();
+    }
+
     function getBalanceUnitPrice(item) {
       const field = state.selectedCurrency === "USD"
         ? "price_per_dollar_usd"
@@ -1605,6 +1614,11 @@
         return;
       }
 
+      if (isValidityChild(selectedChild)) {
+        renderDirectValidity(selectedChild);
+        return;
+      }
+
       renderPackageItems(selectedChild);
     }
 
@@ -1632,6 +1646,7 @@
       const response = await apiRequest(API_PATHS.BALANCE_PRICE, {
         method: "POST",
         body: {
+          item_id: item.id,
           company: item.company || state.currentSubcategory?.name,
           balance_amount: balanceAmount,
           currency: state.selectedCurrency,
@@ -1777,6 +1792,142 @@
           <div id="balance-message-${escapeHtml(item.id)}" class="package-order-message"></div>
         </form>
       `;
+    }
+
+    async function updateDirectValidityPrice(itemId) {
+      const item = getVisibleValidityItems().find(
+        (entry) => String(entry.id) === String(itemId)
+      );
+      const daysInput = document.getElementById(`validity-days-${itemId}`);
+      const priceBox = document.getElementById(`validity-price-${itemId}`);
+      if (!item || !priceBox) return;
+
+      const days = toNumber(daysInput?.value, Number.NaN);
+      const requestId = (balancePriceRequestIds.get(String(itemId)) || 0) + 1;
+      balancePriceRequestIds.set(String(itemId), requestId);
+      balancePricesByItemId.delete(String(itemId));
+
+      if (!Number.isFinite(days) || days <= 0) {
+        priceBox.textContent = `0 ${state.selectedCurrency}`;
+        return;
+      }
+
+      priceBox.textContent = "Calculating...";
+      try {
+        const price = await getDirectBalancePrice(item, days);
+        if (balancePriceRequestIds.get(String(itemId)) !== requestId) return;
+        balancePricesByItemId.set(String(itemId), { balanceAmount: days, price });
+        priceBox.textContent = `${formatNumber(price)} ${state.selectedCurrency}`;
+      } catch (error) {
+        if (balancePriceRequestIds.get(String(itemId)) !== requestId) return;
+        priceBox.textContent = error.message || "Unable to calculate price";
+      }
+    }
+
+    async function submitDirectValidity(event, itemId) {
+      event.preventDefault();
+
+      const item = getVisibleValidityItems().find(
+        (entry) => String(entry.id) === String(itemId)
+      );
+      const phoneInput = document.getElementById(`validity-phone-${itemId}`);
+      const daysInput = document.getElementById(`validity-days-${itemId}`);
+      const priceBox = document.getElementById(`validity-price-${itemId}`);
+      const button = document.getElementById(`validity-submit-${itemId}`);
+      const message = document.getElementById(`validity-message-${itemId}`);
+      const targetIdentifier = String(phoneInput?.value ?? "").trim();
+      const days = toNumber(daysInput?.value, Number.NaN);
+
+      message.className = "package-order-message";
+      message.textContent = "";
+
+      if (!item || !targetIdentifier) {
+        message.classList.add("error");
+        message.textContent = "Phone number is required";
+        phoneInput?.focus();
+        return;
+      }
+
+      if (!Number.isFinite(days) || days <= 0) {
+        message.classList.add("error");
+        message.textContent = "Enter a valid number of days";
+        daysInput?.focus();
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = "Checking price...";
+
+      try {
+        let priceData = balancePricesByItemId.get(String(itemId));
+        if (!priceData || priceData.balanceAmount !== days) {
+          const price = await getDirectBalancePrice(item, days);
+          priceData = { balanceAmount: days, price };
+          balancePricesByItemId.set(String(itemId), priceData);
+          priceBox.textContent = `${formatNumber(price)} ${state.selectedCurrency}`;
+        }
+
+        const confirmed = window.confirm(
+          `Confirm ${formatNumber(days)} days for ${targetIdentifier} at ${formatNumber(priceData.price)} ${state.selectedCurrency}?`
+        );
+        if (!confirmed) return;
+
+        button.textContent = "Sending...";
+        const result = await apiRequest(API_PATHS.CREATE_ORDER_VALIDITY, {
+          method: "POST",
+          body: {
+            target_identifier: targetIdentifier,
+            company: item.company || state.currentSubcategory?.name,
+            currency: state.selectedCurrency,
+            days,
+          },
+        });
+
+        message.classList.add("success");
+        message.textContent = result.message || "Order created successfully";
+        phoneInput.value = "";
+        daysInput.value = "";
+        balancePricesByItemId.delete(String(itemId));
+        priceBox.textContent = `0 ${state.selectedCurrency}`;
+      } catch (error) {
+        message.classList.add("error");
+        message.textContent = error.message || "Failed to create order";
+      } finally {
+        button.disabled = false;
+        button.textContent = "Send Order";
+      }
+    }
+
+    function renderDirectValidity(selectedChild) {
+      const visibleItems = getVisibleValidityItems();
+      itemsTitle.textContent = `${formatName(selectedChild.name)} Order`;
+      itemsCount.textContent = String(visibleItems.length);
+      itemsContainer.className = "balance-direct-container";
+
+      if (visibleItems.length === 0) {
+        itemsContainer.innerHTML = '<div class="empty">No validity service is available</div>';
+        return;
+      }
+
+      itemsContainer.innerHTML = visibleItems.map((item) => `
+        <form class="balance-direct-card" onsubmit="submitDirectValidity(event, '${escapeJsString(item.id)}')">
+          <h3 class="days-item-title">${escapeHtml(formatName(item.name || "Validity"))}</h3>
+          <label>
+            <span class="year-field-label">Phone number</span>
+            <input id="validity-phone-${escapeHtml(item.id)}" class="year-input" type="text" inputmode="tel" autocomplete="off" placeholder="Enter phone number" required>
+          </label>
+          <label>
+            <span class="year-field-label">Number of days</span>
+            <input id="validity-days-${escapeHtml(item.id)}" class="year-input" type="number" inputmode="numeric" min="${escapeHtml(item.minimum_amount ?? 1)}" max="${escapeHtml(item.maximum_amount ?? "")}" step="${escapeHtml(item.step_amount || 1)}" placeholder="Enter days" oninput="updateDirectValidityPrice('${escapeJsString(item.id)}')" required>
+          </label>
+          <div>
+            <div class="year-field-label">Price</div>
+            <div id="validity-price-${escapeHtml(item.id)}" class="balance-direct-price">0 ${escapeHtml(state.selectedCurrency)}</div>
+          </div>
+          <button id="validity-submit-${escapeHtml(item.id)}" class="year-action-button" type="submit">Send Order</button>
+          <div id="validity-message-${escapeHtml(item.id)}" class="package-order-message"></div>
+        </form>
+      `).join("");
     }
 
     function renderPackageItems(selectedChild) {
