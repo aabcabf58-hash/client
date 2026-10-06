@@ -747,35 +747,52 @@
 
     .items-section { margin-top: 20px !important; }
 
-    /* Items are intentionally about half the former visual size. */
+    /* Item cards: image first, then only the item name. */
     .items-grid {
       display: grid !important;
-      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      grid-template-columns: repeat(auto-fill, 136px) !important;
+      grid-auto-rows: 112px !important;
+      justify-content: start;
       gap: 9px !important;
       background: transparent !important;
     }
 
     .item-card {
-      min-height: 72px !important;
+      width: 136px !important;
+      min-height: 112px !important;
+      height: 112px !important;
       display: flex !important;
-      align-items: center !important;
-      gap: 8px !important;
-      padding: 9px !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 0 !important;
+      padding: 0 0 8px !important;
+      overflow: hidden;
       border-radius: 12px !important;
       box-shadow: 0 5px 14px rgba(31, 41, 55, .06) !important;
       box-sizing: border-box;
     }
 
     .item-image {
-      width: 40px !important;
-      height: 40px !important;
-      min-width: 40px !important;
-      flex: 0 0 40px !important;
-      border-radius: 10px !important;
+      width: 100% !important;
+      height: 82px !important;
+      aspect-ratio: auto !important;
+      min-width: 0 !important;
+      flex: none !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      object-fit: cover;
+      border-radius: 0 !important;
       font-size: 15px !important;
     }
 
-    .item-content { min-width: 0 !important; }
+    .item-content {
+      min-width: 0 !important;
+      width: 100%;
+      padding: 7px 8px 0;
+      box-sizing: border-box;
+      text-align: center;
+    }
 
     .item-name {
       margin: 0 !important;
@@ -783,21 +800,8 @@
       line-height: 1.15 !important;
     }
 
-    .item-description {
-      margin: 3px 0 5px !important;
-      display: -webkit-box;
-      overflow: hidden;
-      color: var(--muted) !important;
-      font-size: 9px !important;
-      line-height: 1.25 !important;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 2;
-    }
-
-    .item-meta { gap: 5px !important; }
-    .price-label { font-size: 8px !important; }
-    .price { font-size: 12px !important; }
-    .badge { padding: 3px 5px !important; font-size: 8px !important; }
+    .item-description,
+    .item-meta { display: none !important; }
 
     .days-items-grid {
       grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
@@ -816,7 +820,6 @@
     .days-item-link-bottom { gap: 5px !important; font-size: 7px !important; }
 
     @media (min-width: 1180px) {
-      .items-grid,
       .days-items-grid { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }
     }
 
@@ -834,22 +837,28 @@
       }
       .child-name { font-size: 11px !important; }
 
-      .items-grid,
+      .items-grid {
+        grid-template-columns: repeat(auto-fill, 120px) !important;
+        gap: 7px !important;
+      }
+
       .days-items-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
         gap: 7px !important;
       }
 
       .item-card {
-        min-height: 64px !important;
-        gap: 6px !important;
-        padding: 7px !important;
+        width: 120px !important;
+        min-height: 102px !important;
+        height: 102px !important;
+        gap: 0 !important;
+        padding: 0 0 7px !important;
       }
       .item-image {
-        width: 34px !important;
-        height: 34px !important;
-        min-width: 34px !important;
-        flex-basis: 34px !important;
+        width: 100% !important;
+        height: 74px !important;
+        min-width: 0 !important;
+        flex-basis: auto !important;
       }
       .item-name { font-size: 11px !important; }
       .item-description { font-size: 8px !important; }
@@ -877,7 +886,7 @@
       font-weight: 900;
     }
     .currency-button.active { color: #fff; background: #a63a00; }
-    .item-card { cursor: pointer; flex-wrap: wrap; }
+    .item-card { cursor: pointer; flex-wrap: nowrap; }
     .package-order-panel {
       width: 100%;
       display: grid;
@@ -1983,54 +1992,7 @@
         name.className = "item-name";
         name.textContent = formatName(item.name);
 
-        const description = document.createElement("p");
-        description.className = "item-description";
-        description.textContent =
-          item.description ||
-          formatName(item.childcategory_name) ||
-          "Item";
-
-        const meta = document.createElement("div");
-        meta.className = "item-meta";
-
-        const priceBox = document.createElement("div");
-
-        const priceLabel = document.createElement("div");
-        priceLabel.className = "price-label";
-        priceLabel.textContent = `Price • ${state.selectedCurrency}`;
-
-        const price = document.createElement("div");
-        price.className = "price";
-        const selectedPrice = item.__itemType === "COUNTER"
-          ? getCounterPrice(item)
-          : item.__itemType === "BALANCE"
-            ? getBalanceUnitPrice(item)
-            : getPackagePrice(item);
-        price.textContent = selectedPrice === null
-          ? "Not available"
-          : `${formatNumber(selectedPrice)} ${state.selectedCurrency}` +
-            (item.__itemType === "COUNTER"
-              ? ` / ${formatName(item.unit || "unit")}`
-              : item.__itemType === "BALANCE"
-                ? " / balance $"
-              : "");
-
-        const badge = document.createElement("div");
-        badge.className = selectedPrice === null
-          ? "badge"
-          : "badge success";
-        badge.textContent = selectedPrice === null
-          ? "Unavailable"
-          : "Open";
-
-        priceBox.appendChild(priceLabel);
-        priceBox.appendChild(price);
-        meta.appendChild(priceBox);
-        meta.appendChild(badge);
-
         content.appendChild(name);
-        content.appendChild(description);
-        content.appendChild(meta);
 
         card.appendChild(image);
         card.appendChild(content);
@@ -2125,21 +2087,6 @@
           <span class="item-content">
             <span class="item-name">
               ${escapeHtml(formatName(item.name || `Item ${item.id}`))}
-            </span>
-
-            <span class="item-description">
-              ${escapeHtml(item.description || "Year item")}
-            </span>
-
-            <span class="item-meta">
-              <span>
-                <span class="price-label">Base sene • LBP</span>
-                <span class="price">
-                  ${escapeHtml(formatNumber(item.base_sene))} LBP
-                </span>
-              </span>
-
-              <span class="badge success">Open</span>
             </span>
           </span>
         </button>
