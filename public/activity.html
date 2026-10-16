@@ -237,7 +237,7 @@
 
     .date-filter-bar {
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       justify-content: space-between;
       gap: 12px;
       margin: 12px 0 18px;
@@ -247,29 +247,150 @@
       border-radius: 14px;
     }
 
-    .period-buttons,
-    .custom-date-range {
-      display: flex;
-      align-items: flex-end;
-      gap: 8px;
-      flex-wrap: wrap;
+    .period-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(56px, 1fr));
+      gap: 6px;
+      flex: 0 0 auto;
     }
 
-    .date-field {
+    .period-buttons .filter-button {
+      min-width: 0;
+      padding: 8px 12px;
+    }
+
+    .date-picker {
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    .date-range-button {
+      min-height: 40px;
+      white-space: nowrap;
+    }
+
+    .date-calendar {
+      position: absolute;
+      z-index: 50;
+      top: calc(100% + 8px);
+      right: 0;
+      width: min(340px, calc(100vw - 32px));
+      padding: 14px;
+      background: var(--card) !important;
+      color: var(--text) !important;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      box-sizing: border-box;
+    }
+
+    .calendar-header,
+    .calendar-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .calendar-header {
+      margin-bottom: 12px;
+    }
+
+    .calendar-title {
+      flex: 1;
+      margin: 0;
+      font-size: 15px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .calendar-nav,
+    .calendar-close {
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #f4fbff;
+      color: var(--text);
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .calendar-weekdays,
+    .calendar-days {
       display: grid;
-      gap: 5px;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 4px;
+      text-align: center;
+    }
+
+    .calendar-weekdays {
+      margin-bottom: 6px;
       color: var(--muted);
       font-size: 11px;
       font-weight: 800;
-      text-transform: uppercase;
     }
 
-    .date-field input {
-      min-height: 38px;
-      padding: 7px 10px;
-      border: 1px solid var(--border);
+    .calendar-day,
+    .calendar-empty {
+      width: 100%;
+      aspect-ratio: 1;
+    }
+
+    .calendar-day {
+      border: 0;
       border-radius: 10px;
-      box-sizing: border-box;
+      background: transparent;
+      color: var(--text);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .calendar-day:hover:not(:disabled) {
+      background: #e0f2fe;
+    }
+
+    .calendar-day.in-range {
+      background: #dbeafe;
+      border-radius: 0;
+    }
+
+    .calendar-day.range-start,
+    .calendar-day.range-end {
+      background: #075985;
+      color: #fff;
+      border-radius: 10px;
+      font-weight: 900;
+    }
+
+    .calendar-day:disabled {
+      color: #a9bac6;
+      cursor: not-allowed;
+    }
+
+    .calendar-selection {
+      min-height: 20px;
+      margin: 10px 0 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .calendar-actions .button {
+      min-height: 38px;
+    }
+
+    .calendar-actions .button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .hidden {
+      display: none !important;
     }
 
     .date-filter-message {
@@ -282,8 +403,38 @@
 
     @media (max-width: 640px) {
       .page {
-        width: calc(100% - 20px) !important;
-        padding: 12px 0 32px !important;
+        width: calc(100% - 12px) !important;
+        padding: 5px 0 24px !important;
+      }
+
+      .topbar {
+        min-height: 0;
+        padding: 7px 10px !important;
+        gap: 6px;
+      }
+
+      .topbar h1 {
+        margin: 0;
+        font-size: 18px;
+        line-height: 1.15;
+      }
+
+      .topbar p {
+        display: none;
+      }
+
+      .topbar-actions {
+        gap: 5px;
+      }
+
+      .topbar-actions .button {
+        min-height: 30px;
+        padding: 5px 8px;
+        font-size: 11px;
+      }
+
+      #page > .panel {
+        padding: 8px !important;
       }
 
       .activity-summary {
@@ -308,18 +459,93 @@
         text-overflow: ellipsis;
       }
 
-      .date-filter-bar {
-        align-items: stretch;
+      .toolbar {
+        display: flex;
         flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+        margin-bottom: 6px;
       }
 
-      .custom-date-range {
+      .toolbar-group {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 4px;
+        width: 100%;
       }
 
-      .custom-date-range .button {
-        grid-column: 1 / -1;
+      .toolbar-group .filter-button,
+      .period-buttons .filter-button {
+        min-width: 0;
+        min-height: 30px;
+        padding: 5px 3px;
+        font-size: 11px;
+        line-height: 1;
+        white-space: nowrap;
+      }
+
+      .search-input {
+        min-height: 32px;
+        padding: 6px 9px;
+        font-size: 11px;
+      }
+
+      .date-filter-bar {
+        align-items: center;
+        flex-direction: row;
+        gap: 5px;
+        margin: 6px 0 8px;
+        padding: 5px;
+      }
+
+      .period-buttons {
+        width: auto;
+        min-width: 0;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 3px;
+        flex: 1 1 62%;
+      }
+
+      .date-picker {
+        width: auto;
+        min-width: 0;
+        flex: 1 1 38%;
+      }
+
+      .date-range-button {
+        width: 100%;
+        min-height: 30px;
+        padding: 5px 4px;
+        overflow: hidden;
+        font-size: 10px;
+        text-overflow: ellipsis;
+      }
+
+      .date-filter-message {
+        min-height: 0;
+        margin: 0;
+        font-size: 10px;
+        line-height: 1.2;
+      }
+
+      .section-header {
+        margin: 7px 0;
+      }
+
+      .section-header h2 {
+        margin: 0;
+        font-size: 16px;
+      }
+
+      .section-header .count {
+        padding: 3px 7px;
+        font-size: 10px;
+      }
+
+      .date-calendar {
+        right: 0;
+        left: 0;
+        width: 100%;
       }
     }
   </style>
@@ -377,21 +603,37 @@
           </button>
         </div>
 
-        <form id="customDateForm" class="custom-date-range">
-          <label class="date-field">
-            From
-            <input id="fromDate" type="date" required>
-          </label>
-
-          <label class="date-field">
-            To
-            <input id="toDate" type="date" required>
-          </label>
-
-          <button class="button secondary" type="submit">
-            Apply
+        <div class="date-picker">
+          <button
+            id="dateRangeButton"
+            class="button secondary date-range-button"
+            type="button"
+            aria-expanded="false"
+            aria-controls="dateCalendar"
+          >
+            Dates
           </button>
-        </form>
+
+          <div id="dateCalendar" class="date-calendar hidden">
+            <div class="calendar-header">
+              <button id="calendarPrevious" class="calendar-nav" type="button" aria-label="Previous month">‹</button>
+              <h3 id="calendarTitle" class="calendar-title"></h3>
+              <button id="calendarNext" class="calendar-nav" type="button" aria-label="Next month">›</button>
+              <button id="calendarClose" class="calendar-close" type="button" aria-label="Close calendar">×</button>
+            </div>
+
+            <div class="calendar-weekdays" aria-hidden="true">
+              <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+            </div>
+            <div id="calendarDays" class="calendar-days"></div>
+            <p id="calendarSelection" class="calendar-selection">Choose a start date, then an end date</p>
+
+            <div class="calendar-actions">
+              <button id="calendarClear" class="button secondary" type="button">Clear</button>
+              <button id="calendarApply" class="button" type="button" disabled>Apply</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div id="dateFilterMessage" class="date-filter-message"></div>
@@ -427,10 +669,21 @@
     const refreshButton = document.getElementById("refreshButton");
     const directionButtons = document.querySelectorAll("[data-direction]");
     const periodButtons = document.querySelectorAll("[data-period]");
-    const customDateForm = document.getElementById("customDateForm");
-    const fromDate = document.getElementById("fromDate");
-    const toDate = document.getElementById("toDate");
+    const dateRangeButton = document.getElementById("dateRangeButton");
+    const dateCalendar = document.getElementById("dateCalendar");
+    const calendarTitle = document.getElementById("calendarTitle");
+    const calendarDays = document.getElementById("calendarDays");
+    const calendarSelection = document.getElementById("calendarSelection");
+    const calendarPrevious = document.getElementById("calendarPrevious");
+    const calendarNext = document.getElementById("calendarNext");
+    const calendarClose = document.getElementById("calendarClose");
+    const calendarClear = document.getElementById("calendarClear");
+    const calendarApply = document.getElementById("calendarApply");
     const dateFilterMessage = document.getElementById("dateFilterMessage");
+
+    let draftFrom = "";
+    let draftTo = "";
+    let calendarMonth = null;
 
     function logout() {
       localStorage.removeItem("token");
@@ -745,6 +998,49 @@
       });
     }
 
+    function getBeirutToday() {
+      const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Beirut",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).formatToParts(new Date());
+
+      const values = Object.fromEntries(
+        parts
+          .filter((part) => part.type !== "literal")
+          .map((part) => [part.type, part.value])
+      );
+
+      return values.year + "-" + values.month + "-" + values.day;
+    }
+
+    function dateKeyToUtcDate(dateKey) {
+      const [year, month, day] = dateKey.split("-").map(Number);
+      return new Date(Date.UTC(year, month - 1, day));
+    }
+
+    function utcDateToKey(date) {
+      return [
+        date.getUTCFullYear(),
+        String(date.getUTCMonth() + 1).padStart(2, "0"),
+        String(date.getUTCDate()).padStart(2, "0"),
+      ].join("-");
+    }
+
+    function formatDateKey(dateKey) {
+      if (!dateKey) {
+        return "";
+      }
+
+      return new Intl.DateTimeFormat("en-GB", {
+        timeZone: "UTC",
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }).format(dateKeyToUtcDate(dateKey));
+    }
+
     function syncPeriodButtons() {
       for (const button of periodButtons) {
         button.classList.toggle(
@@ -754,41 +1050,174 @@
       }
     }
 
+    function updateDateRangeButton() {
+      if (state.from && state.to) {
+        dateRangeButton.textContent =
+          formatDateKey(state.from) + " – " + formatDateKey(state.to);
+      } else {
+        dateRangeButton.textContent = "Dates";
+      }
+    }
+
+    function renderCalendar() {
+      if (!calendarMonth) {
+        return;
+      }
+
+      const year = calendarMonth.getUTCFullYear();
+      const month = calendarMonth.getUTCMonth();
+      const firstDay = new Date(Date.UTC(year, month, 1)).getUTCDay();
+      const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+      const today = getBeirutToday();
+      const todayDate = dateKeyToUtcDate(today);
+
+      calendarTitle.textContent = new Intl.DateTimeFormat("en-GB", {
+        timeZone: "UTC",
+        month: "long",
+        year: "numeric",
+      }).format(calendarMonth);
+
+      calendarDays.innerHTML = "";
+
+      for (let i = 0; i < firstDay; i += 1) {
+        const empty = document.createElement("span");
+        empty.className = "calendar-empty";
+        calendarDays.appendChild(empty);
+      }
+
+      for (let day = 1; day <= daysInMonth; day += 1) {
+        const date = new Date(Date.UTC(year, month, day));
+        const dateKey = utcDateToKey(date);
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "calendar-day";
+        button.textContent = String(day);
+        button.setAttribute("aria-label", formatDateKey(dateKey));
+        button.disabled = dateKey > today;
+
+        if (draftFrom && draftTo && dateKey >= draftFrom && dateKey <= draftTo) {
+          button.classList.add("in-range");
+        }
+
+        if (dateKey === draftFrom) {
+          button.classList.add("range-start");
+        }
+
+        if (dateKey === draftTo) {
+          button.classList.add("range-end");
+        }
+
+        button.addEventListener("click", function () {
+          if (!draftFrom || draftTo || dateKey < draftFrom) {
+            draftFrom = dateKey;
+            draftTo = "";
+          } else {
+            draftTo = dateKey;
+          }
+
+          renderCalendar();
+        });
+
+        calendarDays.appendChild(button);
+      }
+
+      if (draftFrom && draftTo) {
+        calendarSelection.textContent =
+          formatDateKey(draftFrom) + " – " + formatDateKey(draftTo);
+      } else if (draftFrom) {
+        calendarSelection.textContent =
+          "Start: " + formatDateKey(draftFrom) + " · Choose an end date";
+      } else {
+        calendarSelection.textContent = "Choose a start date, then an end date";
+      }
+
+      calendarApply.disabled = !(draftFrom && draftTo);
+      calendarNext.disabled =
+        year > todayDate.getUTCFullYear() ||
+        (year === todayDate.getUTCFullYear() &&
+          month >= todayDate.getUTCMonth());
+    }
+
+    function openCalendar() {
+      draftFrom = state.from;
+      draftTo = state.to;
+
+      const initialDate = draftFrom || getBeirutToday();
+      const parsedDate = dateKeyToUtcDate(initialDate);
+      calendarMonth = new Date(
+        Date.UTC(parsedDate.getUTCFullYear(), parsedDate.getUTCMonth(), 1)
+      );
+
+      dateCalendar.classList.remove("hidden");
+      dateRangeButton.setAttribute("aria-expanded", "true");
+      renderCalendar();
+    }
+
+    function closeCalendar() {
+      dateCalendar.classList.add("hidden");
+      dateRangeButton.setAttribute("aria-expanded", "false");
+    }
+
+    dateRangeButton.addEventListener("click", function () {
+      if (dateCalendar.classList.contains("hidden")) {
+        openCalendar();
+      } else {
+        closeCalendar();
+      }
+    });
+
+    calendarPrevious.addEventListener("click", function () {
+      calendarMonth.setUTCMonth(calendarMonth.getUTCMonth() - 1);
+      renderCalendar();
+    });
+
+    calendarNext.addEventListener("click", function () {
+      calendarMonth.setUTCMonth(calendarMonth.getUTCMonth() + 1);
+      renderCalendar();
+    });
+
+    calendarClose.addEventListener("click", closeCalendar);
+
+    calendarClear.addEventListener("click", async function () {
+      draftFrom = "";
+      draftTo = "";
+      state.from = "";
+      state.to = "";
+      dateFilterMessage.textContent = "";
+      updateDateRangeButton();
+      syncPeriodButtons();
+      closeCalendar();
+      await loadActivity();
+    });
+
+    calendarApply.addEventListener("click", async function () {
+      if (!draftFrom || !draftTo) {
+        return;
+      }
+
+      state.from = draftFrom;
+      state.to = draftTo;
+      dateFilterMessage.textContent = "";
+      updateDateRangeButton();
+      syncPeriodButtons();
+      closeCalendar();
+      await loadActivity();
+    });
+
     for (const button of periodButtons) {
       button.addEventListener("click", async function () {
         state.period = button.dataset.period;
         state.from = "";
         state.to = "";
-        fromDate.value = "";
-        toDate.value = "";
+        draftFrom = "";
+        draftTo = "";
         dateFilterMessage.textContent = "";
+        updateDateRangeButton();
         syncPeriodButtons();
+        closeCalendar();
         await loadActivity();
       });
     }
-
-    customDateForm.addEventListener("submit", async function (event) {
-      event.preventDefault();
-
-      const from = fromDate.value;
-      const to = toDate.value;
-
-      if (!from || !to) {
-        dateFilterMessage.textContent = "From and To dates are required";
-        return;
-      }
-
-      if (from > to) {
-        dateFilterMessage.textContent = "From date cannot be after To date";
-        return;
-      }
-
-      state.from = from;
-      state.to = to;
-      dateFilterMessage.textContent = "";
-      syncPeriodButtons();
-      await loadActivity();
-    });
 
     searchInput.addEventListener("input", function () {
       state.search = searchInput.value.trim();
@@ -796,14 +1225,7 @@
     });
 
     refreshButton.addEventListener("click", loadActivity);
-    const currentDate = new Date();
-    const today = [
-      currentDate.getFullYear(),
-      String(currentDate.getMonth() + 1).padStart(2, "0"),
-      String(currentDate.getDate()).padStart(2, "0"),
-    ].join("-");
-    fromDate.max = today;
-    toDate.max = today;
+    updateDateRangeButton();
     syncPeriodButtons();
     loadActivity();
   </script>
