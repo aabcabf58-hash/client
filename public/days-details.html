@@ -591,7 +591,6 @@
 
     const API_PATHS = {
       CATEGORIES_TREE: "/category/getAllCategoriesTree",
-      ITEMS_PACKAGE: "/category/getAllItemsPackage",
       ITEMS_DAYS: "/category/getAllItemsDays",
       GET_YEAR: "/api/ushare/getyear",
       GET_THREE_MONTHS: "/api/ushare/get3monthe",
@@ -786,11 +785,6 @@
     async function getCategoriesTree() {
       const result = await apiRequest(API_PATHS.CATEGORIES_TREE);
       return extractArray(result, ["categories", "tree", "items"]);
-    }
-
-    async function getAllItemsPackage() {
-      const result = await apiRequest(API_PATHS.ITEMS_PACKAGE);
-      return extractArray(result, ["items", "packages", "items_package"]);
     }
 
     function normalizeDaysItem(item) {
@@ -1998,10 +1992,7 @@
       categoryBackLink.href = backUrl;
 
       try {
-        const [categories, packageItems] = await Promise.all([
-          getCategoriesTree(),
-          getAllItemsPackage(),
-        ]);
+        const categories = await getCategoriesTree();
 
         const category = categories.find(
           (item) => String(item.id) === String(categoryId)
@@ -2026,7 +2017,7 @@
               (child) => child.is_active !== false
             )
           : [];
-        state.packageItems = packageItems;
+        state.packageItems = [];
         state.selectedChildcategoryId = childcategoryId;
 
         const categoryName = formatName(
