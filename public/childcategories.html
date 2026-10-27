@@ -995,11 +995,11 @@
 
   <script>
     const API_BASE_URL =
-    "https://api.zouzouamhaz.com";
+    "http://localhost:3000";
 
     const API_PATHS = {
       CATEGORIES_TREE: "/category/getAllCategoriesTree",
-      ITEMS_PACKAGE: "/category/getAllItemsPackage",
+      ITEMS_PACKAGE: "/category/getItemsByClient",
       ITEMS_COUNTER: "/category/getAllItemsCounter",
       ITEMS_BALANCE: "/category/getAllItemsBalance",
       BALANCE_PRICE: "/category/getBalancePrice",
@@ -1008,8 +1008,6 @@
       CHECK_YEAR: "/api/ushare/chekyear",
       CONFIRM_YEAR: "/api/ushare/confirmYear",
       CREATE_ORDER: "/orders/createOrder",
-      CREATE_ORDER_CARD: "/orders/createOrderCard",
-      CREATE_ORDER_BALANCE: "/orders/createorderBalance",
     };
 
     const params = new URLSearchParams(window.location.search);
@@ -1211,16 +1209,6 @@
       return extractArray(result, ["items", "packages", "items_package"]);
     }
 
-    async function getAllItemsCounter() {
-      const result = await apiRequest(API_PATHS.ITEMS_COUNTER);
-      return extractArray(result, ["items", "counters", "items_counter"]);
-    }
-
-    async function getAllItemsBalance() {
-      const result = await apiRequest(API_PATHS.ITEMS_BALANCE);
-      return extractArray(result, ["items", "balances", "items_balance"]);
-    }
-
     function normalizeDaysItem(item) {
       return {
         id: item.id,
@@ -1411,29 +1399,15 @@
       button.textContent = "Processing...";
 
       try {
-        const isCard =
-          String(item.unit ?? "").trim().toUpperCase() === "CARD";
-
-        const result = await apiRequest(
-          isCard
-            ? API_PATHS.CREATE_ORDER_CARD
-            : API_PATHS.CREATE_ORDER,
-          {
-            method: "POST",
-            body: isCard
-              ? {
-                  item_id: item.id,
-                  target_identifier: targetIdentifier,
-                  currency: state.selectedCurrency,
-                }
-              : {
-                  item_id: item.id,
-                  item_type: "PACKAGE",
-                  target_identifier: targetIdentifier,
-                  currency: state.selectedCurrency,
-                },
-          }
-        );
+        const result = await apiRequest(API_PATHS.CREATE_ORDER, {
+          method: "POST",
+          body: {
+            items_type: "PACKAGE",
+            id: item.id,
+            target_identifier: targetIdentifier,
+            currency: state.selectedCurrency,
+          },
+        });
 
         const orderId =
           result?.order?.id ??
@@ -1442,9 +1416,9 @@
           null;
 
         message.classList.add("success");
-        message.textContent = orderId
+        message.textContent = result.message || (orderId
           ? `Order #${orderId} created successfully`
-          : (result.message || "Order created successfully");
+          : "Order created successfully");
         input.value = "";
       } catch (error) {
         message.classList.add("error");
@@ -1575,7 +1549,7 @@
       return Number.isFinite(price) && price >= 0 ? price : null;
     }
 
-    function openItemPage(item, itemType, selectedChild) {
+    function openItemPage(item, selectedChild) {
       const itemParams = new URLSearchParams({
         category_id: categoryId,
         category_name:
@@ -1586,7 +1560,6 @@
         childcategory_id: selectedChild.id,
         childcategory_name: selectedChild.name || "Items",
         item_id: item.id,
-        item_type: itemType,
       });
 
       window.location.href = `./items.html?${itemParams.toString()}`;
@@ -1614,16 +1587,6 @@
 
       if (isDaysChild(selectedChild)) {
         renderDaysItems(selectedChild);
-        return;
-      }
-
-      if (normalizeName(selectedChild.name) === "balance") {
-        renderDirectBalance(selectedChild);
-        return;
-      }
-
-      if (isValidityChild(selectedChild)) {
-        renderDirectValidity(selectedChild);
         return;
       }
 
@@ -1741,12 +1704,13 @@
         if (!confirmed) return;
 
         button.textContent = "Sending...";
-        const result = await apiRequest(API_PATHS.CREATE_ORDER_BALANCE, {
+        const result = await apiRequest(API_PATHS.CREATE_ORDER, {
           method: "POST",
           body: {
-            item_id: item.id,
+            items_type: "BALANCE",
+            id: item.id,
             target_identifier: targetIdentifier,
-            amount_pure: balanceAmount,
+            balance: balanceAmount,
             currency: state.selectedCurrency,
           },
         });
@@ -1881,13 +1845,14 @@
         if (!confirmed) return;
 
         button.textContent = "Sending...";
-        const result = await apiRequest(API_PATHS.CREATE_ORDER_BALANCE, {
+        const result = await apiRequest(API_PATHS.CREATE_ORDER, {
           method: "POST",
           body: {
-            item_id: item.id,
+            items_type: "BALANCE",
+            id: item.id,
             target_identifier: targetIdentifier,
             currency: state.selectedCurrency,
-            amount_pure: days,
+            days,
           },
         });
 
@@ -1939,23 +1904,8 @@
     }
 
     function renderPackageItems(selectedChild) {
-      const visibleItems = [
-        ...getVisiblePackageItems().map((item) => ({
-          ...item,
-          __itemType: "PACKAGE",
-        })),
-        ...getVisibleCounterItems().map((item) => ({
-          ...item,
-          __itemType: "COUNTER",
-        })),
-        ...getVisibleBalanceItems().map((item) => ({
-          ...item,
-          __itemType: "BALANCE",
-        })),
-      ].sort(
-        (firstItem, secondItem) =>
-          Number(firstItem.sort_order ?? 0) -
-          Number(secondItem.sort_order ?? 0)
+      const visibleItems = getVisiblePackageItems().slice().sort(
+        (a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)
       );
 
       itemsTitle.textContent =
@@ -2000,12 +1950,12 @@
         card.tabIndex = 0;
         card.setAttribute("role", "button");
         card.addEventListener("click", () => {
-          openItemPage(item, item.__itemType, selectedChild);
+          openItemPage(item, selectedChild);
         });
         card.addEventListener("keydown", (event) => {
           if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
-            openItemPage(item, item.__itemType, selectedChild);
+            openItemPage(item, selectedChild);
           }
         });
         itemsContainer.appendChild(card);
@@ -2901,11 +2851,9 @@
       categoryBackLink.href = backUrl;
 
       try {
-        const [categories, packageItems, counterItems, balanceItems] = await Promise.all([
+        const [categories, packageItems] = await Promise.all([
           getCategoriesTree(),
           getAllItemsPackage(),
-          getAllItemsCounter(),
-          getAllItemsBalance(),
         ]);
 
         const category = categories.find(
@@ -2932,8 +2880,8 @@
             )
           : [];
         state.packageItems = packageItems;
-        state.counterItems = counterItems;
-        state.balanceItems = balanceItems;
+        state.counterItems = [];
+        state.balanceItems = [];
         state.selectedChildcategoryId = state.children.some(
           (child) => String(child.id) === String(selectedChildIdFromUrl)
         )

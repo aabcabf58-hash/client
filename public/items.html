@@ -513,16 +513,11 @@
   </main>
 
   <script>
-    const API_BASE_URL = "https://api.zouzouamhaz.com";
+    const API_BASE_URL = "http://localhost:3000";
     const API_PATHS = {
-      ITEMS_PACKAGE: "/category/getAllItemsPackage",
-      ITEMS_COUNTER: "/category/getAllItemsCounter",
-      ITEMS_BALANCE: "/category/getAllItemsBalance",
+      ITEMS: "/category/getItemsByClient",
       CREATE_ORDER: "/orders/createOrder",
-      CREATE_ORDER_CARD: "/orders/createOrderCard",
 
-      CREATE_ORDER_BALANCE: "/orders/createorderBalance",
-      CREATE_ORDER_GIFT: "/orders/createOrdergift",
       GET_COUNTER_PRICE: "/category/getcounterPrice",
       GET_BALANCE_PRICE: "/category/getBalancePrice",
     };
@@ -535,7 +530,12 @@
     const childcategoryId = params.get("childcategory_id");
     const childcategoryName = params.get("childcategory_name") || "Service";
     const itemId = params.get("item_id");
-    const itemType = String(params.get("item_type") || "").toUpperCase();
+    function itemUnit() {
+      return String(state.item?.unit ?? "").trim().toLowerCase();
+    }
+    function isVariableItem() {
+      return ["balance", "validity"].includes(itemUnit());
+    }
 
     const state = {
       item: null,
@@ -548,6 +548,7 @@
     };
 
     let automaticPriceTimer = null;
+    let priceRequestVersion = 0;
 
     const loading = document.getElementById("loading");
     const page = document.getElementById("page");
@@ -683,14 +684,10 @@
     function getItemPrice() {
       if (!state.item) return null;
 
-      const field = itemType === "COUNTER"
-        ? (state.currency === "USD" ? "price_per_unit_usd" : "price_per_unit_lbp")
-        : itemType === "BALANCE"
-          ? (state.currency === "USD" ? "price_per_dollar_usd" : "price_per_dollar_lbp")
-          : (state.currency === "USD" ? "price_usd" : "price_lbp");
+      const field = state.currency === "USD" ? "price_usd" : "price_lbp";
 
       const price = toNumber(state.item[field]);
-      return Number.isFinite(price) && price >= 0 ? price : null;
+      return Number.isFinite(price) && price > 0 ? price : null;
     }
 
     function addFact(label, value) {
@@ -719,6 +716,7 @@
     }
 
     function resetCounterPrice() {
+      priceRequestVersion++;
       state.checkedCounter = null;
       state.checkedTotal = null;
       counterTotalPrice.textContent = "—";
@@ -728,16 +726,16 @@
       const item = state.item;
       const price = getItemPrice();
 
-      const isBalance = itemType === "BALANCE";
+      const isBalance = isVariableItem();
 
       itemCard.classList.toggle("balance-simple", isBalance);
       itemVisual.classList.toggle("hidden", isBalance);
       itemTypeBadge.classList.toggle("hidden", isBalance);
-      itemName.classList.toggle("hidden", isBalance);
+      itemName.classList.remove("hidden");
       itemDescription.classList.toggle("hidden", isBalance);
       itemFacts.classList.toggle("hidden", isBalance);
 
-      itemTypeBadge.textContent = itemType;
+      itemTypeBadge.textContent = itemUnit().toUpperCase();
       itemName.textContent = formatName(item.name) || "Item";
       itemDescription.textContent =
         item.description || "Complete the information below to create the order.";
@@ -761,17 +759,17 @@
       if (!isBalance) {
         addFact("Company", formatName(item.company) || "—");
         addFact(
-          itemType === "COUNTER" ? "Price per unit" : "Price",
+          "Price",
           price === null
             ? `Not available in ${state.currency}`
             : `${formatNumber(price)} ${state.currency}`
         );
       }
 
-      if (itemType === "COUNTER" || itemType === "BALANCE") {
-        variableOrderTitle.textContent = isBalance ? "Create balance order" : "Choose counter amount";
-        variableAmountLabel.textContent = isBalance ? "Amount" : "Counter amount";
-        counterInput.placeholder = isBalance ? "Enter balance amount" : "Enter counter amount";
+      if (isVariableItem()) {
+        variableOrderTitle.textContent = "Create order";
+        variableAmountLabel.textContent = itemUnit() === "validity" ? "Number of days" : "Amount";
+        counterInput.placeholder = itemUnit() === "validity" ? "Enter number of days" : "Enter balance amount";
         variableTargetLabel.textContent = isBalance ? "Phone number" : "Target identifier";
         variableTargetIdentifier.placeholder = isBalance
           ? "Enter phone number"
@@ -797,7 +795,7 @@
         counterInput.removeAttribute("max");
         counterInput.removeAttribute("step");
 
-        if (!isBalance) {
+        {
           if (Number.isFinite(minimum)) counterInput.min = minimum;
           if (Number.isFinite(maximum)) counterInput.max = maximum;
           if (Number.isFinite(step) && step > 0) counterInput.step = step;
@@ -836,19 +834,35 @@
         return null;
       }
 
+      const minimum = toNumber(state.item.minimum_amount);
+      const maximum = toNumber(state.item.maximum_amount);
+      const step = toNumber(state.item.step_amount);
+      if ((Number.isFinite(minimum) && numericCounter < minimum) ||
+          (Number.isFinite(maximum) && numericCounter > maximum) ||
+          (Number.isFinite(step) && step > 0 &&
+           Math.abs(numericCounter / step - Math.round(numericCounter / step)) > 1e-7)) {
+        showMessage(counterMessage, "Amount must respect the minimum, maximum and step.", "error");
+        return null;
+      }
+      const requestVersion = ++priceRequestVersion;
+      const requestCurrency = state.currency;
       checkPriceButton.disabled = true;
       checkPriceButton.textContent = "Checking...";
 
       try {
         const result = await apiRequest(
-          itemType === "BALANCE" ? API_PATHS.GET_BALANCE_PRICE : API_PATHS.GET_COUNTER_PRICE,
+          API_PATHS.GET_BALANCE_PRICE,
           {
             method: "POST",
-            body: itemType === "BALANCE"
-              ? { company: state.item.company, balance_amount: numericCounter, currency: state.currency }
-              : { company: state.item.company, amount: numericCounter, currency: state.currency },
+            body: {
+              item_id: state.item.id,
+              company: state.item.company,
+              balance_amount: numericCounter,
+              currency: requestCurrency,
+            },
           }
         );
+        if (requestVersion !== priceRequestVersion) return null;
 
         const totalPrice = toNumber(
           result.total_price ??
@@ -857,7 +871,7 @@
           result.data?.price
         );
 
-        if (!Number.isFinite(totalPrice)) {
+        if (!Number.isFinite(totalPrice) || totalPrice <= 0) {
           throw new Error("The server did not return a valid price");
         }
 
@@ -875,6 +889,7 @@
           totalPrice,
         };
       } catch (error) {
+        if (requestVersion !== priceRequestVersion) return null;
         resetCounterPrice();
         showMessage(
           counterMessage,
@@ -889,7 +904,7 @@
     }
 
     function scheduleAutomaticBalancePrice() {
-      if (itemType !== "BALANCE") return;
+      if (!isVariableItem()) return;
 
       clearTimeout(automaticPriceTimer);
       resetCounterPrice();
@@ -904,8 +919,20 @@
       }, 500);
     }
 
+    function buildOrderBody(target, quantity) {
+      const body = {
+        id: state.item.id,
+        target_identifier: target,
+        currency: state.currency,
+      };
+      if (itemUnit() === "validity") body.days = quantity;
+      if (itemUnit() === "balance") body.balance = quantity;
+      return body;
+    }
+
     async function createPackageOrder() {
       clearMessage(packageMessage);
+      if (packageOrderButton.disabled) return;
 
       const target = String(targetIdentifier.value || "").trim();
       const price = getItemPrice();
@@ -940,46 +967,9 @@
       packageOrderButton.textContent = "Processing...";
 
       try {
-        const cleanChildcategoryName = formatName(
-          childcategoryName
-        ).toLowerCase();
-
-        const isGiftOrBooster =
-          cleanChildcategoryName.includes("gift") ||
-          cleanChildcategoryName.includes("booster");
-
-        const isCard =
-          String(state.item.unit ?? "").trim().toUpperCase() === "CARD";
-
-        const requestPath = isCard
-          ? API_PATHS.CREATE_ORDER_CARD
-          : isGiftOrBooster
-            ? API_PATHS.CREATE_ORDER_GIFT
-            : API_PATHS.CREATE_ORDER;
-
-        const requestBody = isCard
-          ? {
-              item_id: state.item.id,
-              target_identifier: target,
-              currency: state.currency,
-            }
-          : isGiftOrBooster
-            ? {
-                target_identifier: target,
-                id_items: state.item.id,
-                company: state.item.company,
-                currency: state.currency,
-              }
-            : {
-                item_id: state.item.id,
-                item_type: itemType,
-                target_identifier: target,
-                currency: state.currency,
-              };
-
-        const result = await apiRequest(requestPath, {
+        const result = await apiRequest(API_PATHS.CREATE_ORDER, {
           method: "POST",
-          body: requestBody,
+          body: buildOrderBody(target),
         });
 
         const orderId =
@@ -987,9 +977,9 @@
 
         showMessage(
           packageMessage,
-          orderId
+          result.message || (orderId
             ? `Order #${orderId} created successfully`
-            : result.message || "Order created successfully",
+            : "Order created successfully"),
           "success"
         );
         targetIdentifier.value = "";
@@ -1015,14 +1005,18 @@
         return;
       }
 
+      if (counterOrderButton.disabled) return;
+      clearTimeout(automaticPriceTimer);
+      counterOrderButton.disabled = true;
       const checked = await checkCounterPrice(false);
-      if (!checked) return;
+      if (!checked) { counterOrderButton.disabled = false; return; }
 
       if (!window.confirm(
         `Confirm ${formatName(state.item.name)} × ${formatNumber(
           checked.counter
-        )} for ${formatNumber(checked.totalPrice)} ${state.currency}?`
+        )} for ${target} at ${formatNumber(checked.totalPrice)} ${state.currency}?`
       )) {
+        counterOrderButton.disabled = false;
         return;
       }
 
@@ -1030,30 +1024,9 @@
       counterOrderButton.textContent = "Processing...";
 
       try {
-        const isBalanceOrder = itemType === "BALANCE";
-
-        const requestPath = isBalanceOrder
-          ? API_PATHS.CREATE_ORDER_BALANCE
-          : API_PATHS.CREATE_ORDER;
-
-        const requestBody = isBalanceOrder
-          ? {
-              target_identifier: target,
-              amount_pure: checked.counter,
-              company: state.item.company,
-              currency: state.currency,
-            }
-          : {
-              item_id: state.item.id,
-              item_type: itemType,
-              target_identifier: target,
-              amount: checked.counter,
-              currency: state.currency,
-            };
-
-        const result = await apiRequest(requestPath, {
+        const result = await apiRequest(API_PATHS.CREATE_ORDER, {
           method: "POST",
-          body: requestBody,
+          body: buildOrderBody(target, checked.counter),
         });
 
         const orderId =
@@ -1061,9 +1034,9 @@
 
         showMessage(
           counterMessage,
-          orderId
+          result.message || (orderId
             ? `Order #${orderId} created successfully`
-            : result.message || "Order created successfully",
+            : "Order created successfully"),
           "success"
         );
         counterInput.value = "";
@@ -1086,8 +1059,7 @@
         !categoryId ||
         !subcategoryId ||
         !childcategoryId ||
-        !itemId ||
-        !["PACKAGE", "COUNTER", "BALANCE"].includes(itemType)
+        !itemId
       ) {
         window.location.href = "./home.html";
         return;
@@ -1101,21 +1073,8 @@
       });
 
       try {
-        const path = itemType === "COUNTER"
-          ? API_PATHS.ITEMS_COUNTER
-          : itemType === "BALANCE"
-            ? API_PATHS.ITEMS_BALANCE
-            : API_PATHS.ITEMS_PACKAGE;
-
-        const result = await apiRequest(path);
-        const items = extractArray(
-          result,
-          itemType === "COUNTER"
-            ? ["items", "counters", "items_counter"]
-            : itemType === "BALANCE"
-              ? ["items", "balances", "items_balance"]
-              : ["items", "packages", "items_package"]
-        );
+        const result = await apiRequest(API_PATHS.ITEMS);
+        const items = extractArray(result, ["items"]);
 
         state.item = items.find(
           (item) =>
@@ -1151,14 +1110,14 @@
         syncCurrency();
 
         if (state.item) renderItem();
-        if (itemType === "BALANCE" && counterInput.value) {
+        if (isVariableItem() && counterInput.value) {
           scheduleAutomaticBalancePrice();
         }
       });
     });
 
     counterInput.addEventListener("input", () => {
-      if (itemType === "BALANCE") {
+      if (isVariableItem()) {
         scheduleAutomaticBalancePrice();
       } else {
         resetCounterPrice();
@@ -1171,7 +1130,7 @@
     counterInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         event.preventDefault();
-        itemType === "BALANCE"
+        isVariableItem()
           ? createCounterOrder()
           : checkCounterPrice();
       }
