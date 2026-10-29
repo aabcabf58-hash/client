@@ -1318,6 +1318,18 @@
 
         card.addEventListener("click", function () {
           state.selectedChildcategoryId = child.id;
+          // Only an explicit child click can skip a single-item list.
+          if (!isDaysChild(child)) {
+            const items = getVisiblePackageItems();
+            if (items.length === 1) {
+              const backUrl = new URL(window.location.href);
+              backUrl.searchParams.set("selected_child_id", child.id);
+              backUrl.searchParams.set("skip_auto_open", "1");
+              window.history.replaceState(null, "", backUrl.toString());
+              openItemPage(items[0], child);
+              return;
+            }
+          }
           renderChildren();
           renderItems();
 
@@ -1852,7 +1864,7 @@
             id: item.id,
             target_identifier: targetIdentifier,
             currency: state.selectedCurrency,
-            days,
+            balance: days,
           },
         });
 

@@ -534,7 +534,7 @@
       return String(state.item?.unit ?? "").trim().toLowerCase();
     }
     function isVariableItem() {
-      return ["balance", "validity"].includes(itemUnit());
+      return itemUnit() === "validity" || itemUnit().includes("balance");
     }
 
     const state = {
@@ -666,6 +666,7 @@
         subcategory_id: subcategoryId || "",
         subcategory_name: subcategoryName,
         selected_child_id: childcategoryId || "",
+        skip_auto_open: "1",
       });
 
       return `./childcategories.html?${backParams.toString()}`;
@@ -925,8 +926,7 @@
         target_identifier: target,
         currency: state.currency,
       };
-      if (itemUnit() === "validity") body.days = quantity;
-      if (itemUnit() === "balance") body.balance = quantity;
+      if (isVariableItem()) body.balance = quantity;
       return body;
     }
 
