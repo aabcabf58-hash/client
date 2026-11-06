@@ -548,6 +548,16 @@
         width: 100%;
       }
     }
+    .activation-description {
+      margin-top: 8px;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      line-height: 1.7;
+      overflow-wrap: anywhere;
+    }
+    .activation-description p { margin: 6px 0 0; }
+    .activation-description bdi { font-weight: 700; }
   </style>
 </head>
 <body class="activity-page">
@@ -844,6 +854,46 @@
       return String(value);
     }
 
+    function createDescription(value) {
+      let description = value;
+      if (typeof description === "string") {
+        try { description = JSON.parse(description); } catch (_) {}
+      }
+      if (!description || typeof description !== "object" ||
+          Array.isArray(description) || !description.activation_number) {
+        return createMeta("Description", formatDetailValue(value));
+      }
+
+      const panel = document.createElement("div");
+      panel.className = "activation-description";
+      const heading = document.createElement("div");
+      heading.dir = "rtl";
+      const label = document.createElement("strong");
+      label.textContent = "رقم تفعيل الخدمة: ";
+      const number = document.createElement("bdi");
+      number.dir = "ltr";
+      number.textContent = String(description.activation_number);
+      heading.appendChild(label);
+      heading.appendChild(number);
+      panel.appendChild(heading);
+
+      const smsTo = String(description.activation_sms_to || "1323");
+      const arabic = document.createElement("p");
+      arabic.dir = "rtl";
+      arabic.lang = "ar";
+      arabic.textContent = description.message_ar ||
+        `لتفعيل الخدمة، أرسل الرقم ${description.activation_number} برسالة SMS إلى ${smsTo}.`;
+      panel.appendChild(arabic);
+
+      const english = document.createElement("p");
+      english.dir = "ltr";
+      english.lang = "en";
+      english.textContent = description.message_en ||
+        `To activate your service, SMS ${description.activation_number} to ${smsTo}.`;
+      panel.appendChild(english);
+      return panel;
+    }
+
     function renderActivities() {
       activityList.innerHTML = "";
       const activities = getFilteredActivities();
@@ -935,9 +985,7 @@
         meta.appendChild(createMeta("Item Name", activity.item_name));
         meta.appendChild(createMeta("Target", activity.target_identifier));
         meta.appendChild(createMeta("Order ID", activity.order_id));
-        meta.appendChild(
-          createMeta("Description", formatDetailValue(activity.description))
-        );
+        meta.appendChild(createDescription(activity.description));
 
         details.appendChild(title);
         details.appendChild(statusBadge);
