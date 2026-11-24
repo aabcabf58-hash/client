@@ -6,8 +6,6 @@
   <meta name="color-scheme" content="light">
   <title>Categories</title>
   <link rel="stylesheet" href="./site.css">
-  <link rel="stylesheet" href="./theme.css">
-
   <style>
     :root {
       color-scheme: light;
@@ -584,8 +582,10 @@
     }
   </style>
 
+  <link rel="stylesheet" href="./theme.css?v=amhaz-violet-3">
 </head>
-<body>
+<body class="amhaz-page amhaz-home">
+  <div class="amhaz-brandbar"><a href="./home.html" class="amhaz-brand"><span class="amhaz-monogram" aria-hidden="true">A</span><span>Amhaz Services</span></a></div>
   <input
     id="homeSidebarToggle"
     class="home-sidebar-toggle"
@@ -596,7 +596,7 @@
   <aside class="home-sidebar" aria-label="Main navigation">
     <div class="home-sidebar-title">
       <span class="home-sidebar-mark">A</span>
-      <span>Menu</span>
+      <span>Amhaz Services</span>
     </div>
 
     <nav class="home-sidebar-links">
@@ -827,7 +827,21 @@
           name.className = "subcategory-name";
           name.textContent = formatName(subcategory.name);
 
-          card.appendChild(image);
+          const visual = document.createElement("span");
+          visual.className = "subcategory-visual";
+          const frame = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+          frame.setAttribute("class", "subcategory-hover-frame");
+          frame.setAttribute("viewBox", "0 0 112 112");
+          frame.setAttribute("aria-hidden", "true");
+          frame.setAttribute("focusable", "false");
+          const outline = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          for (const [key, value] of Object.entries({x: "1.5", y: "1.5", width: "109", height: "109", rx: "12", pathLength: "100"})) {
+            outline.setAttribute(key, value);
+          }
+          frame.appendChild(outline);
+          visual.appendChild(image);
+          visual.appendChild(frame);
+          card.appendChild(visual);
           card.appendChild(name);
           card.addEventListener(
             "click",

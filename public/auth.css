@@ -1,17 +1,4 @@
-:root {
-  color-scheme: light;
-  --bg: #fff7f0;
-  --card: #ffffff;
-  --card-soft: #fff0e3;
-  --border: #edc7ae;
-  --text: #2d1b12;
-  --muted: #806354;
-  --primary: #a63a00;
-  --primary-hover: #7f2c00;
-  --success: #2abe5e;
-  --danger: #ff4747;
-  --warning: #f2b84b;
-}
+
 
 * {
   box-sizing: border-box;
@@ -23,7 +10,7 @@ body {
   min-height: 100vh;
   font-family: Arial, sans-serif;
   background:
-    radial-gradient(circle at top, #ffe1cc 0, var(--bg) 42%),
+    radial-gradient(circle at top, var(--primary-soft) 0, var(--bg) 42%),
     var(--bg);
   color: var(--text);
 }
@@ -51,7 +38,7 @@ a:hover {
   background: rgba(255, 255, 255, 0.96);
   border: 1px solid var(--border);
   border-radius: 20px;
-  box-shadow: 0 24px 60px rgba(127, 44, 0, 0.14);
+  box-shadow: 0 24px 60px var(--focus);
 }
 
 .card h1 {
@@ -74,7 +61,7 @@ a:hover {
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #5f4436;
+  color: var(--text);
   font-size: 14px;
 }
 
@@ -83,7 +70,7 @@ a:hover {
   height: 50px;
   padding: 0 14px;
   color: var(--text);
-  background: #fffaf6;
+  background: var(--card-soft);
   border: 1px solid var(--border);
   border-radius: 11px;
   font-size: 16px;
@@ -92,7 +79,7 @@ a:hover {
 
 .input:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(166, 58, 0, 0.14);
+  box-shadow: 0 0 0 3px var(--focus);
 }
 
 .password-wrapper {
@@ -143,11 +130,11 @@ a:hover {
 .button.secondary {
   margin-top: 10px;
   color: var(--primary-hover);
-  background: #ffe1cc;
+  background: var(--primary-soft);
 }
 
 .button.secondary:hover {
-  background: #f7c8a8;
+  background: var(--primary-soft);
 }
 
 .links {
@@ -192,7 +179,7 @@ a:hover {
   padding: 12px;
   border: 1px solid var(--border);
   border-radius: 10px;
-  background: #fff0e3;
+  background: var(--primary-soft);
   color: var(--primary-hover);
   text-align: center;
 }

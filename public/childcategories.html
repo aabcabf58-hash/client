@@ -6,8 +6,6 @@
   <meta name="color-scheme" content="light">
   <title>Services & Items</title>
   <link rel="stylesheet" href="./site.css">
-  <link rel="stylesheet" href="./theme.css">
-  <script src="./app-navigation.js" defer></script>
 
   <style>
     .breadcrumb {
@@ -941,8 +939,10 @@
       .package-buy-button { width: 100%; }
     }
   </style>
+  <link rel="stylesheet" href="./theme.css?v=amhaz-violet-3">
 </head>
-<body>
+<body class="amhaz-page amhaz-childcategories">
+  <div class="amhaz-brandbar"><a href="./home.html" class="amhaz-brand"><span class="amhaz-monogram" aria-hidden="true">A</span><span>Amhaz Services</span></a></div>
   <div id="loading" class="loading">Loading services...</div>
 
   <main id="page" class="page hidden">
@@ -1318,10 +1318,10 @@
 
         card.addEventListener("click", function () {
           state.selectedChildcategoryId = child.id;
-          // Only an explicit child click can skip a single-item list.
+          // Only balance and validity skip the item list on an explicit service click.
           if (!isDaysChild(child)) {
             const items = getVisiblePackageItems();
-            if (items.length === 1) {
+            if (items.length === 1 && ["balance", "validity"].includes(String(items[0].unit ?? "").trim().toLowerCase())) {
               const backUrl = new URL(window.location.href);
               backUrl.searchParams.set("selected_child_id", child.id);
               backUrl.searchParams.set("skip_auto_open", "1");

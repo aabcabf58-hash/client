@@ -1,689 +1,152 @@
-/* Shared sky / space theme */
-html { color-scheme: dark; }
-html[data-theme="light"] { color-scheme: light; }
-
-html[data-theme="dark"] {
-  --bg:#020617; --bg-soft:#0b1630; --card:#0c172d; --card-soft:#111f3b;
-  --border:#263a5f; --text:#f1f5f9; --muted:#a4b2c8; --shadow:0 18px 45px rgba(0,0,0,.38);
-}
-
-html[data-theme="light"] {
-  --bg:#cfeeff; --bg-soft:#e7f7ff; --card:#fff; --card-soft:#f0faff;
-  --border:#bddcec; --text:#17324a; --muted:#627d91; --shadow:0 16px 38px rgba(36,105,143,.13);
-}
-
-body { position:relative; isolation:isolate; transition:background-color .6s ease,color .3s ease; }
-
-/* Keep the animated sky above the body paint and below every page element. */
-body > * { position:relative; z-index:2; }
-
-/* Calm daylight: plain clear sky */
-html[data-theme="light"] body {
-  color:var(--text) !important;
-  background:#cfeeff !important;
-  background-image:linear-gradient(180deg,#bfe8ff 0%,#dff5ff 70%,#edfaff 100%) !important;
-  background-attachment:fixed !important;
-}
-
-/* Deep-space night */
-html[data-theme="dark"] body {
-  color:var(--text) !important;
-  background:#020617 !important;
-  background-image:radial-gradient(ellipse at bottom,#0d2448 0%,#061128 48%,#020617 100%) !important;
-  background-attachment:fixed !important;
-}
-
-/* Two star fields move at different speeds to mimic Earth's slow rotation. */
-html[data-theme="dark"] body::before,
-html[data-theme="dark"] body::after {
-  position:fixed !important; inset:-35vh -35vw !important; z-index:1 !important;
-  width:auto !important; height:auto !important; content:"" !important; border:0 !important;
-  border-radius:0 !important; opacity:1 !important; pointer-events:none !important;
-  transform:none; filter:none !important; will-change:transform;
-}
-
-html[data-theme="dark"] body::before {
-  background-image:
-    radial-gradient(circle,#fff 0 1px,transparent 1.4px),
-    radial-gradient(circle,#bedbff 0 1.2px,transparent 1.7px),
-    radial-gradient(circle,#fff 0 .7px,transparent 1.1px);
-  background-position:0 0,47px 73px,91px 29px;
-  background-size:127px 127px,181px 181px,73px 73px;
-  animation:earth-star-drift 125s linear infinite;
-  opacity:.92 !important;
-}
-
-html[data-theme="dark"] body::after {
-  background-image:
-    radial-gradient(circle,rgba(255,255,255,.9) 0 1.8px,transparent 2.3px),
-    radial-gradient(circle,rgba(150,199,255,.8) 0 1px,transparent 1.5px);
-  background-position:28px 14px,110px 85px;
-  background-size:283px 283px,211px 211px;
-  animation:earth-star-drift-far 205s linear infinite;
-  opacity:.68 !important;
-}
-
-html[data-theme="light"] body::before,
-html[data-theme="light"] body::after { display:none !important; }
-
-@keyframes earth-star-drift {
-  from { transform:translate3d(-7vw,-4vh,0) rotate(-3deg); }
-  to { transform:translate3d(22vw,13vh,0) rotate(5deg); }
-}
-@keyframes earth-star-drift-far {
-  from { transform:translate3d(8vw,-7vh,0) rotate(4deg); }
-  to { transform:translate3d(-18vw,12vh,0) rotate(-4deg); }
-}
-
-/* Occasional planets crossing the night sky. */
-.space-planets {
-  position:fixed !important; inset:0 !important; z-index:1 !important;
-  overflow:hidden; pointer-events:none; display:none;
-}
-html[data-theme="dark"] .space-planets { display:block; }
-
-.space-planet {
-  position:absolute; display:block; border-radius:50%; will-change:transform;
-  filter:drop-shadow(0 0 18px rgba(125,211,252,.2));
-}
-.planet-blue {
-  top:16%; left:-110px; width:72px; height:72px;
-  background:
-    radial-gradient(ellipse at 35% 28%,rgba(255,255,255,.75) 0 4%,transparent 5%),
-    repeating-linear-gradient(16deg,transparent 0 11px,rgba(7,89,133,.35) 12px 17px),
-    radial-gradient(circle at 34% 30%,#67e8f9 0,#0284c7 47%,#082f49 76%,#020617 100%);
-  box-shadow:inset -15px -10px 22px rgba(0,0,0,.58),0 0 26px rgba(56,189,248,.18);
-  animation:planet-pass-one 88s linear -24s infinite;
-}
-.planet-gold {
-  top:69%; right:-90px; width:48px; height:48px;
-  background:
-    radial-gradient(circle at 34% 27%,#fef3c7 0,#f59e0b 38%,#92400e 72%,#1c1917 100%);
-  box-shadow:inset -10px -8px 15px rgba(0,0,0,.55),0 0 20px rgba(245,158,11,.16);
-  animation:planet-pass-two 112s linear -67s infinite;
-}
-.planet-ringed {
-  top:40%; left:-160px; width:40px; height:40px;
-  background:radial-gradient(circle at 34% 28%,#dbeafe 0,#3b82f6 42%,#172554 76%,#020617 100%);
-  box-shadow:inset -8px -6px 12px rgba(0,0,0,.58);
-  animation:planet-pass-three 142s linear -91s infinite;
-}
-.planet-ringed::after {
-  position:absolute; top:14px; left:-15px; width:68px; height:13px; content:"";
-  border:3px solid rgba(186,230,253,.72); border-top-color:rgba(186,230,253,.2);
-  border-radius:50%; transform:rotate(-17deg);
-}
-
-@keyframes planet-pass-one {
-  0%,8% { transform:translate3d(-150px,8vh,0) rotate(0); opacity:0; }
-  12% { opacity:.92; }
-  66% { opacity:.92; }
-  72%,100% { transform:translate3d(calc(100vw + 280px),-18vh,0) rotate(90deg); opacity:0; }
-}
-@keyframes planet-pass-two {
-  0%,18% { transform:translate3d(130px,-5vh,0); opacity:0; }
-  22% { opacity:.88; }
-  72% { opacity:.88; }
-  78%,100% { transform:translate3d(calc(-100vw - 230px),13vh,0); opacity:0; }
-}
-@keyframes planet-pass-three {
-  0%,30% { transform:translate3d(-190px,3vh,0) rotate(-12deg); opacity:0; }
-  34% { opacity:.82; }
-  76% { opacity:.82; }
-  82%,100% { transform:translate3d(calc(100vw + 310px),10vh,0) rotate(8deg); opacity:0; }
-}
-
-html[data-theme="dark"] .card,
-html[data-theme="dark"] .login-shell,
-html[data-theme="dark"] .shell,
-html[data-theme="dark"] .account-card,
-html[data-theme="dark"] .action-card,
-html[data-theme="dark"] .panel,
-html[data-theme="dark"] .item-card,
-html[data-theme="dark"] .activity-card,
-html[data-theme="dark"] .category-card,
-html[data-theme="dark"] .subcategory-card,
-html[data-theme="dark"] .child-card,
-html[data-theme="dark"] .service-card,
-html[data-theme="dark"] .year-card,
-html[data-theme="dark"] .summary-card,
-html[data-theme="dark"] .order-box,
-html[data-theme="dark"] .empty,
-html[data-theme="dark"] .topbar {
-  color:var(--text) !important; background:rgba(10,23,45,.9) !important;
-  border-color:var(--border) !important; box-shadow:var(--shadow) !important;
-  backdrop-filter:blur(14px);
-}
-
-/* Night containers: neutral near-black glass, never pink/orange. */
-html[data-theme="dark"] .card,
-html[data-theme="dark"] .shell,
-html[data-theme="dark"] .login-shell,
-html[data-theme="dark"] .login-panel,
-html[data-theme="dark"] .welcome,
-html[data-theme="dark"] .topbar,
-html[data-theme="dark"] .home-sidebar,
-html[data-theme="dark"] .catalog-sections,
-html[data-theme="dark"] .category-section,
-html[data-theme="dark"] .child-tabs-section,
-html[data-theme="dark"] .items-section,
-html[data-theme="dark"] .account-card,
-html[data-theme="dark"] .action-card,
-html[data-theme="dark"] .panel,
-html[data-theme="dark"] .item-card,
-html[data-theme="dark"] .days-item-card,
-html[data-theme="dark"] .activity-card,
-html[data-theme="dark"] .category-card,
-html[data-theme="dark"] .subcategory-card,
-html[data-theme="dark"] .child-card,
-html[data-theme="dark"] .service-card,
-html[data-theme="dark"] .year-card,
-html[data-theme="dark"] .summary-card,
-html[data-theme="dark"] .order-box,
-html[data-theme="dark"] .facts,
-html[data-theme="dark"] .days-price-box,
-html[data-theme="dark"] .year-info-box,
-html[data-theme="dark"] .year-number-box,
-html[data-theme="dark"] .year-summary-box,
-html[data-theme="dark"] .year-confirm-box,
-html[data-theme="dark"] .year-complete-box,
-html[data-theme="dark"] .recharge-card-box,
-html[data-theme="dark"] .empty,
-html[data-theme="dark"] .error-box {
-  color:#eef4ff !important;
-  background:rgba(7,14,27,.74) !important;
-  background-image:none !important;
-  border-color:rgba(112,137,174,.28) !important;
-  box-shadow:0 15px 38px rgba(0,0,0,.26) !important;
-  backdrop-filter:blur(12px) saturate(115%) !important;
-}
-
-html[data-theme="dark"] .section-header,
-html[data-theme="dark"] .item-content,
-html[data-theme="dark"] .recharge-card-head,
-html[data-theme="dark"] .breadcrumb {
-  color:#e8eef8 !important;
-  background-color:transparent !important;
-  background-image:none !important;
-}
-
-html[data-theme="dark"] .category-icon,
-html[data-theme="dark"] .subcategory-image,
-html[data-theme="dark"] .child-image,
-html[data-theme="dark"] .service-image,
-html[data-theme="dark"] .item-visual,
-html[data-theme="dark"] .item-image,
-html[data-theme="dark"] .home-sidebar-mark {
-  color:#dcecff !important;
-  background:rgba(17,29,49,.82) !important;
-  background-image:none !important;
-  border-color:rgba(125,151,188,.25) !important;
-}
-
-html[data-theme="dark"] .child-card.active,
-html[data-theme="dark"] .service-card.active,
-html[data-theme="dark"] .home-sidebar-link.active {
-  color:#fff !important;
-  background:rgba(28,43,67,.9) !important;
-  border-color:rgba(125,211,252,.58) !important;
-}
-
-/* Large middle wrappers stay completely invisible; only their inner cards show. */
-html[data-theme="dark"] .catalog-sections,
-html[data-theme="dark"] .category-section,
-html[data-theme="dark"] .child-tabs-section,
-html[data-theme="dark"] .items-section,
-html[data-theme="dark"] .activity-list,
-html[data-theme="dark"] .years-list,
-html[data-theme="dark"] .items-grid,
-html[data-theme="dark"] .child-grid,
-html[data-theme="dark"] .numbers-grid,
-html[data-theme="dark"] .year-info-grid,
-html[data-theme="dark"] .year-numbers-grid,
-html[data-theme="dark"] .year-summary-grid,
-html[data-theme="dark"] .days-price-grid {
-  background:transparent !important;
-  background-image:none !important;
-  border-color:transparent !important;
-  box-shadow:none !important;
-  backdrop-filter:none !important;
-}
-
-/* Home: exact night surfaces. */
-html[data-theme="dark"] .topbar {
-  background:rgba(8,16,29,.76) !important;
-  background-image:none !important;
-  border-color:rgba(120,145,180,.28) !important;
-  box-shadow:0 14px 34px rgba(0,0,0,.24) !important;
-  backdrop-filter:blur(11px) !important;
-}
-
-html[data-theme="dark"] .summary-chip,
-html[data-theme="dark"] .summary-chip.role-chip {
-  color:#f8fafc !important;
-  background:rgba(4,10,20,.78) !important;
-  background-image:none !important;
-  border-color:rgba(125,151,188,.32) !important;
-  box-shadow:none !important;
-  backdrop-filter:blur(8px) !important;
-}
-
-html[data-theme="dark"] .summary-chip .chip-label {
-  color:#9fb0c8 !important;
-}
-
-html[data-theme="dark"] .summary-chip .chip-value {
-  color:#f8fafc !important;
-}
-
-/* Activity page: dark neutral surfaces with no warm/pink remnants. */
-html[data-theme="dark"] .activity-page .topbar,
-html[data-theme="dark"] .activity-page .panel,
-html[data-theme="dark"] .activity-page .activity-card,
-html[data-theme="dark"] .activity-page .activity-item,
-html[data-theme="dark"] .activity-page .filters,
-html[data-theme="dark"] .activity-page .navbar,
-html[data-theme="dark"] .activity-page .empty,
-html[data-theme="dark"] .activity-page .error-box {
-  color:#eef4ff !important;
-  background:rgba(7,14,27,.82) !important;
-  background-image:none !important;
-  border-color:rgba(112,137,174,.3) !important;
-  box-shadow:0 14px 34px rgba(0,0,0,.25) !important;
-  backdrop-filter:blur(10px) !important;
-}
-
-html[data-theme="dark"] .activity-page .activity-list,
-html[data-theme="dark"] .activity-page .toolbar,
-html[data-theme="dark"] .activity-page .section-header {
-  background:transparent !important;
-  background-image:none !important;
-  border-color:transparent !important;
-  box-shadow:none !important;
-  backdrop-filter:none !important;
-}
-
-html[data-theme="dark"] .activity-page .filter-button,
-html[data-theme="dark"] .activity-page .button.secondary,
-html[data-theme="dark"] .activity-page .count,
-html[data-theme="dark"] .activity-page .status,
-html[data-theme="dark"] .activity-page .badge {
-  color:#dbeafe !important;
-  background:#111d32 !important;
-  background-image:none !important;
-  border-color:#304563 !important;
-}
-
-html[data-theme="dark"] .activity-page .filter-button.active {
-  color:#fff !important;
-  background:#1e3a5f !important;
-  border-color:#38bdf8 !important;
-}
-
-html[data-theme="dark"] .activity-page .search-input,
-html[data-theme="dark"] .activity-page input {
-  color:#f8fafc !important;
-  background:#091426 !important;
-  border-color:#304563 !important;
-}
-
-/* Global night audit: replace every warm pink/orange surface with dark navy. */
-html[data-theme="dark"] {
-  --primary:#17263d !important;
-  --primary-dark:#0a1322 !important;
-  --primary-hover:#223754 !important;
-  --primary-soft:#1a2c46 !important;
-  --card-soft:#111f34 !important;
-}
-
-html[data-theme="dark"] body .welcome,
-html[data-theme="dark"] body .navbar,
-html[data-theme="dark"] body .filters,
-html[data-theme="dark"] body .currency-switch,
-html[data-theme="dark"] body .package-order-panel,
-html[data-theme="dark"] body .counter-summary,
-html[data-theme="dark"] body .price-box,
-html[data-theme="dark"] body .otp-number,
-html[data-theme="dark"] body .message,
-html[data-theme="dark"] body .count,
-html[data-theme="dark"] body .category-empty {
-  color:#e5edf8 !important;
-  background:#101d31 !important;
-  background-image:none !important;
-  border-color:#2d4261 !important;
-  box-shadow:none !important;
-}
-
-html[data-theme="dark"] body .button,
-html[data-theme="dark"] body .year-button,
-html[data-theme="dark"] body .save-button,
-html[data-theme="dark"] body .package-buy-button,
-html[data-theme="dark"] body .logout-button {
-  color:#f8fafc !important;
-  background:#17263d !important;
-  background-image:none !important;
-  border-color:#334b6d !important;
-  box-shadow:none !important;
-}
-
-html[data-theme="dark"] body .button:hover,
-html[data-theme="dark"] body .year-button:hover,
-html[data-theme="dark"] body .save-button:hover,
-html[data-theme="dark"] body .package-buy-button:hover {
-  background:#223754 !important;
-  border-color:#4d6c96 !important;
-}
-
-html[data-theme="dark"] body .button.secondary,
-html[data-theme="dark"] body .filter-button,
-html[data-theme="dark"] body .item-type-button,
-html[data-theme="dark"] body .currency-button {
-  color:#cdd9ea !important;
-  background:#101d31 !important;
-  background-image:none !important;
-  border-color:#2d4261 !important;
-}
-
-html[data-theme="dark"] body .nav-link.active,
-html[data-theme="dark"] body .filter-button.active,
-html[data-theme="dark"] body .item-type-button.active,
-html[data-theme="dark"] body .currency-button.active,
-html[data-theme="dark"] body .child-card.active,
-html[data-theme="dark"] body .service-card.active {
-  color:#fff !important;
-  background:#1b304d !important;
-  background-image:none !important;
-  border-color:#4d6c96 !important;
-  box-shadow:none !important;
-}
-
-html[data-theme="dark"] body .child-card.active::before {
-  background:#1b304d !important;
-  border-color:#4d6c96 !important;
-}
-
-html[data-theme="dark"] body .item-visual,
-html[data-theme="dark"] body .days-item-link,
-html[data-theme="dark"] body .year-result,
-html[data-theme="dark"] body .year-result-box {
-  color:#e5edf8 !important;
-  background:#0d192b !important;
-  background-image:none !important;
-  border-color:#2d4261 !important;
-}
-
-html[data-theme="dark"] body a,
-html[data-theme="dark"] body .breadcrumb a,
-html[data-theme="dark"] body .child-arrow,
-html[data-theme="dark"] body .item-arrow,
-html[data-theme="dark"] body .eyebrow,
-html[data-theme="dark"] body .toggle {
-  color:#7dd3fc !important;
-}
-
-html[data-theme="dark"] body input,
-html[data-theme="dark"] body select,
-html[data-theme="dark"] body textarea,
-html[data-theme="dark"] body .input,
-html[data-theme="dark"] body .filter-input,
-html[data-theme="dark"] body .search-input,
-html[data-theme="dark"] body .package-target-input,
-html[data-theme="dark"] body .year-input {
-  color:#f1f5f9 !important;
-  background:#091426 !important;
-  background-image:none !important;
-  border-color:#304563 !important;
-  box-shadow:none !important;
-}
-
-html[data-theme="dark"] #catalogContainer {
-  background:transparent !important;
-  background-image:none !important;
-  border:0 !important;
-  box-shadow:none !important;
-  backdrop-filter:none !important;
-}
-
-html[data-theme="dark"] .subcategory-grid {
-  background:transparent !important;
-  background-color:transparent !important;
-  background-image:none !important;
-  border:0 !important;
-  box-shadow:none !important;
-  backdrop-filter:none !important;
-  filter:none !important;
-}
-
-html[data-theme="dark"] .home-sidebar {
-  color:#eef4ff !important;
-  background:rgba(8,16,29,.82) !important;
-  background-image:none !important;
-  border-color:rgba(120,145,180,.28) !important;
-  box-shadow:0 16px 38px rgba(0,0,0,.28) !important;
-  backdrop-filter:blur(12px) !important;
-  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif !important;
-}
-
-html[data-theme="dark"] .home-sidebar-title,
-html[data-theme="dark"] .home-sidebar-link {
-  color:#dfe9f7 !important;
-  font-family:inherit !important;
-  font-size:14px !important;
-  font-weight:700 !important;
-  line-height:1.25 !important;
-  letter-spacing:0 !important;
-}
-
-html[data-theme="dark"] .home-sidebar-link:hover {
-  color:#fff !important;
-  background:rgba(25,40,63,.82) !important;
-}
-
-/* Subcategory tile: icon/image and name only, with no container paint. */
-.subcategory-card,
-html[data-theme="dark"] .subcategory-card,
-html[data-theme="light"] .subcategory-card {
-  background:transparent !important;
-  background-image:none !important;
-  border:0 !important;
-  box-shadow:none !important;
-  backdrop-filter:none !important;
-}
-
-.subcategory-image,
-html[data-theme="dark"] .subcategory-image,
-html[data-theme="light"] .subcategory-image {
-  background:transparent !important;
-  background-image:none !important;
-  border:0 !important;
-  box-shadow:none !important;
-}
-
-.subcategory-card:hover .subcategory-image {
-  border:0 !important;
-  box-shadow:none !important;
-}
-
-html[data-theme="light"] .card,
-html[data-theme="light"] .login-shell,
-html[data-theme="light"] .shell,
-html[data-theme="light"] .account-card,
-html[data-theme="light"] .action-card,
-html[data-theme="light"] .panel,
-html[data-theme="light"] .item-card,
-html[data-theme="light"] .activity-card,
-html[data-theme="light"] .category-card,
-html[data-theme="light"] .child-card,
-html[data-theme="light"] .service-card,
-html[data-theme="light"] .year-card,
-html[data-theme="light"] .summary-card,
-html[data-theme="light"] .order-box,
-html[data-theme="light"] .empty {
-  color:var(--text); background:rgba(255,255,255,.92); border-color:var(--border); box-shadow:var(--shadow);
-}
-
-html[data-theme="dark"] .input,
-html[data-theme="dark"] input,
-html[data-theme="dark"] select,
-html[data-theme="dark"] textarea,
-html[data-theme="dark"] .filter-input {
-  color:var(--text) !important; background:#101d35 !important; border-color:#30466e !important;
-}
-html[data-theme="dark"] input::placeholder,
-html[data-theme="dark"] textarea::placeholder { color:#8292aa !important; }
-html[data-theme="dark"] .subtitle,
-html[data-theme="dark"] .field-help,
-html[data-theme="dark"] .item-description,
-html[data-theme="dark"] p { color:var(--muted); }
-html[data-theme="dark"] a:not(.button) { color:#7dd3fc; }
-
-.theme-toggle {
-  position:fixed !important; right:18px; bottom:18px; z-index:99999 !important; display:grid;
-  width:52px; height:52px; place-items:center; padding:0; border:1px solid var(--border);
-  border-radius:50%; color:var(--text); background:var(--card); box-shadow:var(--shadow);
-  font-family:inherit; font-size:23px; line-height:1; cursor:pointer;
-  transition:transform .2s,border-color .2s,background .3s;
-}
-.theme-toggle:hover { transform:translateY(-3px) rotate(8deg); border-color:#38bdf8; }
-.theme-toggle:focus-visible { outline:3px solid rgba(56,189,248,.35); outline-offset:3px; }
-
-@media (prefers-reduced-motion:reduce) {
-  html[data-theme="dark"] body::before,
-  html[data-theme="dark"] body::after,
-  .space-planet { animation:none; }
-}
-@media(max-width:650px) {
-  .theme-toggle { right:14px; bottom:14px; width:48px; height:48px; }
-  .planet-blue { width:56px; height:56px; }
-  .planet-gold { width:38px; height:38px; }
-}
-
-/* Draw the frame progressively around the element without external padding. */
-@property --frame-progress {
-  syntax:"<percentage>";
-  inherits:false;
-  initial-value:0%;
-}
-
-.subcategory-grid .subcategory-card,
-.items-grid .item-card,
-.items-grid .days-item-card {
-  position:relative;
-  z-index:0;
-  border-radius:10% !important;
-}
-
-.subcategory-grid .subcategory-image,
-.items-grid .item-card,
-.items-grid .days-item-card {
-  border-radius:10% !important;
-  transition:transform .34s ease,box-shadow .34s ease !important;
-  will-change:transform;
-}
-
-.subcategory-grid .subcategory-card::before,
-.items-grid .item-card::before,
-.items-grid .days-item-card::before {
-  --frame-progress:0%;
-  position:absolute;
-  z-index:8;
-  content:"";
-  pointer-events:none;
-  border-radius:10%;
-  padding:3px;
-  background:conic-gradient(
-    from -90deg,
-    #38bdf8 0 var(--frame-progress),
-    transparent var(--frame-progress) 100%
-  );
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite:xor;
-  mask-composite:exclude;
-  opacity:0;
-  transition:
-    --frame-progress .34s linear,
-    opacity .08s linear,
-    transform .34s ease;
-}
-
-/* The subcategory frame covers only the square image, not its label. */
-.subcategory-grid .subcategory-card::before {
-  top:0;
-  left:0;
-  width:100%;
-  aspect-ratio:1;
-}
-
-.items-grid .item-card::before,
-.items-grid .days-item-card::before { inset:0; }
-
-@media (hover:hover) and (pointer:fine) {
-  .subcategory-card:hover .subcategory-image,
-  .items-grid .item-card:hover,
-  .items-grid .days-item-card:hover {
-    z-index:5;
-    transform:scale(1.1);
-    box-shadow:0 12px 28px rgba(2,132,199,.2) !important;
-  }
-
-  .subcategory-grid .subcategory-card:hover::before,
-  .items-grid .item-card:hover::before,
-  .items-grid .days-item-card:hover::before {
-    --frame-progress:100%;
-    opacity:1;
-    transform:scale(1.1);
-  }
-}
-
-.subcategory-grid .subcategory-card:focus-visible::before,
-.items-grid .item-card:focus-visible::before,
-.items-grid .days-item-card:focus-visible::before {
-  --frame-progress:100%;
-  opacity:1;
-}
-
-@media (prefers-reduced-motion:reduce) {
-  .subcategory-grid .subcategory-image,
-  .items-grid .item-card,
-  .items-grid .days-item-card,
-  .subcategory-grid .subcategory-card::before,
-  .items-grid .item-card::before,
-  .items-grid .days-item-card::before { transition:none !important; }
-}
-
-/* Reserve room for the 10% scale so cards never get clipped by their grids. */
-.category-section {
-  overflow:visible !important;
-}
-
-.subcategory-grid {
-  padding-top:12px !important;
-  padding-right:12px !important;
-  padding-bottom:16px !important;
-  padding-left:12px !important;
-  scroll-padding-inline:12px;
-}
-
-.items-grid {
-  box-sizing:border-box;
-  padding:14px !important;
-  overflow:visible !important;
-}
-
-.items-section,
-.child-tabs-section {
-  overflow:visible !important;
-}
-
-@media(max-width:650px) {
-  .subcategory-grid {
-    padding-top:8px !important;
-    padding-right:8px !important;
-    padding-bottom:12px !important;
-    padding-left:8px !important;
-    scroll-padding-inline:8px;
-  }
-  .items-grid { padding:10px !important; }
-}
+/* Amhaz Services — one visual identity for every screen. */
+html,html[data-theme="light"]{
+ color-scheme:light;--bg:#f6f3fc;--background:#f6f3fc;--bg-soft:#eee8f8;--card:#fff;--card-soft:#f5f0fc;--text:#281b3b;--ink:#281b3b;--muted:#756982;--border:#e5dcef;--line:#e5dcef;--primary:#7c3aed;--primary-dark:#6025c5;--primary-hover:#682bd4;--primary-soft:#ede3ff;--orange:#7c3aed;--dark:#6025c5;--shadow:0 6px 22px #4220610a;--success:#167849;--danger:#b83246;--warning:#a7650c;--focus:#7c3aed30
+}
+html[data-theme="dark"]{
+ color-scheme:dark;--bg:#100d18;--background:#100d18;--bg-soft:#181320;--card:#201a2b;--card-soft:#282034;--text:#f5f1fc;--ink:#f5f1fc;--muted:#b5a8c7;--border:#3b304c;--line:#3b304c;--primary:#9b6cff;--primary-dark:#b191ff;--primary-hover:#ab83ff;--primary-soft:#34234f;--orange:#9b6cff;--dark:#b191ff;--shadow:0 6px 24px #00000024;--success:#72d6a3;--danger:#ff9ba8;--warning:#ecc07a;--focus:#a079ff40
+}
+html body.amhaz-page{margin:0;min-height:100vh;background:var(--bg)!important;background-image:radial-gradient(ellipse at 80% 0%,var(--primary-soft),transparent 58%)!important;background-attachment:fixed!important;color:var(--text)!important;font-family:Inter,"Segoe UI",Tahoma,Arial,sans-serif!important;line-height:1.5;isolation:isolate}
+*,*::before,*::after{box-sizing:border-box}
+body::before,body::after,.space-planets{display:none!important}
+button,input,select,textarea{font:inherit}button,a,input,select,textarea{touch-action:manipulation}
+html body.amhaz-page a{color:var(--primary-dark)}
+html body.amhaz-page :is(h1,h2,h3,h4,.value,.info-value,.year-row-value,.year-number-value,.fact-value,.days-value,.year-modal-info-value,.numberphone,.chip-value){color:var(--text)!important}
+html body.amhaz-page :is(p,.subtitle,.label,.field-help,.count,.days-label,.summary-label,.info-label,.filter-label,.field-label,.year-field-label,.item-description,.chip-label,.year-subtitle,.breadcrumb,.number-details,.calendar-selection){color:var(--muted)!important}
+html body.amhaz-page :is(.page,.home-shell){max-width:1280px;padding:28px 24px 64px;margin:auto}
+h1{letter-spacing:-.035em;font-weight:800}h2,h3{letter-spacing:-.02em}
+.amhaz-brandbar{padding:16px 26px;border-bottom:1px solid var(--border);background:var(--card);margin-bottom:0;position:relative;z-index:4}
+.amhaz-brand{display:inline-flex;align-items:center;gap:12px;text-decoration:none!important;font-size:23px;font-weight:800;letter-spacing:-.025em;color:var(--text)!important}
+.amhaz-monogram,.brand-mark{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--primary)!important;color:white!important;font-size:26px;font-style:italic;font-weight:800}
+html body.amhaz-page :is(.topbar,.navbar,.panel,.card,.shell,.login-shell,.account-card,.action-card,.activity-card,.activity-item,.summary-card,.year-card,.year-row,.days-item-card,.balance-direct-card,.order-box,.facts,.year-info-box,.year-number-box,.year-summary-box,.year-modal,.date-calendar){background:var(--card)!important;background-image:none!important;color:var(--text)!important;border:1px solid var(--border)!important;border-radius:18px;box-shadow:var(--shadow)!important;backdrop-filter:none!important}
+html body.amhaz-page .topbar{padding:20px 24px!important;gap:18px;border-radius:18px;min-height:96px;margin-bottom:26px}
+html body.amhaz-page .topbar h1{font-size:clamp(24px,3vw,34px);margin:0}
+html body.amhaz-page :is(.topbar-actions,.toolbar-group,.toolbar,.order-actions){gap:10px}
+html body.amhaz-page :is(.summary-chip,.fact,.days-price-box,.year-modal-info-box,.year-confirm-box,.year-complete-box,.year-result,.counter-summary,.price-box,.otp-number,.recharge-card-box){background:var(--card-soft)!important;background-image:none!important;color:var(--text)!important;border:1px solid var(--border)!important;border-radius:12px;box-shadow:none!important}
+html body.amhaz-page :is(.button,.year-button,.year-action-button,.package-buy-button,.save-button,.year-modal-confirm,.copy-numbers-button){color:#fff!important;background:var(--primary)!important;background-image:none!important;border:1px solid transparent!important;border-radius:11px;box-shadow:none!important;font-weight:700;min-height:44px;transition:background .18s,transform .18s;cursor:pointer}
+html body.amhaz-page :is(.button,.year-button,.year-action-button,.package-buy-button,.save-button):hover{background:var(--primary-hover)!important;transform:translateY(-1px)}
+html body.amhaz-page :is(.button.secondary,.year-action-button.secondary,.year-action-button.copy,.year-button.secondary,.filter-button,.currency-button,.item-type-button,.nav-link,.icon-link,.calendar-nav,.calendar-close,.year-modal-close,.home-sidebar-open){color:var(--primary-dark)!important;background:var(--card-soft)!important;background-image:none!important;border:1px solid var(--border)!important;box-shadow:none!important;border-radius:10px}
+html body.amhaz-page :is(.filter-button.active,.currency-button.active,.item-type-button.active,.nav-link.active){color:#fff!important;background:var(--primary)!important;border-color:var(--primary)!important}
+html body.amhaz-page :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea,.input,.order-input,.filter-input,.search-input,.year-input,.package-target-input){color:var(--text)!important;background:var(--card)!important;background-image:none!important;border:1px solid var(--border)!important;border-radius:11px;outline:none;box-shadow:none!important;min-height:44px}
+html body.amhaz-page input::placeholder,html body.amhaz-page textarea::placeholder{color:var(--muted)!important;opacity:.8}
+html body.amhaz-page :is(input,textarea,select):focus{border-color:var(--primary)!important;box-shadow:0 0 0 3px var(--focus)!important}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+html body.amhaz-page label{color:var(--text)}
+html body.amhaz-page :is(.price,.balance-direct-price,.summary-value,.activity-amount,.activity-summary-amount){color:var(--primary-dark)!important;font-variant-numeric:tabular-nums}
+html body.amhaz-page :is(.category-section,.catalog-sections,.child-tabs-section,.items-section,.items-grid,.subcategory-grid,.child-grid,.days-items-grid,.years-list,.activity-list){background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important}
+html body.amhaz-page .catalog-sections{display:flex!important;flex-direction:column;gap:28px}
+html body.amhaz-page .category-heading{margin:0 0 16px!important;font-size:clamp(22px,2.4vw,30px);font-weight:800;line-height:1.25}
+html body.amhaz-page .subcategory-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:16px;padding:2px 0 6px!important;overflow:visible}
+html body.amhaz-page :is(.subcategory-card,.child-card,.service-card,.item-card,.days-item-card-link){color:var(--text)!important;background:var(--card)!important;background-image:none!important;border:1px solid var(--border)!important;border-radius:16px!important;box-shadow:var(--shadow)!important;transition:transform .18s,border-color .18s,box-shadow .18s;overflow:hidden}
+html body.amhaz-page .subcategory-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:22px 14px;min-height:155px}
+html body.amhaz-page :is(.subcategory-image,.child-image,.service-image){display:grid;place-items:center;width:76px;height:76px;aspect-ratio:1;object-fit:contain;background:transparent!important;border:0!important;border-radius:14px!important;box-shadow:none!important;color:var(--primary)!important;font-weight:800;font-size:28px}
+html body.amhaz-page :is(.subcategory-name,.child-name,.service-name){color:var(--text)!important;font-size:16px;font-weight:700}
+html body.amhaz-page :is(.subcategory-card,.child-card,.item-card,.service-card):hover{transform:translateY(-3px)!important;border-color:var(--primary)!important;box-shadow:0 8px 24px var(--focus)!important}
+html body.amhaz-page :is(.subcategory-card,.item-card,.days-item-card)::before{display:none!important}
+html body.amhaz-page .child-card.active{background:var(--primary-soft)!important;border-color:var(--primary)!important}
+html body.amhaz-page .item-image,html body.amhaz-page .item-visual{background:var(--card-soft)!important;background-image:none!important;color:var(--primary)!important;object-fit:contain}
+html body.amhaz-page .item-content{background:transparent!important}
+html body.amhaz-page .home-sidebar{background:var(--card)!important;color:var(--text)!important;border-color:var(--border)!important;box-shadow:var(--shadow)!important;width:194px;padding:20px 12px}
+html body.amhaz-page .home-sidebar-title{font-size:14px;color:var(--text)!important;gap:8px;align-items:center}
+html body.amhaz-page .home-sidebar-link{color:var(--muted)!important;background:transparent!important;border-radius:12px;font-weight:650;min-height:48px}
+html body.amhaz-page .home-sidebar-link.active{background:var(--primary)!important;color:#fff!important;border-color:var(--primary)!important}
+html body.amhaz-page .home-sidebar-link:hover:not(.active){color:var(--primary-dark)!important;background:var(--primary-soft)!important}
+html body.amhaz-page :is(.logout-button,.home-sidebar-logout){background:var(--card-soft)!important;border:1px solid var(--border)!important;color:var(--danger)!important;box-shadow:none!important}
+html body.amhaz-page :is(.header-summary,.years-summary){gap:12px}
+html body.amhaz-page .summary-chip{padding:14px 16px}.chip-label{font-size:11px!important;text-transform:uppercase;letter-spacing:.04em}.chip-value{font-size:clamp(16px,2vw,24px)!important;font-weight:800}
+html body.amhaz-page :is(.welcome,.login-panel){background:var(--card)!important;background-image:none!important;color:var(--text)!important}
+html body.amhaz-login .welcome{background:linear-gradient(145deg,var(--primary-soft),var(--card))!important;border-right:1px solid var(--border);padding:44px 36px}
+html body.amhaz-login .welcome h2{font-size:clamp(32px,3.5vw,47px)!important;color:var(--primary-dark)!important}
+html body.amhaz-page .welcome::after{border-color:var(--primary-soft)!important}
+html body.amhaz-page .brand{color:var(--text)!important;font-size:23px}
+html body.amhaz-page :is(.links a,.toggle,.text-button){color:var(--primary-dark)!important;background:var(--card-soft)!important;border-color:var(--border)!important}
+html body.amhaz-page :is(.amhaz-register .card,.amhaz-otp-login .card){max-width:460px;padding:32px}
+html body.amhaz-page .eyebrow{color:var(--primary-dark)!important}
+html body.amhaz-page :is(.calendar-day,.year-numbers-table th,.year-numbers-table td){color:var(--text);border-color:var(--border)}
+html body.amhaz-page .calendar-day{background:var(--card)}
+html body.amhaz-page :is(.calendar-day.range-start,.calendar-day.range-end){background:var(--primary)!important;color:#fff!important}
+html body.amhaz-page .calendar-day.in-range{background:var(--primary-soft)!important}
+html body.amhaz-page :is(.year-modal-overlay){background:#090514aa!important;backdrop-filter:blur(5px)}
+html body.amhaz-page :is(.year-modal-header,.year-modal-actions){background:var(--card-soft)!important;border-color:var(--border)!important}
+html body.amhaz-page :is(.year-row,.activity-card,.activity-item){border-color:var(--border)!important}
+html body.amhaz-page :is(.message.error,.error-box,.item-message.error,.year-message.error){background:color-mix(in srgb,var(--danger) 10%,var(--card))!important;color:var(--danger)!important;border-color:color-mix(in srgb,var(--danger) 32%,var(--border))!important}
+html body.amhaz-page :is(.message.success,.item-message.success,.year-message.success,.badge.success,.badge.credit,.status-complete){color:var(--success)!important;background:color-mix(in srgb,var(--success) 10%,var(--card))!important;border-color:color-mix(in srgb,var(--success) 25%,var(--border))!important}
+html body.amhaz-page :is(.badge.debit,.activity-summary-amount.debit){color:var(--danger)!important}
+html body.amhaz-page :is(.badge.pending,.status-pending,.status-checking){color:var(--warning)!important;background:color-mix(in srgb,var(--warning) 10%,var(--card))!important}
+html body.amhaz-page :is(.item-type,.status-created,.badge.info){color:var(--primary-dark)!important;background:var(--primary-soft)!important}
+.theme-toggle{position:fixed;right:20px;bottom:20px;z-index:99999;display:grid;place-items:center;width:48px;height:48px;padding:0;color:var(--text);background:var(--card);border:1px solid var(--border);border-radius:15px;box-shadow:var(--shadow);font-size:22px;cursor:pointer}
+.hidden,[hidden]{display:none!important}
+@media(min-width:901px){html body.amhaz-home{padding-left:222px!important}html body.amhaz-home .page{width:calc(100% - 48px)!important;padding-top:28px!important}}
+@media(max-width:900px){html body.amhaz-page .home-sidebar{width:min(82vw,270px)}html body.amhaz-page .topbar{flex-wrap:wrap!important}html body.amhaz-page .header-summary{order:3;flex:1 0 100%;width:100%}html body.amhaz-page .amhaz-brandbar{padding:14px 18px}.amhaz-brand{font-size:20px}}
+@media(max-width:650px){html body.amhaz-page :is(.page,.home-shell){padding:18px 14px 76px}html body.amhaz-home .page{width:calc(100% - 28px)!important;padding:18px 0 76px!important}html body.amhaz-page .topbar{padding:16px!important;gap:12px;min-height:0}html body.amhaz-page .topbar-actions{flex-wrap:wrap}html body.amhaz-page .subcategory-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}html body.amhaz-page .subcategory-card{padding:18px 10px;min-height:144px}html body.amhaz-page .category-heading{font-size:24px}html body.amhaz-page .items-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}html body.amhaz-page .item-name{font-size:16px}html body.amhaz-page .item-content{padding:12px}html body.amhaz-page .years-summary{grid-template-columns:repeat(2,minmax(0,1fr))}html body.amhaz-page .search-input{min-width:0;width:100%}html body.amhaz-page .summary-chip{padding:10px}.theme-toggle{right:14px;bottom:14px}html body.amhaz-login .welcome{border-right:0;border-bottom:1px solid var(--border);padding:26px}html body.amhaz-login .welcome h2{font-size:30px!important}html body.amhaz-page .amhaz-brandbar{padding:12px 16px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+/* Each category owns one horizontal service row; extra tiles scroll within it. */
+html body.amhaz-page .subcategory-grid{display:flex!important;flex-wrap:nowrap!important;align-items:stretch!important;overflow-x:auto!important;overflow-y:visible!important;padding:4px 4px 14px!important;scroll-snap-type:x proximity}
+html body.amhaz-page .subcategory-card{flex:0 0 180px!important;width:180px!important;min-width:180px!important;scroll-snap-align:start}
+html body.amhaz-page .subcategory-image{width:76px!important;height:76px!important;min-width:0!important;flex:0 0 76px!important;aspect-ratio:1!important}
+html body.amhaz-page .category-heading::before{background:var(--primary)!important}
+@media(max-width:650px){html body.amhaz-page .subcategory-card{flex-basis:142px!important;width:142px!important;min-width:142px!important}html body.amhaz-page .subcategory-image{width:64px!important;height:64px!important;flex-basis:64px!important}}
+/* Reference layout: purple masthead, pale side rail, compact white balance cards. */
+html body.amhaz-page .amhaz-brandbar{display:flex;align-items:center;min-height:64px;padding:12px 26px;background:linear-gradient(105deg,#4c1d67,#702b8b)!important;color:#fff!important;border:0!important;border-bottom:1px solid #ffffff22!important;border-radius:0;box-shadow:0 2px 10px #32104913}
+html body.amhaz-page .amhaz-brand{color:#fff!important;font-size:23px;font-weight:750;gap:12px}
+html body.amhaz-page .amhaz-brandbar .amhaz-monogram{background:transparent!important;border:1px solid #ffffff55;border-radius:10px;font-size:29px;width:36px;height:36px}
+html body.amhaz-home .amhaz-brandbar{position:fixed;inset:0 0 auto 0;z-index:1300;min-height:64px}
+html body.amhaz-home .home-sidebar{top:64px!important;left:0!important;bottom:0!important;width:196px!important;border-radius:0!important;border-top:0!important;border-left:0!important;border-bottom:0!important;background:var(--card-soft)!important;padding:22px 12px!important;box-shadow:none!important}
+html body.amhaz-home .home-sidebar-title{display:none}
+html body.amhaz-home .home-sidebar-link{min-height:44px;font-weight:650;font-size:14px;gap:10px}
+html body.amhaz-home .home-sidebar-link.active{background:var(--primary-soft)!important;color:var(--primary-dark)!important;border-color:transparent!important}
+html body.amhaz-home .home-sidebar-logout{margin-top:28px;border:0!important;border-top:1px solid var(--border)!important;border-radius:0;padding-top:18px;background:transparent!important;text-align:left;color:var(--muted)!important}
+html body.amhaz-home .topbar{display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:18px!important;padding:0!important;margin:0 0 26px!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+html body.amhaz-home .welcome-block{grid-column:1;grid-row:1;min-width:0}
+html body.amhaz-home .topbar h1{font-size:clamp(23px,2.8vw,33px);font-weight:800;letter-spacing:-.03em}
+html body.amhaz-home .topbar-actions{grid-column:2;grid-row:1;align-self:start}
+html body.amhaz-home .header-summary{grid-column:1/-1;grid-row:2;display:flex;gap:14px;width:min(100%,760px);justify-content:flex-start}
+html body.amhaz-home .summary-chip{position:relative;display:flex;flex-direction:column;justify-content:center;min-height:86px;padding:14px 18px 14px 64px;flex:1 1 220px;min-width:0;background:var(--card)!important;border:1px solid var(--border)!important;border-radius:14px;box-shadow:var(--shadow)!important}
+html body.amhaz-home .summary-chip::before{position:absolute;left:14px;top:50%;transform:translateY(-50%);display:grid;place-items:center;content:'≋';width:38px;height:38px;border-radius:12px;color:var(--primary);background:var(--primary-soft);font-weight:800;font-size:25px}
+html body.amhaz-home .summary-chip:nth-child(2)::before{content:'$'}
+html body.amhaz-home .summary-chip.role-chip{flex:0 1 120px;padding:14px;min-width:85px}
+html body.amhaz-home .summary-chip.role-chip::before{display:none}
+html body.amhaz-home .chip-label{font-size:12px!important;text-transform:none;letter-spacing:0}
+html body.amhaz-home .chip-value{font-size:clamp(17px,2.1vw,25px)!important;line-height:1.2;margin-top:5px;font-weight:800}
+html body.amhaz-home .category-heading{font-size:clamp(21px,2.1vw,27px);padding-left:0}
+html body.amhaz-home .category-heading::before{display:none}
+html body.amhaz-page.amhaz-register .button:not(.secondary),html body.amhaz-page.amhaz-otp-login .button:not(.secondary){background:var(--primary)!important;border-color:var(--primary)!important;color:#fff!important}
+html body.amhaz-page.amhaz-register .button:not(.secondary):hover,html body.amhaz-page.amhaz-otp-login .button:not(.secondary):hover{background:var(--primary-hover)!important}
+html body.amhaz-page :is(.message,.otp-number){color:var(--text);border-radius:11px}
+html body.amhaz-register main.page,html body.amhaz-otp-login main.page{min-height:calc(100vh - 64px)!important;padding:30px 18px!important}
+html body.amhaz-register .card,html body.amhaz-otp-login .card{border-radius:20px!important;padding:32px!important}
+html[data-theme="dark"] body.amhaz-page .amhaz-brandbar{background:linear-gradient(105deg,#241431,#3b1d51)!important}
+@media(min-width:901px){html body.amhaz-home{padding-left:196px!important;padding-top:64px!important}html body.amhaz-home .page{width:calc(100% - 52px)!important;padding-top:28px!important}}
+@media(max-width:900px){html body.amhaz-home{padding-top:64px!important;padding-left:0!important}html body.amhaz-home .home-sidebar{width:min(80vw,260px)!important}html body.amhaz-home .home-sidebar-overlay{z-index:1190;top:64px}html body.amhaz-home .header-summary{width:100%}html body.amhaz-page .amhaz-brandbar{padding:12px 18px}}
+@media(max-width:650px){html body.amhaz-home .topbar{gap:14px!important}html body.amhaz-home .topbar h1{font-size:24px}html body.amhaz-home .header-summary{flex-wrap:wrap!important;gap:10px}html body.amhaz-home .summary-chip{flex:1 1 calc(50% - 5px);min-height:78px;padding:12px 10px 12px 48px}html body.amhaz-home .summary-chip::before{width:30px;height:30px;left:10px;font-size:21px}html body.amhaz-home .summary-chip.role-chip{flex:1 0 100%;min-height:0;padding:8px 12px;flex-direction:row;justify-content:space-between;align-items:center}html body.amhaz-home .role-chip .chip-value{margin:0;font-size:14px!important}html body.amhaz-home .chip-value{font-size:17px!important}html body.amhaz-home .topbar-actions{gap:5px}html body.amhaz-home .topbar-actions #notificationButton{display:flex}html body.amhaz-page .amhaz-brandbar{min-height:64px}html body.amhaz-register .card,html body.amhaz-otp-login .card{padding:26px 22px!important}}
+
+/* Compact category images: labels outside, one-second drawn violet outline. */
+html body.amhaz-home .subcategory-grid{align-items:flex-start!important;gap:16px!important;padding:4px 2px 12px!important}
+html body.amhaz-page.amhaz-home .subcategory-grid .subcategory-card,
+html body.amhaz-page.amhaz-home .subcategory-grid .subcategory-card:hover{
+ display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+ flex:0 0 112px!important;width:112px!important;min-width:112px!important;min-height:0!important;
+ padding:0!important;gap:9px!important;background:transparent!important;background-image:none!important;
+ border:0!important;box-shadow:none!important;border-radius:0!important;overflow:visible!important;
+ transform:none!important;color:var(--text)!important
+}
+html body.amhaz-home .subcategory-visual{
+ position:relative;display:flex;align-items:center;justify-content:center;
+ width:112px;height:112px;flex:0 0 112px;padding:9px;border-radius:14px;
+ background:transparent;transition:background .2s ease;isolation:isolate
+}
+html body.amhaz-page.amhaz-home .subcategory-visual .subcategory-image{
+ display:grid;place-items:center;width:94px!important;height:94px!important;min-width:0!important;
+ flex:0 0 94px!important;max-width:100%!important;object-fit:contain!important;aspect-ratio:1;
+ border-radius:9px!important;background:transparent!important;transform:none!important;box-shadow:none!important
+}
+html body.amhaz-home .subcategory-name{font-size:14px!important;line-height:1.35!important;font-weight:650!important;text-align:center;max-width:112px;white-space:normal;overflow-wrap:anywhere}
+html body.amhaz-home .subcategory-hover-frame{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+html body.amhaz-home .subcategory-hover-frame rect{fill:none;stroke:var(--primary);stroke-width:3;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;opacity:0;transition:stroke-dashoffset 1s linear,opacity .12s ease}
+@media(hover:hover) and (pointer:fine){
+ html body.amhaz-home .subcategory-card:hover .subcategory-hover-frame rect{stroke-dashoffset:0;opacity:1}
+ html body.amhaz-home .subcategory-card:hover .subcategory-visual{background:var(--primary-soft)}
+}
+html body.amhaz-home .subcategory-card:focus-visible .subcategory-hover-frame rect,
+html body.amhaz-home .subcategory-card:active .subcategory-hover-frame rect{stroke-dashoffset:0;opacity:1}
+html body.amhaz-home .subcategory-card:focus-visible{outline:0}
+@media(prefers-reduced-motion:reduce){html body.amhaz-home .subcategory-hover-frame rect{transition:none!important}}

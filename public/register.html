@@ -5,19 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light">
   <title>Create Account</title>
-  <link rel="stylesheet" href="./auth.css">
-  <link rel="stylesheet" href="./theme.css">
+  <link rel="stylesheet" href="./auth.css?v=amhaz-violet-3">
   <style>
-    :root {
-      color-scheme: light;
-      --bg: #fff7f0;
-      --background: #fff7f0;
-      --card: #ffffff;
-      --text: #2d1b12;
-      --muted: #806354;
-      --border: #edc7ae;
-      --shadow: 0 12px 32px rgba(127, 44, 0, 0.10);
-    }
+    
 
     html,
     body {
@@ -58,27 +48,27 @@
     select,
     textarea,
     .input {
-      background: #fffaf6 !important;
+      background: var(--card-soft) !important;
       color: var(--text) !important;
       border-color: var(--border) !important;
     }
 
     .button:not(.secondary) {
-      background: #a63a00 !important;
+      background: var(--primary) !important;
       color: #fff !important;
-      border-color: #a63a00 !important;
+      border-color: var(--primary) !important;
     }
 
     .button.secondary,
     .message,
     .otp-number {
-      background: #fff0e3 !important;
-      color: #7f2c00 !important;
+      background: var(--primary-soft) !important;
+      color: var(--primary-dark) !important;
       border-color: var(--border) !important;
     }
 
     a {
-      color: #a63a00 !important;
+      color: var(--primary) !important;
     }
 
     @media (max-width: 640px) {
@@ -87,8 +77,10 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="./theme.css?v=amhaz-violet-3">
 </head>
-<body>
+<body class="amhaz-page amhaz-register">
+  <div class="amhaz-brandbar"><a href="./home.html" class="amhaz-brand"><span class="amhaz-monogram" aria-hidden="true">A</span><span>Amhaz Services</span></a></div>
   <main class="page">
     <section class="card">
       <h1>Create Account</h1>
